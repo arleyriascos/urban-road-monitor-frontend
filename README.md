@@ -43,6 +43,32 @@ Todo lo que empieza con `VITE_` queda visible en el navegador (se puede ver con 
 | `npm run lint`      | Revisa el código con ESLint                                   |
 | `npm run format`    | Da formato al código con Prettier                             |
 
+## Despliegue en Vercel
+
+La configuración está en `vercel.json` (Vite, compila con `npm run build` y publica `dist/`).
+
+1. En vercel.com: **Add New → Project** e importa este repositorio.
+2. En **Environment Variables** agrega `VITE_API_URL` con la URL del backend en Render, sin `/` al final.
+3. Pulsa **Deploy**.
+
+Cada push a `main` vuelve a desplegar automáticamente. Si cambias `VITE_API_URL`, hay que volver a desplegar (**Deployments → Redeploy**), porque Vite la incluye al compilar.
+
+Después de desplegar, agrega la URL de Vercel a la variable `CORS_ORIGIN` del backend en Render; si no, el navegador bloqueará las peticiones.
+
+## Estructura
+
+```
+public/               Archivos estáticos (ícono)
+src/
+├── api/              Cliente HTTP y funciones que llaman al backend
+├── components/       Recorrido de la petición y estados de la consulta
+├── config/           URL del backend
+├── hooks/            Lógica de carga, error y resultado
+├── App.tsx           Página principal
+├── main.tsx          Punto de entrada
+└── styles.css        Estilos
+```
+
 ## Convenciones
 
 - Código, comentarios y nombres en inglés; textos de la interfaz y documentación en español.

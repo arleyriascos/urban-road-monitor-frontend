@@ -1,0 +1,349 @@
+/* Design tokens: asphalt, road markings and severity colors. */
+:root {
+  --asphalt: #2b2f33;
+  --concrete: #ecedea;
+  --surface: #ffffff;
+  --line: #d4d7d9;
+  --muted: #5d646b;
+  --marking: #f2c230;
+  --ok: #1f8a5b;
+  --fail: #c2412d;
+  --severity-leve: #e8b800;
+  --severity-moderado: #ea7a1a;
+  --severity-grave: #c62828;
+  --radius: 10px;
+  --font: 'Archivo', 'Segoe UI', Roboto, Arial, sans-serif;
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --asphalt: #e9ebec;
+    --concrete: #1c1f22;
+    --surface: #25292d;
+    --line: #3b4146;
+    --muted: #a7aeb4;
+    --ok: #3fb47f;
+    --fail: #e5674f;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--concrete);
+  color: var(--asphalt);
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Road strip across the top of the page. */
+body::before {
+  content: '';
+  display: block;
+  height: 10px;
+  background:
+    repeating-linear-gradient(90deg, var(--marking) 0 46px, transparent 46px 78px) center / 100% 2px
+      no-repeat,
+    #2b2f33;
+}
+
+.page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 48px 24px 40px;
+}
+
+/* Header */
+.brand {
+  margin: 0 0 20px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.header__title {
+  margin: 0 0 14px;
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  font-weight: 800;
+  font-stretch: 125%;
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  max-width: 14ch;
+}
+
+.header__lead {
+  margin: 0;
+  max-width: 60ch;
+  font-size: 1.08rem;
+  color: var(--muted);
+}
+
+/* Panel */
+.panel {
+  margin-top: 40px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 32px clamp(20px, 4vw, 40px) 36px;
+}
+
+/* Route: the path a request travels, drawn as a road. */
+.route {
+  --road-height: 14px;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0 0 32px;
+  padding: 0;
+  list-style: none;
+}
+
+.route::before {
+  content: '';
+  position: absolute;
+  top: calc(13px - var(--road-height) / 2);
+  left: calc(100% / 6);
+  right: calc(100% / 6);
+  height: var(--road-height);
+  border-radius: 7px;
+  background:
+    repeating-linear-gradient(90deg, var(--marking) 0 18px, transparent 18px 32px) center / 100% 2px
+      no-repeat,
+    #2b2f33;
+}
+
+.route--loading::before {
+  animation: drive 0.9s linear infinite;
+}
+
+.route--error::before {
+  background:
+    repeating-linear-gradient(90deg, var(--fail) 0 18px, transparent 18px 32px) center / 100% 2px
+      no-repeat,
+    #2b2f33;
+}
+
+@keyframes drive {
+  to {
+    background-position:
+      32px center,
+      0 0;
+  }
+}
+
+.route__stop {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 2px;
+}
+
+.route__marker {
+  width: 26px;
+  height: 26px;
+  margin-bottom: 10px;
+  border-radius: 50%;
+  border: 4px solid var(--line);
+  background: var(--surface);
+}
+
+.route__stop--reached .route__marker {
+  border-color: var(--ok);
+  background: var(--ok);
+  box-shadow: inset 0 0 0 4px var(--surface);
+}
+
+.route__stop--failed .route__marker {
+  border-color: var(--fail);
+  background: var(--fail);
+  box-shadow: inset 0 0 0 4px var(--surface);
+}
+
+.route__name {
+  font-weight: 700;
+}
+
+.route__detail {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+/* Status area */
+.status {
+  border-top: 1px solid var(--line);
+  padding-top: 28px;
+}
+
+.status__title {
+  margin: 0 0 6px;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.status--error .status__title {
+  color: var(--fail);
+}
+
+.status__help {
+  margin: 0 0 20px;
+  max-width: 60ch;
+  color: var(--muted);
+}
+
+/* The one loud element: the greeting that came from the server. */
+.hello {
+  margin: 0 0 8px;
+  font-size: clamp(2.6rem, 9vw, 5rem);
+  font-weight: 900;
+  font-stretch: 125%;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.facts {
+  margin: 0 0 24px;
+  display: grid;
+  gap: 0;
+}
+
+.facts__row {
+  display: grid;
+  grid-template-columns: minmax(150px, 220px) 1fr;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.facts__row dt {
+  color: var(--muted);
+}
+
+.facts__row dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  padding: 1px 10px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--muted);
+}
+
+.chip--leve {
+  background: var(--severity-leve);
+  color: #2b2f33;
+}
+
+.chip--moderado {
+  background: var(--severity-moderado);
+}
+
+.chip--grave {
+  background: var(--severity-grave);
+}
+
+/* Buttons */
+.button {
+  font: inherit;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 2px solid var(--asphalt);
+  background: var(--asphalt);
+  color: var(--concrete);
+  cursor: pointer;
+}
+
+.button:hover {
+  filter: brightness(1.15);
+}
+
+.button--quiet {
+  background: transparent;
+  color: var(--asphalt);
+}
+
+.button:focus-visible {
+  outline: 3px solid var(--marking);
+  outline-offset: 3px;
+}
+
+/* Footer */
+.footer {
+  margin-top: 28px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.footer p {
+  margin: 0 0 4px;
+}
+
+.footer__url {
+  word-break: break-all;
+}
+
+/* Small screens: the road turns vertical. */
+@media (max-width: 560px) {
+  .route {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .route::before {
+    top: 13px;
+    bottom: 26px;
+    left: 6px;
+    right: auto;
+    width: var(--road-height);
+    height: auto;
+    background: #2b2f33;
+  }
+
+  .route__stop {
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    column-gap: 14px;
+    align-items: center;
+    text-align: left;
+  }
+
+  .route__marker {
+    grid-row: span 2;
+    margin: 0;
+  }
+
+  .facts__row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route--loading::before {
+    animation: none;
+  }
+}
