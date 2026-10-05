@@ -22,6 +22,16 @@ npm run dev
 
 La aplicación se abre en `http://localhost:5173`.
 
+## Variables de entorno
+
+| Variable       | Descripción                                                            |
+| -------------- | ---------------------------------------------------------------------- |
+| `VITE_API_URL` | URL del backend, sin `/` al final. Por defecto `http://localhost:3000` |
+
+Para apuntar a otro backend en local, copia `.env.example` como `.env` y cambia el valor. En Vercel se configura en **Settings → Environment Variables**.
+
+Todo lo que empieza con `VITE_` queda visible en el navegador (se puede ver con F12), así que aquí **nunca** van claves ni contraseñas: esas viven solo en el backend.
+
 ## Scripts
 
 | Comando             | Qué hace                                                      |
