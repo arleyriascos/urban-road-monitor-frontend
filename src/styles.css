@@ -1,4 +1,5 @@
 /* Design tokens: asphalt, road markings and severity colors. */
+
 :root {
   --asphalt: #2b2f33;
   --concrete: #ecedea;
@@ -46,6 +47,7 @@ body {
 }
 
 /* Road strip across the top of the page. */
+
 body::before {
   content: '';
   display: block;
@@ -56,38 +58,8 @@ body::before {
     #2b2f33;
 }
 
-.page {
-  max-width: 880px;
-  margin: 0 auto;
-  padding: 48px 24px 40px;
-}
-
-/* Header */
-.brand {
-  margin: 0 0 20px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--muted);
-}
-
-.header__title {
-  margin: 0 0 14px;
-  font-size: clamp(2rem, 6vw, 3.4rem);
-  font-weight: 800;
-  font-stretch: 125%;
-  line-height: 1.02;
-  letter-spacing: -0.01em;
-  max-width: 14ch;
-}
-
-.header__lead {
-  margin: 0;
-  max-width: 60ch;
-  font-size: 1.08rem;
-  color: var(--muted);
-}
-
 /* Panel */
+
 .panel {
   margin-top: 40px;
   background: var(--surface);
@@ -97,6 +69,7 @@ body::before {
 }
 
 /* Route: the path a request travels, drawn as a road. */
+
 .route {
   --road-height: 14px;
   position: relative;
@@ -180,6 +153,7 @@ body::before {
 }
 
 /* Status area */
+
 .status {
   border-top: 1px solid var(--line);
   padding-top: 28px;
@@ -201,71 +175,8 @@ body::before {
   color: var(--muted);
 }
 
-/* The one loud element: the greeting that came from the server. */
-.hello {
-  margin: 0 0 8px;
-  font-size: clamp(2.6rem, 9vw, 5rem);
-  font-weight: 900;
-  font-stretch: 125%;
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-
-.facts {
-  margin: 0 0 24px;
-  display: grid;
-  gap: 0;
-}
-
-.facts__row {
-  display: grid;
-  grid-template-columns: minmax(150px, 220px) 1fr;
-  gap: 16px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.facts__row dt {
-  color: var(--muted);
-}
-
-.facts__row dd {
-  margin: 0;
-  font-weight: 600;
-}
-
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.chip {
-  padding: 1px 10px;
-  border-radius: 999px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #ffffff;
-  background: var(--muted);
-}
-
-.chip--leve {
-  background: var(--severity-leve);
-  color: #2b2f33;
-}
-
-.chip--moderado {
-  background: var(--severity-moderado);
-}
-
-.chip--grave {
-  background: var(--severity-grave);
-}
-
 /* Buttons */
+
 .button {
   font: inherit;
   font-weight: 700;
@@ -281,32 +192,13 @@ body::before {
   filter: brightness(1.15);
 }
 
-.button--quiet {
-  background: transparent;
-  color: var(--asphalt);
-}
-
 .button:focus-visible {
   outline: 3px solid var(--marking);
   outline-offset: 3px;
 }
 
-/* Footer */
-.footer {
-  margin-top: 28px;
-  font-size: 0.9rem;
-  color: var(--muted);
-}
-
-.footer p {
-  margin: 0 0 4px;
-}
-
-.footer__url {
-  word-break: break-all;
-}
-
 /* Small screens: the road turns vertical. */
+
 @media (max-width: 560px) {
   .route {
     grid-template-columns: 1fr;
@@ -334,11 +226,6 @@ body::before {
   .route__marker {
     grid-row: span 2;
     margin: 0;
-  }
-
-  .facts__row {
-    grid-template-columns: 1fr;
-    gap: 2px;
   }
 }
 
