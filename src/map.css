@@ -219,3 +219,45 @@
   text-transform: uppercase;
   color: var(--muted);
 }
+
+/* Phones: the legend becomes a bar at the bottom (above Leaflet's attribution, which must
+   stay visible) and the recenter button moves to the top, away from the sheet. */
+@media (max-width: 640px) {
+  .topbar {
+    padding: 8px 14px;
+  }
+
+  .topbar__title {
+    font-size: 1.05rem;
+  }
+
+  .topbar__summary {
+    font-size: 0.85rem;
+  }
+
+  .legend {
+    top: auto;
+    right: 8px;
+    bottom: 26px;
+    left: 8px;
+    width: auto;
+    max-height: 62%;
+  }
+
+  .legend__toggle,
+  .toggle {
+    min-height: 44px;
+  }
+
+  .recenter {
+    top: 12px;
+    right: 12px;
+    bottom: auto;
+    left: auto;
+    min-height: 40px;
+  }
+
+  .splash {
+    padding: 12px;
+  }
+}
