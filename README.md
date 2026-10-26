@@ -9,7 +9,20 @@ El frontend solo se comunica con el backend (API REST); nunca con la base de dat
 
 - React 19 + TypeScript
 - Vite 8
+- Leaflet 1.9 con el mapa base de CARTO (datos de OpenStreetMap)
+- Vitest y Testing Library para las pruebas
 - Node.js 24 (ver `.nvmrc`)
+
+## Qué muestra la aplicación
+
+El mapa de Pasto con todas las calles (unos 10.000 tramos) coloreadas según su estado, y los baches como círculos encima.
+
+- **Calles:** verdes si no tienen baches; amarillas, naranjas o rojas según la severidad del peor bache. Al tocar una calle se abre un cuadro con su nombre, longitud, sentido y costo de ruta.
+- **Baches:** el tamaño del círculo indica la severidad; el borde punteado, que todavía no está confirmado; y atenuado, que ya fue reparado. Al tocar uno se ven su confianza y sus fechas.
+- **Leyenda plegable** con los conteos, e interruptores para mostrar u ocultar los baches y para incluir los reparados.
+- **Pantallas de carga y de error:** mientras llegan los datos se ve la carretera de la petición (navegador, servidor y base de datos); si algo falla, marca dónde se cortó y ofrece reintentar. El servidor gratuito de Render se duerme, así que la primera carga puede tardar hasta un minuto.
+
+Los datos vienen del backend (ver `docs/API-MAPA.md`). La versión desplegada en Vercel usa la base `production`, que no tiene baches de prueba, así que se ve toda verde. Para ver los colores, corre el backend en tu computador contra la base `development` y apunta `VITE_API_URL` a `http://localhost:3000`.
 
 ## Instalación
 
@@ -34,14 +47,16 @@ Todo lo que empieza con `VITE_` queda visible en el navegador (se puede ver con 
 
 ## Scripts
 
-| Comando             | Qué hace                                                      |
-| ------------------- | ------------------------------------------------------------- |
-| `npm run dev`       | Inicia el servidor de desarrollo                              |
-| `npm run build`     | Revisa los tipos y genera la versión de producción en `dist/` |
-| `npm run preview`   | Sirve localmente la versión de producción                     |
-| `npm run typecheck` | Revisa los tipos sin compilar                                 |
-| `npm run lint`      | Revisa el código con ESLint                                   |
-| `npm run format`    | Da formato al código con Prettier                             |
+| Comando              | Qué hace                                                      |
+| -------------------- | ------------------------------------------------------------- |
+| `npm run dev`        | Inicia el servidor de desarrollo                              |
+| `npm run build`      | Revisa los tipos y genera la versión de producción en `dist/` |
+| `npm run preview`    | Sirve localmente la versión de producción                     |
+| `npm run typecheck`  | Revisa los tipos sin compilar                                 |
+| `npm run lint`       | Revisa el código con ESLint                                   |
+| `npm run format`     | Da formato al código con Prettier                             |
+| `npm test`           | Ejecuta las pruebas unitarias con Vitest                      |
+| `npm run test:watch` | Ejecuta las pruebas y las repite al guardar cambios           |
 
 ## Despliegue en Vercel
 
@@ -59,14 +74,21 @@ Después de desplegar, agrega la URL de Vercel a la variable `CORS_ORIGIN` del b
 
 ```
 public/               Archivos estáticos (ícono)
+docs/                 Contrato del API del mapa (API-MAPA.md)
 src/
 ├── api/              Cliente HTTP y funciones que llaman al backend
-├── components/       Recorrido de la petición y estados de la consulta
+├── components/       Pantallas y piezas de la interfaz (mapa, leyenda, carga, error)
 ├── config/           URL del backend
-├── hooks/            Lógica de carga, error y resultado
-├── App.tsx           Página principal
+├── hooks/            Carga de los datos del mapa (carga, error y resultado)
+├── lib/              Lógica pura: formatos, estilos del mapa, leyenda y cuadros de información
+├── map/              Código de Leaflet: mapa base y capas de calles y baches
+├── test/             Configuración de las pruebas y datos de muestra
+├── types/            Tipos del contrato del API
+├── App.tsx           Elige entre la pantalla de carga, la de error y el mapa
 ├── main.tsx          Punto de entrada
-└── styles.css        Estilos
+├── map.css           Estilos del mapa y sus paneles
+├── popups.css        Estilos de los cuadros de información
+└── styles.css        Estilos base y de las pantallas de carga y error
 ```
 
 ## Convenciones
