@@ -1,33 +1,7 @@
-import type { HelloState } from '../hooks/useHello';
-
-type StopStatus = 'reached' | 'pending' | 'failed';
-
-interface Stop {
-  name: string;
-  detail: string;
-}
-
-const STOPS: Stop[] = [
-  { name: 'Tu navegador', detail: 'Frontend en Vercel' },
-  { name: 'Servidor', detail: 'API REST en Render' },
-  { name: 'Base de datos', detail: 'PostgreSQL en Neon' },
-];
-
-/**
- * Status of each stop for the current state.
- * A 503 means the server answered but the database did not.
- */
-function getStopStatuses(state: HelloState): StopStatus[] {
-  if (state.status === 'success') return ['reached', 'reached', 'reached'];
-  if (state.status === 'loading') return ['reached', 'pending', 'pending'];
-  if (state.error.kind === 'http' && state.error.status === 503) {
-    return ['reached', 'reached', 'failed'];
-  }
-  return ['reached', 'failed', 'pending'];
-}
+import { getStopStatuses, STOPS, type RouteState } from '../lib/connection-stops';
 
 /** The path a request travels, drawn as a road with three stops. */
-export function ConnectionRoute({ state }: { state: HelloState }) {
+export function ConnectionRoute({ state }: { state: RouteState }) {
   const statuses = getStopStatuses(state);
 
   return (
