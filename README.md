@@ -91,7 +91,19 @@ src/
 └── styles.css        Estilos base y de las pantallas de carga y error
 ```
 
+## Equipo y responsabilidades
+
+| Integrante    | Responsabilidad                                            |
+| ------------- | ---------------------------------------------------------- |
+| Kevin Basante | Todos los commits del frontend                             |
+| Arley Riascos | Todos los commits del backend y de la implementación de IA |
+
+Los dos trabajan juntos en videollamada para que ambos conozcan todo el proyecto. Los primeros commits de cada repositorio se hicieron en conjunto y llevan la línea `Co-authored-by:`.
+
 ## Convenciones
 
 - Código, comentarios y nombres en inglés; textos de la interfaz y documentación en español.
-- Los commits hechos en conjunto incluyen la línea `Co-authored-by:`.
+- Todo se trabaja directo en `main`, sin ramas ni pull requests (indicación del profesor). Antes de empezar y antes de cada `push` se hace `git pull`.
+- Commits pequeños, uno por cambio con sentido, con el mensaje en inglés y prefijos convencionales: `feat`, `fix`, `test`, `docs`, `chore`, `refactor`, `perf`, `style`.
+- Cada integrante hace sus commits con su propia cuenta de GitHub. Solo los commits hechos en conjunto incluyen la línea `Co-authored-by:`.
+- Antes de cada commit se ejecutan `npm run typecheck`, `npm run lint` y `npm test`.
