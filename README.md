@@ -9,7 +9,7 @@ El frontend solo se comunica con el backend (API REST); nunca con la base de dat
 
 - React 19 + TypeScript
 - Vite 8
-- Leaflet 1.9 con el mapa base de CARTO (datos de OpenStreetMap)
+- Leaflet 1.9 con un mapa base vectorial de OpenFreeMap (dibujado con MapLibre GL; datos de OpenStreetMap, sin clave)
 - Vitest y Testing Library para las pruebas
 - Node.js 24 (ver `.nvmrc`)
 

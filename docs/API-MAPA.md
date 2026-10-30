@@ -222,15 +222,21 @@ Un bache (de `GET /api/potholes`):
 
 ## Dibujarlo con Leaflet
 
+El mapa base **no usa CARTO**: sus mosaicos ahora exigen una clave (sin ella se estampa "API KEY REQUIRED" en todo el mapa), y una clave dentro del frontend iría contra la regla de no exponer claves. Se usa OpenFreeMap, que no pide clave. Se carga en `src/map/basemap.ts`, en segundo plano, y si el navegador no tiene WebGL el mapa funciona igual sobre un fondo liso.
+
 `L.geoJSON` entiende GeoJSON y ya invierte el orden `[longitud, latitud]` por su cuenta. Si dibujas a mano con `L.polyline`, hay que invertirlo.
 
 ```ts
-const map = L.map('map', { preferCanvas: true }).setView([1.2136, -77.2811], 14);
+const map = L.map('map', { renderer: L.canvas({ tolerance: 8 }) }).setView([1.2136, -77.2811], 14);
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-  subdomains: 'abcd',
-  maxZoom: 20,
+// Mapa base vectorial de OpenFreeMap: no necesita clave. Requiere WebGL.
+maplibreGL({
+  style: 'https://tiles.openfreemap.org/styles/positron',
+  // El crédito es obligatorio. Se pasa así porque el binding ignora la opción "attribution".
+  attributionControl: {
+    customAttribution:
+      '<a href="https://openfreemap.org">OpenFreeMap</a> &copy; OpenMapTiles Data from OpenStreetMap',
+  },
 }).addTo(map);
 
 L.geoJSON(segments, {
