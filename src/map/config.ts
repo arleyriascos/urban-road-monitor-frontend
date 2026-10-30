@@ -12,3 +12,15 @@ export const TILE_SUBDOMAINS = 'abcd';
 export const TILE_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors ' +
   '&copy; <a href="https://carto.com/attributions">CARTO</a>';
+
+/**
+ * OpenFreeMap "Positron": a light, muted vector basemap built on OpenStreetMap data. It needs no
+ * API key (the frontend must never carry one) and has no request limits.
+ */
+export const BASEMAP_STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
+
+/** OpenFreeMap requires this credit to stay visible on the map. */
+export const BASEMAP_ATTRIBUTION =
+  '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> ' +
+  '&copy; <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> ' +
+  'Data from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
