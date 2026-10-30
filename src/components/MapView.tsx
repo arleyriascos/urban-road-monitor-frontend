@@ -1,7 +1,8 @@
 import 'leaflet/dist/leaflet.css';
 import type { Map as LeafletMap } from 'leaflet';
 import { useEffect, useRef } from 'react';
-import { createBaseMap } from '../map/base-map';
+import { createMap } from '../map/base-map';
+import { attachBasemap } from '../map/basemap';
 import { MAP_CENTER, MAP_ZOOM } from '../map/config';
 import { createPotholeLayer, createSegmentLayer } from '../map/layers';
 import type { PotholeCollection, SegmentCollection } from '../types/map';
@@ -26,9 +27,11 @@ export function MapView({ segments, potholes, showPotholes, recenterKey }: MapVi
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const map = createBaseMap(container);
+    const map = createMap(container);
+    const basemap = attachBasemap(map);
     mapRef.current = map;
     return () => {
+      basemap.cancel();
       map.remove();
       mapRef.current = null;
     };
