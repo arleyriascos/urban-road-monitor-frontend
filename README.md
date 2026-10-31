@@ -91,6 +91,14 @@ src/
 └── styles.css        Estilos base y de las pantallas de carga y error
 ```
 
+## Dependencias y seguridad
+
+- Las versiones están fijas (sin `^` ni `~`) y solo se usan versiones con al menos dos semanas de publicadas.
+- `npm audit --omit=dev`, que es lo que llega al usuario, debe dar **0 vulnerabilidades**.
+- `package.json` fija `zod` con `overrides`: llega por `eslint-plugin-react-hooks` y las versiones anteriores a 4.6.6 tienen una vulnerabilidad. Cuando el plugin lo actualice, se puede quitar el `override`.
+- Con `npm audit` completo quedan avisos moderados en la cadena de ESLint (`minimatch`). Son herramientas de lint que no llegan al sitio, y todavía no tienen una corrección segura: `npm` solo sugiere cambios de versión mayor o bajadas de versión.
+- **No se ejecuta `npm audit fix --force`**: cambiaría versiones sin control.
+
 ## Equipo y responsabilidades
 
 | Integrante    | Responsabilidad                                            |
