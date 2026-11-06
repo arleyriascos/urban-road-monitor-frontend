@@ -1,11 +1,26 @@
 import 'leaflet/dist/leaflet.css';
-import type { Map as LeafletMap } from 'leaflet';
+import type { LeafletMouseEvent, Map as LeafletMap } from 'leaflet';
 import { useEffect, useRef } from 'react';
 import { createMap } from '../map/base-map';
 import { attachBasemap } from '../map/basemap';
 import { MAP_CENTER, MAP_ZOOM } from '../map/config';
 import { createPotholeLayer, createSegmentLayer } from '../map/layers';
+import { createRouteLine, createRoutePin, routeBounds } from '../map/route-layers';
+import { isPhoneViewport } from '../lib/viewport';
+import type { RoutePointName } from '../lib/route-errors';
 import type { PotholeCollection, SegmentCollection } from '../types/map';
+import type { LatLng, RouteAnswer } from '../types/route';
+
+/** What the map needs while the "Cómo llegar" panel is open. */
+export interface MapRouting {
+  origin: LatLng | null;
+  destination: LatLng | null;
+  /** The pin to show as a problem (for example, too far from the streets). */
+  errorPoint: RoutePointName | null;
+  route: RouteAnswer | null;
+  onPick: (point: LatLng) => void;
+  onMove: (which: RoutePointName, point: LatLng) => void;
+}
 
 interface MapViewProps {
   segments: SegmentCollection;
@@ -13,15 +28,49 @@ interface MapViewProps {
   showPotholes: boolean;
   /** Each time this number grows, the map goes back to the center of Pasto. */
   recenterKey: number;
+  /** Null when the "Cómo llegar" panel is closed. */
+  routing?: MapRouting | null;
+}
+
+/** Room for the route panel when the map fits a route: on the left, or at the bottom on phones. */
+function fitPadding() {
+  return isPhoneViewport()
+    ? {
+        paddingTopLeft: [24, 70] as [number, number],
+        paddingBottomRight: [24, 300] as [number, number],
+      }
+    : {
+        paddingTopLeft: [370, 30] as [number, number],
+        paddingBottomRight: [30, 30] as [number, number],
+      };
 }
 
 /**
  * The Leaflet map. Leaflet manages the DOM by itself, so React only creates and
  * removes the map and its layers; it never renders their contents.
  */
-export function MapView({ segments, potholes, showPotholes, recenterKey }: MapViewProps) {
+export function MapView({
+  segments,
+  potholes,
+  showPotholes,
+  recenterKey,
+  routing = null,
+}: MapViewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
+  const picking = routing !== null;
+  const origin = routing?.origin ?? null;
+  const destination = routing?.destination ?? null;
+  const errorPoint = routing?.errorPoint ?? null;
+  const route = routing?.route ?? null;
+
+  // The latest callbacks, so the map listeners never need to be added again.
+  const onPickRef = useRef<MapRouting['onPick'] | undefined>(undefined);
+  const onMoveRef = useRef<MapRouting['onMove'] | undefined>(undefined);
+  useEffect(() => {
+    onPickRef.current = routing?.onPick;
+    onMoveRef.current = routing?.onMove;
+  });
 
   // The map itself: created once, removed when the screen goes away.
   useEffect(() => {
@@ -37,25 +86,75 @@ export function MapView({ segments, potholes, showPotholes, recenterKey }: MapVi
     };
   }, []);
 
-  // The streets.
+  // The streets. While picking route points they open no popups, so a tap places a point.
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    const layer = createSegmentLayer(segments).addTo(map);
+    const layer = createSegmentLayer(segments, { popups: !picking }).addTo(map);
     return () => {
       layer.remove();
     };
-  }, [segments]);
+  }, [segments, picking]);
 
-  // The potholes go on top of the streets, and can be hidden.
+  // The potholes go on top of the streets and the route, and can be hidden.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !showPotholes) return;
-    const layer = createPotholeLayer(potholes).addTo(map);
+    const layer = createPotholeLayer(potholes, { popups: !picking }).addTo(map);
     return () => {
       layer.remove();
     };
-  }, [potholes, showPotholes]);
+  }, [potholes, showPotholes, picking]);
+
+  // Picking route points: a tap on the map places the next point.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !picking) return;
+    const container = map.getContainer();
+    container.classList.add('map--picking');
+    map.closePopup();
+    const onClick = (event: LeafletMouseEvent) =>
+      onPickRef.current?.({ latitude: event.latlng.lat, longitude: event.latlng.lng });
+    map.on('click', onClick);
+    return () => {
+      map.off('click', onClick);
+      container.classList.remove('map--picking');
+    };
+  }, [picking]);
+
+  // The A and B pins.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const pins = [
+      origin &&
+        createRoutePin('origin', origin, {
+          hasError: errorPoint === 'origin',
+          onMove: (point) => onMoveRef.current?.('origin', point),
+        }),
+      destination &&
+        createRoutePin('destination', destination, {
+          hasError: errorPoint === 'destination',
+          onMove: (point) => onMoveRef.current?.('destination', point),
+        }),
+    ].filter((pin) => pin !== null);
+    pins.forEach((pin) => pin.addTo(map));
+    return () => {
+      pins.forEach((pin) => pin.remove());
+    };
+  }, [origin, destination, errorPoint]);
+
+  // The route; the map moves to show it only when part of it is out of view.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !route) return;
+    const line = createRouteLine(route).addTo(map);
+    const bounds = routeBounds(route);
+    if (!map.getBounds().contains(bounds)) map.fitBounds(bounds, fitPadding());
+    return () => {
+      line.remove();
+    };
+  }, [route]);
 
   useEffect(() => {
     if (recenterKey > 0) mapRef.current?.setView(MAP_CENTER, MAP_ZOOM);
