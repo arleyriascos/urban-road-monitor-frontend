@@ -20,9 +20,10 @@ El mapa de Pasto con todas las calles (unos 10.000 tramos) coloreadas según su 
 - **Calles:** verdes si no tienen baches; amarillas, naranjas o rojas según la severidad del peor bache. Al tocar una calle se abre un cuadro con su nombre, longitud, sentido y costo de ruta.
 - **Baches:** el tamaño del círculo indica la severidad; el borde punteado, que todavía no está confirmado; y atenuado, que ya fue reparado. Al tocar uno se ven su confianza y sus fechas.
 - **Leyenda plegable** con los conteos, e interruptores para mostrar u ocultar los baches y para incluir los reparados.
+- **Cómo llegar:** el botón abre un panel para pedir una ruta. Se toca el mapa para poner el origen (A) y el destino (B), que luego se pueden arrastrar, y se elige el criterio: **Más corta**, **Equilibrada** o **Evitar baches**. La ruta se pide sola cada vez que cambia algo y se dibuja en azul sobre las calles. Mientras el panel está abierto, tocar una calle pone un punto en lugar de abrir su cuadro.
 - **Pantallas de carga y de error:** mientras llegan los datos se ve la carretera de la petición (navegador, servidor y base de datos); si algo falla, marca dónde se cortó y ofrece reintentar. El servidor gratuito de Render se duerme, así que la primera carga puede tardar hasta un minuto.
 
-Los datos vienen del backend (ver `docs/API-MAPA.md`). La versión desplegada en Vercel usa la base `production`, que no tiene baches de prueba, así que se ve toda verde. Para ver los colores, corre el backend en tu computador contra la base `development` y apunta `VITE_API_URL` a `http://localhost:3000`.
+Los datos vienen del backend (ver `docs/API-MAPA.md` y `docs/API-RUTAS.md`). La versión desplegada en Vercel usa la base `production`, que no tiene baches de prueba, así que se ve toda verde. Para ver los colores, corre el backend en tu computador contra la base `development` y apunta `VITE_API_URL` a `http://localhost:3000`.
 
 ## Instalación
 
@@ -37,9 +38,12 @@ La aplicación se abre en `http://localhost:5173`.
 
 ## Variables de entorno
 
-| Variable       | Descripción                                                            |
-| -------------- | ---------------------------------------------------------------------- |
-| `VITE_API_URL` | URL del backend, sin `/` al final. Por defecto `http://localhost:3000` |
+| Variable              | Descripción                                                                                              |
+| --------------------- | -------------------------------------------------------------------------------------------------------- |
+| `VITE_API_URL`        | URL del backend, sin `/` al final. Por defecto `http://localhost:3000`                                   |
+| `VITE_AI_SERVICE_URL` | Opcional. Dirección pública del servicio de IA, solo para despertarlo desde el navegador (ver más abajo) |
+
+**Por qué el navegador despierta al servicio de IA.** En el plan gratuito de Render, el servicio de IA (que calcula las rutas) se duerme tras unos minutos sin uso, y Render solo lo despierta cuando lo pide un navegador: si lo pide el backend, responde `hibernate-rate-limited` y no lo despierta (comprobado en producción). Por eso, al abrir la app, el navegador hace una petición a `VITE_AI_SERVICE_URL/health` sin esperar la respuesta, y si una ruta responde 503 con `retryAfterS`, la app espera esos segundos, lo despierta de nuevo y reintenta (hasta 4 intentos). Si aun así no despierta, el panel ofrece un enlace que abre el servicio en otra pestaña. Esa dirección es pública y no lleva ningún token.
 
 Para apuntar a otro backend en local, copia `.env.example` como `.env` y cambia el valor. En Vercel se configura en **Settings → Environment Variables**.
 
@@ -63,10 +67,10 @@ Todo lo que empieza con `VITE_` queda visible en el navegador (se puede ver con 
 La configuración está en `vercel.json` (Vite, compila con `npm run build` y publica `dist/`).
 
 1. En vercel.com: **Add New → Project** e importa este repositorio.
-2. En **Environment Variables** agrega `VITE_API_URL` con la URL del backend en Render, sin `/` al final.
+2. En **Environment Variables** agrega `VITE_API_URL` con la URL del backend en Render, sin `/` al final, y `VITE_AI_SERVICE_URL` con `https://urban-road-monitor-ai.onrender.com`.
 3. Pulsa **Deploy**.
 
-Cada push a `main` vuelve a desplegar automáticamente. Si cambias `VITE_API_URL`, hay que volver a desplegar (**Deployments → Redeploy**), porque Vite la incluye al compilar.
+Cada push a `main` vuelve a desplegar automáticamente. Si cambias `VITE_API_URL` o `VITE_AI_SERVICE_URL`, hay que volver a desplegar (**Deployments → Redeploy**), porque Vite la incluye al compilar.
 
 Después de desplegar, agrega la URL de Vercel a la variable `CORS_ORIGIN` del backend en Render; si no, el navegador bloqueará las peticiones.
 
@@ -74,14 +78,14 @@ Después de desplegar, agrega la URL de Vercel a la variable `CORS_ORIGIN` del b
 
 ```
 public/               Archivos estáticos (ícono)
-docs/                 Contrato del API del mapa (API-MAPA.md)
+docs/                 Contratos del API del mapa (API-MAPA.md) y de las rutas (API-RUTAS.md)
 src/
-├── api/              Cliente HTTP y funciones que llaman al backend
-├── components/       Pantallas y piezas de la interfaz (mapa, leyenda, carga, error)
-├── config/           URL del backend
-├── hooks/            Carga de los datos del mapa (carga, error y resultado)
-├── lib/              Lógica pura: formatos, estilos del mapa, leyenda y cuadros de información
-├── map/              Código de Leaflet: mapa base y capas de calles y baches
+├── api/              Cliente HTTP, funciones que llaman al backend y despertar del servicio de IA
+├── components/       Pantallas y piezas de la interfaz (mapa, leyenda, Cómo llegar, carga, error)
+├── config/           URL del backend y del servicio de IA
+├── hooks/            Carga de los datos del mapa y petición de la ruta (con reintentos)
+├── lib/              Lógica pura: formatos, estilos del mapa, leyenda, criterios y errores de ruta
+├── map/              Código de Leaflet: mapa base, capas de calles y baches, marcadores y línea de la ruta
 ├── test/             Configuración de las pruebas y datos de muestra
 ├── types/            Tipos del contrato del API
 ├── App.tsx           Elige entre la pantalla de carga, la de error y el mapa
