@@ -1,6 +1,7 @@
 import * as L from 'leaflet';
 import { describe, expect, it } from 'vitest';
 import { potholesFixture, segmentsFixture } from '../test/fixtures';
+import { PANES } from './base-map';
 import { createPotholeLayer, createSegmentLayer } from './layers';
 
 describe('createSegmentLayer', () => {
@@ -22,6 +23,11 @@ describe('createSegmentLayer', () => {
     const first = layers[0].getLatLngs() as L.LatLng[];
     expect(first[0].lat).toBeCloseTo(1.2136, 6);
     expect(first[0].lng).toBeCloseTo(-77.2811, 6);
+  });
+
+  it('opens no popups while route points are being picked', () => {
+    const picking = createSegmentLayer(segmentsFixture, { popups: false }).getLayers();
+    expect(picking.every((layer) => layer.getPopup() === undefined)).toBe(true);
   });
 
   it('opens a popup with the facts of the street', () => {
@@ -48,6 +54,15 @@ describe('createPotholeLayer', () => {
     expect(confirmed.getRadius()).toBe(10);
     expect(confirmed.options.fillColor).toBe('#DC2626');
     expect(unconfirmed.options.dashArray).toBe('3 3');
+  });
+
+  it('draws the potholes in their own pane, above the route', () => {
+    expect(layers.every((layer) => layer.options.pane === PANES.potholes.name)).toBe(true);
+  });
+
+  it('opens no popups while route points are being picked', () => {
+    const picking = createPotholeLayer(potholesFixture, { popups: false }).getLayers();
+    expect(picking.every((layer) => layer.getPopup() === undefined)).toBe(true);
   });
 
   it('opens a popup with the details of the pothole', () => {
