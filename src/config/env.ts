@@ -12,4 +12,17 @@ function normalizeUrl(url: string): string {
   return url.trim().replace(/\/+$/, '');
 }
 
+/** An optional address: null when it is missing or blank. */
+export function optionalUrl(value: string | undefined): string | null {
+  const url = normalizeUrl(value ?? '');
+  return url === '' ? null : url;
+}
+
 export const apiUrl = normalizeUrl(import.meta.env.VITE_API_URL || DEFAULT_API_URL);
+
+/**
+ * Public address of the AI service on Render (optional). The browser only uses it to wake
+ * the service up: Render wakes a sleeping free service when a browser asks, but not when
+ * the backend does. Without it the app works the same, but cannot wake the service.
+ */
+export const aiServiceUrl = optionalUrl(import.meta.env.VITE_AI_SERVICE_URL);
