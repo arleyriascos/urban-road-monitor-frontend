@@ -9,6 +9,8 @@ export class ApiError extends Error {
     message: string,
     public readonly status?: number,
     public readonly code?: string,
+    /** Extra data the backend sends with some errors, such as which point was too far. */
+    public readonly details?: Record<string, unknown>,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -25,16 +27,40 @@ interface RequestOptions {
   timeoutMs?: number;
 }
 
+interface ErrorBody {
+  error?: { code?: string; message?: string; details?: unknown };
+}
+
 /** GET request to the backend that returns the parsed JSON body. */
-export async function getJson<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { signal, timeoutMs = 60_000 } = options;
+export function getJson<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  return requestJson<T>(path, { method: 'GET' }, options);
+}
+
+/** POST request with a JSON body to the backend that returns the parsed JSON body. */
+export function postJson<T>(path: string, body: unknown, options: RequestOptions = {}): Promise<T> {
+  return requestJson<T>(
+    path,
+    { method: 'POST', body: JSON.stringify(body), contentType: 'application/json' },
+    options,
+  );
+}
+
+async function requestJson<T>(
+  path: string,
+  request: { method: 'GET' | 'POST'; body?: string; contentType?: string },
+  { signal, timeoutMs = 60_000 }: RequestOptions,
+): Promise<T> {
   const timeoutSignal = AbortSignal.timeout(timeoutMs);
   const combinedSignal = signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal;
+  const headers: Record<string, string> = { Accept: 'application/json' };
+  if (request.contentType) headers['Content-Type'] = request.contentType;
 
   let response: Response;
   try {
     response = await fetch(`${apiUrl}${path}`, {
-      headers: { Accept: 'application/json' },
+      method: request.method,
+      headers,
+      body: request.body,
       signal: combinedSignal,
     });
   } catch (error) {
@@ -48,15 +74,17 @@ export async function getJson<T>(path: string, options: RequestOptions = {}): Pr
   }
 
   if (!response.ok) {
-    // The backend always answers errors as { error: { code, message } }.
-    const body = (await response.json().catch(() => null)) as {
-      error?: { code?: string; message?: string };
-    } | null;
+    // The backend always answers errors as { error: { code, message, details? } }.
+    const body = (await response.json().catch(() => null)) as ErrorBody | null;
+    const details = body?.error?.details;
     throw new ApiError(
       'http',
       body?.error?.message ?? `The server answered with status ${response.status}`,
       response.status,
       body?.error?.code,
+      details !== null && typeof details === 'object'
+        ? (details as Record<string, unknown>)
+        : undefined,
     );
   }
 
