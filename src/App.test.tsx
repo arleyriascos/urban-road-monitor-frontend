@@ -1,11 +1,13 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
+import { wakeAiService } from './api/ai-service';
 import { ApiError } from './api/http';
 import { useMapData, type MapDataState } from './hooks/useMapData';
 import { potholesFixture, segmentsFixture, statsFixture } from './test/fixtures';
 
 vi.mock('./hooks/useMapData');
+vi.mock('./api/ai-service', () => ({ wakeAiService: vi.fn() }));
 vi.mock('./components/MapScreen', () => ({
   MapScreen: () => <div data-testid="map-screen" />,
 }));
@@ -53,5 +55,13 @@ describe('App', () => {
     render(<App />);
     expect(screen.getByTestId('map-screen')).toBeTruthy();
     expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('starts waking the AI service once, as soon as the app opens', () => {
+    showState({ status: 'loading', slow: false });
+    const { rerender } = render(<App />);
+    rerender(<App />);
+
+    expect(wakeAiService).toHaveBeenCalledOnce();
   });
 });
