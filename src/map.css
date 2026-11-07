@@ -742,6 +742,12 @@
     background: var(--surface);
   }
 
+  /* The bar is 56px tall (a 44px button and 6px above and below): a street brought into view
+     must stop below it, not under it. */
+  .route-steps__entry {
+    scroll-margin-top: 64px;
+  }
+
   .route-summary {
     grid-template-columns: repeat(2, 1fr);
   }
