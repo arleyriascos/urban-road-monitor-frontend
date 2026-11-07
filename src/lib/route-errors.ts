@@ -12,6 +12,8 @@ export interface RouteErrorDescription {
   waitS?: number;
   /** Offer the link that wakes the route service in a new tab. */
   wakeLink?: boolean;
+  /** Whether asking again with the same points can help; if not, the person must change them. */
+  retryable: boolean;
 }
 
 const POINT_NAME: Record<RoutePointName, string> = { origin: 'origen', destination: 'destino' };
@@ -39,12 +41,14 @@ export function describeRouteError(
     return {
       title: 'El servidor no respondió a tiempo',
       help: 'Puede estar despertando después de un rato sin uso. Intenta de nuevo.',
+      retryable: true,
     };
   }
   if (error.kind === 'network') {
     return {
       title: 'No se pudo conectar con el servidor',
       help: 'Revisa tu conexión a internet e intenta de nuevo en unos segundos.',
+      retryable: true,
     };
   }
 
@@ -53,6 +57,7 @@ export function describeRouteError(
       return {
         title: 'No hay un camino entre estos puntos',
         help: 'La ruta debe respetar el sentido de las calles. Prueba moviendo el origen o el destino.',
+        retryable: false,
       };
     case 'OUTSIDE_NETWORK': {
       const point = pointDetail(error);
@@ -68,6 +73,7 @@ export function describeRouteError(
           : 'Un punto quedó lejos de las calles',
         help: `${where}Muévelo más cerca de una calle.`,
         point,
+        retryable: false,
       };
     }
     case 'TOO_MANY_REQUESTS':
@@ -75,6 +81,7 @@ export function describeRouteError(
         title: 'Demasiadas rutas seguidas',
         help: 'El servidor acepta hasta 30 rutas por minuto. Espera un momento y vuelve a intentar.',
         waitS: retryAfterSeconds(error),
+        retryable: true,
       };
     case 'ROUTE_SERVICE_UNAVAILABLE':
       if (retryAfterSeconds(error) !== undefined) {
@@ -82,27 +89,32 @@ export function describeRouteError(
           title: 'El servicio de rutas no despertó a tiempo',
           help: 'Ábrelo en una pestaña nueva para despertarlo, espera a que cargue y vuelve a intentar.',
           wakeLink: true,
+          retryable: true,
         };
       }
       return {
         title: 'El servicio de rutas no está disponible',
         help: 'Intenta de nuevo en un momento.',
+        retryable: true,
       };
     case 'DATABASE_UNAVAILABLE':
       return {
         title: 'La base de datos no está disponible',
         help: 'Puede estar encendiéndose. Intenta de nuevo en unos segundos.',
+        retryable: true,
       };
     case 'INVALID_REQUEST':
     case 'INVALID_JSON':
       return {
         title: 'La app pidió la ruta con datos inválidos',
         help: 'Vuelve a poner el origen y el destino. Si se repite, es un error de la app.',
+        retryable: false,
       };
     default:
       return {
         title: `El servidor respondió con un error (código ${error.status ?? 'desconocido'})`,
         help: 'Intenta de nuevo en un momento.',
+        retryable: true,
       };
   }
 }

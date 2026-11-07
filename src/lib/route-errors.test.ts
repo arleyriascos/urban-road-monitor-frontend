@@ -29,6 +29,7 @@ describe('describeRouteError', () => {
       title: 'El destino quedó lejos de las calles',
       help: 'Está a 450 m de la calle más cercana y el máximo es 200 m. Muévelo más cerca de una calle.',
       point: 'destination',
+      retryable: false,
     });
   });
 
@@ -66,6 +67,24 @@ describe('describeRouteError', () => {
     [http(500, 'INTERNAL_ERROR'), 'El servidor respondió con un error (código 500)'],
   ])('explains other answers (%#)', (error, title) => {
     expect(describeRouteError(error).title).toBe(title);
+  });
+});
+
+describe('which errors can be fixed by asking again', () => {
+  it.each([
+    [new ApiError('timeout', 'x'), true],
+    [new ApiError('network', 'x'), true],
+    [http(429, 'TOO_MANY_REQUESTS', { retryAfterS: 5 }), true],
+    [http(503, 'ROUTE_SERVICE_UNAVAILABLE', { retryable: true, retryAfterS: 30 }), true],
+    [http(503, 'ROUTE_SERVICE_UNAVAILABLE', { retryable: true }), true],
+    [http(503, 'DATABASE_UNAVAILABLE'), true],
+    [http(500, 'INTERNAL_ERROR'), true],
+    [http(404, 'NO_ROUTE'), false],
+    [http(422, 'OUTSIDE_NETWORK', { point: 'origin' }), false],
+    [http(400, 'INVALID_REQUEST'), false],
+    [http(400, 'INVALID_JSON'), false],
+  ])('error %#: retryable is %s', (error, retryable) => {
+    expect(describeRouteError(error).retryable).toBe(retryable);
   });
 });
 
