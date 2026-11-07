@@ -5,11 +5,20 @@ import { createMap } from '../map/base-map';
 import { attachBasemap } from '../map/basemap';
 import { MAP_CENTER, MAP_ZOOM } from '../map/config';
 import { createPotholeLayer, createSegmentLayer } from '../map/layers';
-import { createRouteLine, createRoutePin, routeBounds } from '../map/route-layers';
+import {
+  createRouteArrows,
+  createRouteCasing,
+  createRouteConnectors,
+  createRouteHighlight,
+  createRouteLine,
+  createRoutePin,
+  routeBounds,
+  stepsBounds,
+} from '../map/route-layers';
 import { isPhoneViewport } from '../lib/viewport';
 import type { RoutePointName } from '../lib/route-errors';
 import type { PotholeCollection, SegmentCollection } from '../types/map';
-import type { LatLng, RouteAnswer } from '../types/route';
+import type { LatLng, RouteAnswer, RouteStepFeature } from '../types/route';
 
 /** What the map needs while the "Cómo llegar" panel is open. */
 export interface MapRouting {
@@ -18,6 +27,8 @@ export interface MapRouting {
   /** The pin to show as a problem (for example, too far from the streets). */
   errorPoint: RoutePointName | null;
   route: RouteAnswer | null;
+  /** The segments of the street picked in the list; the map shows and zooms to them. */
+  highlight: RouteStepFeature[] | null;
   onPick: (point: LatLng) => void;
   onMove: (which: RoutePointName, point: LatLng) => void;
 }
@@ -63,6 +74,7 @@ export function MapView({
   const destination = routing?.destination ?? null;
   const errorPoint = routing?.errorPoint ?? null;
   const route = routing?.route ?? null;
+  const highlight = routing?.highlight ?? null;
 
   // The latest callbacks, so the map listeners never need to be added again.
   const onPickRef = useRef<MapRouting['onPick'] | undefined>(undefined);
@@ -144,17 +156,59 @@ export function MapView({
     };
   }, [origin, destination, errorPoint]);
 
-  // The route; the map moves to show it only when part of it is out of view.
+  // The route: a white edge and the blue line over it. The map moves to show it only when part
+  // of it is out of view.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !route) return;
+    const casing = createRouteCasing(route).addTo(map);
     const line = createRouteLine(route).addTo(map);
     const bounds = routeBounds(route);
     if (!map.getBounds().contains(bounds)) map.fitBounds(bounds, fitPadding());
     return () => {
       line.remove();
+      casing.remove();
     };
   }, [route]);
+
+  // The arrows that show the way of the trip.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !route) return;
+    const arrows = createRouteArrows(route).addTo(map);
+    return () => {
+      arrows.remove();
+    };
+  }, [route]);
+
+  // A dashed line from each click to the intersection where the route really starts or ends.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !route || !origin || !destination) return;
+    const connectors = createRouteConnectors(route, origin, destination).addTo(map);
+    return () => {
+      connectors.remove();
+    };
+  }, [route, origin, destination]);
+
+  // The street picked in the list goes over the route and the map zooms to it; when it is
+  // let go, the map shows the whole route again.
+  const hadHighlight = useRef(false);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !route) return;
+    if (!highlight) {
+      if (hadHighlight.current) map.fitBounds(routeBounds(route), fitPadding());
+      hadHighlight.current = false;
+      return;
+    }
+    hadHighlight.current = true;
+    const layer = createRouteHighlight(highlight).addTo(map);
+    map.fitBounds(stepsBounds(highlight), { ...fitPadding(), maxZoom: 18 });
+    return () => {
+      layer.remove();
+    };
+  }, [route, highlight]);
 
   useEffect(() => {
     if (recenterKey > 0) mapRef.current?.setView(MAP_CENTER, MAP_ZOOM);

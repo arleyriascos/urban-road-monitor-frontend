@@ -29,6 +29,7 @@ vi.mock('./MapView', () => ({
       data-destination={JSON.stringify(props.routing?.destination ?? null)}
       data-error-point={String(props.routing?.errorPoint ?? null)}
       data-route-steps={String(props.routing?.route?.summary.steps ?? 0)}
+      data-highlight={String(props.routing?.highlight?.length ?? 0)}
     >
       {props.routing ? (
         <>
@@ -230,5 +231,77 @@ describe('MapScreen "Cómo llegar"', () => {
     open();
 
     expect(container.querySelector('.map-app--routing')).not.toBeNull();
+  });
+
+  describe('street by street', () => {
+    // A route only exists once both points are placed, so the two taps come first.
+    const arrive = () => {
+      routeState({ status: 'success', route: routeFixture });
+      const view = render(<MapScreen data={data} />);
+      open();
+      tap('tap 1');
+      tap('tap 2');
+      return view;
+    };
+
+    it('shows the streets of the route, with none picked and nothing highlighted', () => {
+      arrive();
+
+      expect(screen.getByRole('button', { name: /Calle 18/ })).toBeTruthy();
+      expect(map().dataset.highlight).toBe('0');
+    });
+
+    it('highlights on the map the segments of the street picked', () => {
+      arrive();
+
+      fireEvent.click(screen.getByRole('button', { name: /Calle 18/ }));
+
+      expect(map().dataset.highlight).toBe('2');
+      expect(screen.getByText('Calle 1 de 2')).toBeTruthy();
+    });
+
+    it('walks through the streets with Siguiente and Anterior', () => {
+      arrive();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }));
+      expect(screen.getByText('Calle 1 de 2')).toBeTruthy();
+      fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }));
+      expect(screen.getByText('Calle 2 de 2')).toBeTruthy();
+      expect(map().dataset.highlight).toBe('1');
+      fireEvent.click(screen.getByRole('button', { name: 'Anterior' }));
+
+      expect(screen.getByText('Calle 1 de 2')).toBeTruthy();
+      expect(map().dataset.highlight).toBe('2');
+    });
+
+    it('goes back to the whole route', () => {
+      arrive();
+      fireEvent.click(screen.getByRole('button', { name: /Calle 18/ }));
+
+      fireEvent.click(screen.getByRole('button', { name: 'Ver toda la ruta' }));
+
+      expect(map().dataset.highlight).toBe('0');
+    });
+
+    it('starts a new route without a street picked', () => {
+      const { rerender } = arrive();
+      fireEvent.click(screen.getByRole('button', { name: /Calle 18/ }));
+      expect(map().dataset.highlight).toBe('2');
+
+      routeState({ status: 'success', route: { ...routeFixture } });
+      rerender(<MapScreen data={data} />);
+
+      expect(map().dataset.highlight).toBe('0');
+      expect(screen.getByText('Recorre la ruta')).toBeTruthy();
+    });
+
+    it('highlights nothing when there is no route', () => {
+      routeState({ status: 'loading' });
+      render(<MapScreen data={data} />);
+      open();
+
+      expect(map().dataset.highlight).toBe('0');
+      expect(screen.queryByRole('region', { name: 'Recorrido de la ruta' })).toBeNull();
+    });
   });
 });

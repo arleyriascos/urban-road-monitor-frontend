@@ -4,9 +4,10 @@ import { useRoute } from '../hooks/useRoute';
 import { buildSeverityLegend, countPotholes } from '../lib/legend';
 import { filterPotholes } from '../lib/potholes';
 import { describeRouteError, type RoutePointName } from '../lib/route-errors';
+import { groupRouteSteps } from '../lib/route-groups';
 import { isPhoneViewport } from '../lib/viewport';
 import type { MapData } from '../hooks/useMapData';
-import type { LatLng, RouteCriterion } from '../types/route';
+import type { LatLng, RouteAnswer, RouteCriterion } from '../types/route';
 import { LayerToggles } from './LayerToggles';
 import { LegendPanel } from './LegendPanel';
 import { MapView, type MapRouting } from './MapView';
@@ -26,6 +27,15 @@ export function MapScreen({ data }: { data: MapData }) {
   const [destination, setDestination] = useState<LatLng | null>(null);
   const [criterion, setCriterion] = useState<RouteCriterion>('balanced');
   const { state: routeState, retry, requestKey } = useRoute(origin, destination, criterion);
+
+  // The route street by street, and the street picked in the list. The pick belongs to the
+  // route it was made on, so a new route starts without one.
+  const route = routeState.status === 'success' ? routeState.route : null;
+  const groups = useMemo(() => (route ? groupRouteSteps(route) : []), [route]);
+  const [choice, setChoice] = useState<{ route: RouteAnswer; index: number } | null>(null);
+  const selected = route && choice?.route === route ? choice.index : null;
+  const select = (index: number | null) =>
+    setChoice(route && index !== null ? { route, index } : null);
 
   const visiblePotholes = useMemo(
     () => filterPotholes(data.potholes, { includeRepaired }),
@@ -58,7 +68,8 @@ export function MapScreen({ data }: { data: MapData }) {
           routeState.status === 'error'
             ? (describeRouteError(routeState.error).point ?? null)
             : null,
-        route: routeState.status === 'success' ? routeState.route : null,
+        route,
+        highlight: selected !== null ? (groups[selected]?.steps ?? null) : null,
         onPick: pick,
         onMove: move,
       }
@@ -82,6 +93,9 @@ export function MapScreen({ data }: { data: MapData }) {
             criterion={criterion}
             state={routeState}
             requestKey={requestKey}
+            groups={groups}
+            selected={selected}
+            onSelect={select}
             wakeUrl={aiServiceUrl ? `${aiServiceUrl}/health` : null}
             onCriterionChange={setCriterion}
             onRetry={retry}
