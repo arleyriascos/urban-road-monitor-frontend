@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ApiError } from '../api/http';
 import { getRoute, type RouteQuery } from '../api/routes';
-import { formatDecimal, formatLength, formatNumber, formatPercent, pluralize } from '../lib/format';
+import { formatDecimal, formatLength, formatNumber, formatPercent } from '../lib/format';
 import { CRITERIA } from '../lib/route-criteria';
 import { describeRouteError } from '../lib/route-errors';
 import { countDamagedSteps, type RouteGroup } from '../lib/route-groups';
@@ -185,7 +185,6 @@ export function RouteDetails({
           fetchRoute={fetchRoute}
         />
       </details>
-      <p className="route-info__note">{pluralize(groups.length, 'calle', 'calles')} en la ruta.</p>
     </div>
   );
 }
