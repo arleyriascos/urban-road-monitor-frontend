@@ -21,8 +21,11 @@ export interface Point {
   y: number;
 }
 
-/** Below this zoom the arrows crowd into what looks like a dashed line, so they are hidden. */
-export const MIN_ARROW_ZOOM = 15;
+/**
+ * Below this zoom the arrows crowd into what looks like a dashed line, so they are hidden. At
+ * zoom 15 a route of 6 km still has 50 arrows a few pixels apart; from 16 they have room.
+ */
+export const MIN_ARROW_ZOOM = 16;
 
 export function arrowsVisibleAt(zoom: number): boolean {
   return zoom >= MIN_ARROW_ZOOM;

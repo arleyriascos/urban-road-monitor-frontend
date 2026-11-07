@@ -101,11 +101,15 @@ describe('fitsInFreeArea', () => {
 });
 
 describe('arrowsVisibleAt', () => {
-  it('shows the arrows from zoom 15 on', () => {
-    expect(MIN_ARROW_ZOOM).toBe(15);
-    expect(arrowsVisibleAt(14.9)).toBe(false);
-    expect(arrowsVisibleAt(15)).toBe(true);
+  it('shows the arrows from zoom 16 on', () => {
+    expect(MIN_ARROW_ZOOM).toBe(16);
+    expect(arrowsVisibleAt(15.9)).toBe(false);
+    expect(arrowsVisibleAt(16)).toBe(true);
     expect(arrowsVisibleAt(18)).toBe(true);
+  });
+
+  it('hides them at zoom 15, where a long route still looks dashed', () => {
+    expect(arrowsVisibleAt(15)).toBe(false);
   });
 
   it('hides them when the whole city is in view', () => {
