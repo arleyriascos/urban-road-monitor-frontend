@@ -20,7 +20,9 @@ El mapa de Pasto con todas las calles (unos 10.000 tramos) coloreadas según su 
 - **Calles:** verdes si no tienen baches; amarillas, naranjas o rojas según la severidad del peor bache. Al tocar una calle se abre un cuadro con su nombre, longitud, sentido y costo de ruta.
 - **Baches:** el tamaño del círculo indica la severidad; el borde punteado, que todavía no está confirmado; y atenuado, que ya fue reparado. Al tocar uno se ven su confianza y sus fechas.
 - **Leyenda plegable** con los conteos, e interruptores para mostrar u ocultar los baches y para incluir los reparados.
-- **Cómo llegar:** el botón abre un panel para pedir una ruta. Se toca el mapa para poner el origen (A) y el destino (B), que luego se pueden arrastrar, y se elige el criterio: **Más corta**, **Equilibrada** o **Evitar baches**. La ruta se pide sola cada vez que cambia algo y se dibuja en azul sobre las calles. Mientras el panel está abierto, tocar una calle pone un punto en lugar de abrir su cuadro.
+- **Cómo llegar:** el botón abre un panel para pedir una ruta. Se toca el mapa para poner el origen (A) y el destino (B), que luego se pueden arrastrar, y se elige el criterio: **Más corta**, **Equilibrada** o **Evitar baches**. La ruta se pide sola cada vez que cambia algo y se dibuja en azul con borde blanco sobre las calles y bajo los baches, con **flechas** que indican el sentido del viaje y una **línea punteada** desde cada clic hasta la esquina donde la ruta empieza o termina. Mientras el panel está abierto, tocar una calle pone un punto en lugar de abrir su cuadro.
+- **Recorrer la ruta calle por calle:** el panel resume la ruta (distancia, calles, tramos y cuántos tienen daño) y la lista por calles, porque una ruta larga tiene decenas de tramos de una cuadra: los tramos seguidos de la misma calle se agrupan. **Anterior** y **Siguiente** (o las flechas del teclado) avanzan de calle en calle; la calle elegida se resalta en violeta en el mapa, el mapa se acerca a ella y se abre para mostrar sus tramos uno por uno. **Escape** o "Ver toda la ruta" vuelven a la ruta completa.
+- **Detalles técnicos y comparación de algoritmos:** un bloque plegable muestra el algoritmo, los nodos explorados, el tiempo de cálculo, el costo y si salió de la caché. El botón **Comparar con Dijkstra** pide la misma ruta con el otro algoritmo y los pone lado a lado: dan el mismo costo, pero A* explora menos nodos. Cuesta una petición más.
 - **Pantallas de carga y de error:** mientras llegan los datos se ve la carretera de la petición (navegador, servidor y base de datos); si algo falla, marca dónde se cortó y ofrece reintentar. El servidor gratuito de Render se duerme, así que la primera carga puede tardar hasta un minuto.
 
 Los datos vienen del backend (ver `docs/API-MAPA.md` y `docs/API-RUTAS.md`). La versión desplegada en Vercel usa la base `production`, que no tiene baches de prueba, así que se ve toda verde. Para ver los colores, corre el backend en tu computador contra la base `development` y apunta `VITE_API_URL` a `http://localhost:3000`.
@@ -84,8 +86,8 @@ src/
 ├── components/       Pantallas y piezas de la interfaz (mapa, leyenda, Cómo llegar, carga, error)
 ├── config/           URL del backend y del servicio de IA
 ├── hooks/            Carga de los datos del mapa y petición de la ruta (con reintentos)
-├── lib/              Lógica pura: formatos, estilos del mapa, leyenda, criterios y errores de ruta
-├── map/              Código de Leaflet: mapa base, capas de calles y baches, marcadores y línea de la ruta
+├── lib/              Lógica pura: formatos, estilos del mapa, leyenda, criterios, errores, agrupación por calle y geometría de las flechas
+├── map/              Código de Leaflet: mapa base, capas de calles y baches, marcadores, línea, flechas y resaltado de la ruta
 ├── test/             Configuración de las pruebas y datos de muestra
 ├── types/            Tipos del contrato del API
 ├── App.tsx           Elige entre la pantalla de carga, la de error y el mapa
