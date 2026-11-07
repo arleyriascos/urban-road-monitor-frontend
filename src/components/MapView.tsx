@@ -1,10 +1,11 @@
 import 'leaflet/dist/leaflet.css';
-import type { LeafletMouseEvent, Map as LeafletMap } from 'leaflet';
+import type { LatLngBounds, LeafletMouseEvent, Map as LeafletMap } from 'leaflet';
 import { useEffect, useRef } from 'react';
 import { createMap } from '../map/base-map';
 import { attachBasemap } from '../map/basemap';
 import { MAP_CENTER, MAP_ZOOM } from '../map/config';
 import { createPotholeLayer, createSegmentLayer } from '../map/layers';
+import { coveredInsets, fitsInFreeArea, type Insets, type Rect } from '../map/view';
 import {
   createRouteArrows,
   createRouteCasing,
@@ -43,17 +44,37 @@ interface MapViewProps {
   routing?: MapRouting | null;
 }
 
-/** Room for the route panel when the map fits a route: on the left, or at the bottom on phones. */
-function fitPadding() {
-  return isPhoneViewport()
-    ? {
-        paddingTopLeft: [24, 70] as [number, number],
-        paddingBottomRight: [24, 300] as [number, number],
-      }
-    : {
-        paddingTopLeft: [370, 30] as [number, number],
-        paddingBottomRight: [30, 30] as [number, number],
-      };
+/** The box of an element on the page, or null when it is not there or not shown. */
+function rectOf(selector: string): Rect | null {
+  const element = document.querySelector(selector);
+  if (!element) return null;
+  const box = element.getBoundingClientRect();
+  if (box.width === 0 && box.height === 0) return null;
+  return { left: box.left, top: box.top, right: box.right, bottom: box.bottom };
+}
+
+/** What the route panel and the legend cover of the map right now. */
+function currentInsets(map: LeafletMap): Insets {
+  const box = map.getContainer().getBoundingClientRect();
+  return coveredInsets({
+    map: { left: box.left, top: box.top, right: box.right, bottom: box.bottom },
+    panel: rectOf('.route-panel'),
+    legend: rectOf('.legend'),
+    phone: isPhoneViewport(),
+  });
+}
+
+/** Moves the map to show an area only if part of it is out of view or under a panel. */
+function fitIfCovered(map: LeafletMap, bounds: LatLngBounds) {
+  const insets = currentInsets(map);
+  const size = map.getSize();
+  const fits = fitsInFreeArea(
+    map.latLngToContainerPoint(bounds.getNorthWest()),
+    map.latLngToContainerPoint(bounds.getSouthEast()),
+    { width: size.x, height: size.y },
+    insets,
+  );
+  if (!fits) map.fitBounds(bounds, insets);
 }
 
 /**
@@ -164,7 +185,7 @@ export function MapView({
     const casing = createRouteCasing(route).addTo(map);
     const line = createRouteLine(route).addTo(map);
     const bounds = routeBounds(route);
-    if (!map.getBounds().contains(bounds)) map.fitBounds(bounds, fitPadding());
+    fitIfCovered(map, bounds);
     return () => {
       line.remove();
       casing.remove();
@@ -198,13 +219,13 @@ export function MapView({
     const map = mapRef.current;
     if (!map || !route) return;
     if (!highlight) {
-      if (hadHighlight.current) map.fitBounds(routeBounds(route), fitPadding());
+      if (hadHighlight.current) map.fitBounds(routeBounds(route), currentInsets(map));
       hadHighlight.current = false;
       return;
     }
     hadHighlight.current = true;
     const layer = createRouteHighlight(highlight).addTo(map);
-    map.fitBounds(stepsBounds(highlight), { ...fitPadding(), maxZoom: 18 });
+    map.fitBounds(stepsBounds(highlight), { ...currentInsets(map), maxZoom: 18 });
     return () => {
       layer.remove();
     };
