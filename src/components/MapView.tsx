@@ -5,7 +5,13 @@ import { createMap } from '../map/base-map';
 import { attachBasemap } from '../map/basemap';
 import { MAP_CENTER, MAP_ZOOM } from '../map/config';
 import { createPotholeLayer, createSegmentLayer } from '../map/layers';
-import { coveredInsets, fitsInFreeArea, type Insets, type Rect } from '../map/view';
+import {
+  arrowsVisibleAt,
+  coveredInsets,
+  fitsInFreeArea,
+  type Insets,
+  type Rect,
+} from '../map/view';
 import {
   createRouteArrows,
   createRouteCasing,
@@ -199,6 +205,21 @@ export function MapView({
     const arrows = createRouteArrows(route).addTo(map);
     return () => {
       arrows.remove();
+    };
+  }, [route]);
+
+  // The arrows crowd into what looks like a dashed line when the map is far away, so they only
+  // show when it is zoomed in (the CSS hides them while the map has the "far" class).
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !route) return;
+    const container = map.getContainer();
+    const update = () => container.classList.toggle('map--far', !arrowsVisibleAt(map.getZoom()));
+    update();
+    map.on('zoomend', update);
+    return () => {
+      map.off('zoomend', update);
+      container.classList.remove('map--far');
     };
   }, [route]);
 

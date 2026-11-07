@@ -718,3 +718,8 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* The arrows crowd into what looks like a dashed line when the map is far away. */
+.map--far .route-arrow-wrapper {
+  display: none;
+}
