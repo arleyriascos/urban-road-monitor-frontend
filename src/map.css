@@ -265,6 +265,20 @@
 /* Route: the "Cómo llegar" button and panel (top left; a bottom sheet on phones). */
 .map-app {
   --route: #2563eb;
+  /* Blue for text and links, the color of errors, and the background of the street picked in
+     the list. They change with the theme: the plain route blue is too dark to read on the dark
+     panel, and a light background would hide the light text. */
+  --route-text: #1d4ed8;
+  --route-fail: #c2412d;
+  --pick-bg: #ede9fe;
+}
+
+@media (prefers-color-scheme: dark) {
+  .map-app {
+    --route-text: #8ab4ff;
+    --route-fail: #f28b77;
+    --pick-bg: #3b2a73;
+  }
 }
 
 .route-toggle {
@@ -358,9 +372,10 @@
 }
 
 .criteria__option {
-  padding: 7px 4px;
+  padding: 7px 2px;
   font: inherit;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
+  line-height: 1.2;
   font-weight: 700;
   color: var(--asphalt);
   background: var(--concrete);
@@ -401,7 +416,7 @@
 }
 
 .route-status--error .route-status__title {
-  color: var(--fail);
+  color: var(--route-fail);
 }
 
 .route-button {
@@ -431,7 +446,7 @@
   align-self: center;
   font-size: 0.88rem;
   font-weight: 700;
-  color: var(--route);
+  color: var(--route-text);
 }
 
 /* The A and B pins */
@@ -508,21 +523,24 @@
 }
 
 .route-summary > div {
-  padding: 6px 8px;
+  min-width: 0;
+  padding: 6px;
   background: var(--concrete);
   border-radius: 6px;
 }
 
 .route-summary dt {
-  font-size: 0.68rem;
-  letter-spacing: 0.05em;
+  font-size: 0.66rem;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
 .route-summary dd {
   margin: 2px 0 0;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  white-space: nowrap;
   font-weight: 800;
 }
 
@@ -534,7 +552,7 @@
 .route-details > summary {
   cursor: pointer;
   font-weight: 700;
-  color: var(--route);
+  color: var(--route-text);
 }
 
 .route-facts {
@@ -584,7 +602,7 @@
 }
 
 .route-compare__note--error {
-  color: var(--fail);
+  color: var(--route-fail);
 }
 
 /* Route: street by street */
@@ -614,7 +632,7 @@
   font: inherit;
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--route);
+  color: var(--route-text);
   text-decoration: underline;
   background: none;
   border: 0;
@@ -649,7 +667,7 @@
 }
 
 .route-steps__item[aria-current='step'] {
-  background: #ede9fe;
+  background: var(--pick-bg);
   outline: 2px solid #7c3aed;
   outline-offset: -2px;
 }
