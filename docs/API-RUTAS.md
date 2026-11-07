@@ -33,3 +33,13 @@ El backend redondea los clics a 4 decimales (unos 11 m), ajusta cada uno a la es
 | 503    | `DATABASE_UNAVAILABLE`      | Que la base no está disponible y que reintente                                            |
 
 Con el 503 que trae `retryAfterS`, la app despierta el servicio de IA desde el navegador, espera esos segundos y vuelve a pedir la ruta, hasta 4 intentos. Si no alcanza, muestra el error con un enlace que abre `VITE_AI_SERVICE_URL/health` en otra pestaña.
+
+El botón **Reintentar** solo aparece cuando repetir la petición con los mismos puntos puede arreglar algo: tiempo agotado, conexión caída, demasiadas peticiones, servicio de rutas o base de datos no disponibles. Con `NO_ROUTE`, `OUTSIDE_NETWORK` e `INVALID_REQUEST` no aparece, porque el resultado sería el mismo: la persona debe mover un punto, y el mensaje lo explica.
+
+## Cómo usa la app la respuesta
+
+- **La línea:** cada tramo de `route.features` ya viene en el orden y el sentido del viaje (`reversed` indica que se recorre al revés de su dibujo, pero sus puntos ya vienen invertidos), así que se dibuja tal cual. Debajo va el mismo trazado más ancho y en blanco, para que se vea sobre cualquier color de calle.
+- **Las flechas:** una por tramo de 40 m o más, en el punto medio del tramo y girada hacia donde va el tramo en ese punto (rumbo desde el norte, en sentido horario).
+- **Las líneas punteadas:** de cada clic a su esquina (`origin` y `destination` de la respuesta), solo si la distancia (`distanceM`) es de 5 m o más.
+- **Las calles:** los tramos seguidos con el mismo `roadName` forman una calle; sin nombre se muestran como "Calle sin nombre". Una calle que reaparece más adelante forma otro grupo.
+- **La comparación de algoritmos:** se vuelve a pedir la misma ruta con `algorithm` en `astar` o `dijkstra`, el que no se usó. El backend la responde de su caché si ya la tenía.
