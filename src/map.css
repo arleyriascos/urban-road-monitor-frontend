@@ -284,7 +284,7 @@
 .route-toggle {
   position: absolute;
   top: 12px;
-  left: 12px;
+  left: 58px;
   z-index: 1001;
   padding: 9px 16px;
   font: inherit;
@@ -308,9 +308,9 @@
 .route-panel {
   position: absolute;
   top: 12px;
-  left: 12px;
+  left: 58px;
   z-index: 1002;
-  width: min(340px, calc(100% - 24px));
+  width: min(340px, calc(100% - 70px));
   max-height: calc(100% - 90px);
   overflow-y: auto;
   padding: 12px 14px 14px;
@@ -728,8 +728,18 @@
 }
 
 @media (max-width: 640px) {
+  /* One scroll: the whole panel scrolls, and Anterior and Siguiente stay in view. */
   .route-steps__list {
-    max-height: 150px;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .route-steps__nav {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 6px 0;
+    background: var(--surface);
   }
 
   .route-summary {
