@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { groupRouteSteps } from '../lib/route-groups';
 import { routeFixture } from '../test/route-fixtures';
 import { RouteSteps } from './RouteSteps';
@@ -150,5 +150,51 @@ describe('RouteSteps', () => {
       fireEvent.keyDown(section(), { key: 'a' });
       expect(onSelect).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe('RouteSteps scrolling into view', () => {
+  const original = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollIntoView');
+
+  afterEach(() => {
+    if (original) Object.defineProperty(Element.prototype, 'scrollIntoView', original);
+    else delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView;
+  });
+
+  function spyOnScroll() {
+    const spy = vi.fn();
+    Object.defineProperty(Element.prototype, 'scrollIntoView', {
+      configurable: true,
+      writable: true,
+      value: spy,
+    });
+    return spy;
+  }
+
+  it('scrolls the button of the street picked, the element the phone scroll margin is on', () => {
+    const spy = spyOnScroll();
+    render(<RouteSteps groups={groups} selected={1} onSelect={vi.fn()} />);
+
+    expect(spy).toHaveBeenCalledWith({ block: 'nearest' });
+    const target = spy.mock.contexts[0] as HTMLElement;
+    expect(target.tagName).toBe('BUTTON');
+    expect(target.classList.contains('route-steps__item')).toBe(true);
+    expect(target.getAttribute('aria-current')).toBe('step');
+    expect(target.textContent).toContain('Calle sin nombre');
+  });
+
+  it('scrolls again when another street is picked', () => {
+    const spy = spyOnScroll();
+    const { rerender } = render(<RouteSteps groups={groups} selected={0} onSelect={vi.fn()} />);
+
+    rerender(<RouteSteps groups={groups} selected={1} onSelect={vi.fn()} />);
+
+    expect(spy).toHaveBeenCalledTimes(2);
+  });
+
+  it('scrolls nothing when no street is picked', () => {
+    const spy = spyOnScroll();
+    render(<RouteSteps groups={groups} selected={null} onSelect={vi.fn()} />);
+    expect(spy).not.toHaveBeenCalled();
   });
 });
