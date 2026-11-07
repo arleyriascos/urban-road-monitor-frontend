@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ComponentProps } from 'react';
 import { MAX_WAKE_ATTEMPTS, type RouteState } from '../hooks/useRoute';
-import { formatLength, pluralize } from '../lib/format';
 import { describeRouteError } from '../lib/route-errors';
+import type { RouteGroup } from '../lib/route-groups';
 import type { LatLng, RouteCriterion } from '../types/route';
 import { CriterionPicker } from './CriterionPicker';
+import { RouteDetails } from './RouteDetails';
+import { RouteSteps } from './RouteSteps';
 
 interface RoutePanelProps {
   origin: LatLng | null;
@@ -14,6 +16,12 @@ interface RoutePanelProps {
   requestKey?: string;
   /** Address that wakes the route service in a new tab, or null when it is not configured. */
   wakeUrl: string | null;
+  /** The route street by street, and the street picked (null when none is). */
+  groups?: readonly RouteGroup[];
+  selected?: number | null;
+  onSelect?: (index: number | null) => void;
+  /** Asks for the same route again with the other algorithm; replaced in tests. */
+  fetchRoute?: ComponentProps<typeof RouteDetails>['fetchRoute'];
   onCriterionChange: (value: RouteCriterion) => void;
   onRetry: () => void;
   onSwap: () => void;
@@ -70,16 +78,15 @@ function RouteStatus({
           </p>
         </div>
       );
-    case 'success': {
-      const { summary, fromCache } = state.route;
+    case 'success':
       return (
         <p className="route-status route-status--ok" role="status">
-          Ruta lista: {formatLength(summary.lengthM)} en{' '}
-          {pluralize(summary.steps, 'tramo', 'tramos')}.
-          {fromCache ? <span className="route-status__note"> Salió de la caché.</span> : null}
+          Ruta lista.
+          {state.route.fromCache ? (
+            <span className="route-status__note"> Salió de la caché.</span>
+          ) : null}
         </p>
       );
-    }
     case 'error': {
       const description = describeRouteError(state.error);
       return (
@@ -87,7 +94,9 @@ function RouteStatus({
           <p className="route-status__title">{description.title}</p>
           <p className="route-status__help">{description.help}</p>
           <div className="route-panel__actions">
-            <RetryButton key={requestKey} waitS={description.waitS} onRetry={onRetry} />
+            {description.retryable ? (
+              <RetryButton key={requestKey} waitS={description.waitS} onRetry={onRetry} />
+            ) : null}
             {description.wakeLink && wakeUrl ? (
               <a className="route-link" href={wakeUrl} target="_blank" rel="noopener noreferrer">
                 Despertar el servicio de rutas
@@ -103,6 +112,7 @@ function RouteStatus({
 /** The "Cómo llegar" panel: how to place the points, the criterion and the state of the route. */
 export function RoutePanel(props: RoutePanelProps) {
   const { origin, destination, criterion, onCriterionChange, onSwap, onClear, onClose } = props;
+  const { groups = [], selected = null, onSelect = () => undefined } = props;
 
   return (
     <section className="route-panel" aria-label="Cómo llegar">
@@ -125,6 +135,19 @@ export function RoutePanel(props: RoutePanelProps) {
         wakeUrl={props.wakeUrl}
         onRetry={props.onRetry}
       />
+      {props.state.status === 'success' && origin && destination ? (
+        <>
+          <RouteDetails
+            route={props.state.route}
+            groups={groups}
+            origin={origin}
+            destination={destination}
+            criterion={criterion}
+            fetchRoute={props.fetchRoute}
+          />
+          <RouteSteps groups={groups} selected={selected} onSelect={onSelect} />
+        </>
+      ) : null}
       <div className="route-panel__actions">
         <button
           type="button"

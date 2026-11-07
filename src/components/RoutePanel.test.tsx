@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../api/http';
 import type { RouteState } from '../hooks/useRoute';
+import { groupRouteSteps } from '../lib/route-groups';
 import { routeFixture } from '../test/route-fixtures';
 import type { LatLng } from '../types/route';
 import { RoutePanel } from './RoutePanel';
@@ -82,9 +83,17 @@ describe('RoutePanel', () => {
     expect(screen.getByText(/Intento 2 de 4/)).toBeTruthy();
   });
 
-  it('sums up the route when it arrives', () => {
-    renderPanel({ origin: A, destination: B }, { status: 'success', route: routeFixture });
-    expect(screen.getByRole('status').textContent).toBe('Ruta lista: 336 m en 3 tramos.');
+  it('says the route is ready, with its numbers in the summary', () => {
+    renderPanel(
+      { origin: A, destination: B, groups: groupRouteSteps(routeFixture) },
+      { status: 'success', route: routeFixture },
+    );
+
+    expect(screen.getByRole('status').textContent).toBe('Ruta lista.');
+    expect(screen.getByText('336 m')).toBeTruthy();
+    expect(screen.getByText('Calles').nextElementSibling?.textContent).toBe('2');
+    expect(screen.getByText('Tramos').nextElementSibling?.textContent).toBe('3');
+    expect(screen.getByText('Con daño').nextElementSibling?.textContent).toBe('1 de 3');
   });
 
   it('says when the route came from the cache', () => {
@@ -98,6 +107,17 @@ describe('RoutePanel', () => {
   it('explains an error and retries from its button', () => {
     const { onRetry } = renderPanel(
       { origin: A, destination: B },
+      { status: 'error', error: new ApiError('timeout', 'x') },
+    );
+
+    expect(screen.getByRole('alert').textContent).toContain('El servidor no respondió a tiempo');
+    fireEvent.click(screen.getByRole('button', { name: 'Reintentar' }));
+    expect(onRetry).toHaveBeenCalledOnce();
+  });
+
+  it('explains a point too far from the streets, without a button that cannot help', () => {
+    renderPanel(
+      { origin: A, destination: B },
       {
         status: 'error',
         error: httpError(422, 'OUTSIDE_NETWORK', {
@@ -109,9 +129,16 @@ describe('RoutePanel', () => {
     );
 
     expect(screen.getByRole('alert').textContent).toContain('El origen quedó lejos de las calles');
-    fireEvent.click(screen.getByRole('button', { name: 'Reintentar' }));
-    expect(onRetry).toHaveBeenCalledOnce();
+    expect(screen.queryByRole('button', { name: /Reintentar/ })).toBeNull();
   });
+
+  it.each([[httpError(404, 'NO_ROUTE')], [httpError(400, 'INVALID_REQUEST')]])(
+    'offers no Retry when asking again cannot change the answer (%#)',
+    (error) => {
+      renderPanel({ origin: A, destination: B }, { status: 'error', error });
+      expect(screen.queryByRole('button', { name: /Reintentar/ })).toBeNull();
+    },
+  );
 
   it('keeps "Reintentar" waiting the seconds the server asked for', () => {
     vi.useFakeTimers();
@@ -202,5 +229,40 @@ describe('RoutePanel', () => {
     expect(onSwap).toHaveBeenCalledOnce();
     expect(onClear).toHaveBeenCalledOnce();
     expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it('shows the street list and the technical details when the route arrives', () => {
+    renderPanel(
+      { origin: A, destination: B, groups: groupRouteSteps(routeFixture), selected: null },
+      { status: 'success', route: routeFixture },
+    );
+
+    expect(screen.getByRole('region', { name: 'Recorrido de la ruta' })).toBeTruthy();
+    expect(screen.getByText('Detalles técnicos')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Calle 18/ })).toBeTruthy();
+  });
+
+  it('shows no summary or list before the route arrives', () => {
+    renderPanel({ origin: A, destination: B }, { status: 'loading' });
+    expect(screen.queryByText('Detalles técnicos')).toBeNull();
+    expect(screen.queryByRole('region', { name: 'Recorrido de la ruta' })).toBeNull();
+  });
+
+  it('passes the street picked in the list on', () => {
+    const onSelect = vi.fn();
+    renderPanel(
+      {
+        origin: A,
+        destination: B,
+        groups: groupRouteSteps(routeFixture),
+        selected: null,
+        onSelect,
+      },
+      { status: 'success', route: routeFixture },
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /Calle sin nombre/ }));
+
+    expect(onSelect).toHaveBeenCalledWith(1);
   });
 });
