@@ -742,10 +742,12 @@
     background: var(--surface);
   }
 
-  /* The bar is 56px tall (a 44px button and 6px above and below): a street brought into view
-     must stop below it, not under it. */
-  .route-steps__entry {
-    scroll-margin-top: 64px;
+  /* A street brought into view must stop below the fixed bar, not under it. The browser scrolls
+     the street's button, so the margin goes on the button and not on its list item. From the top
+     of the panel the bar starts 13px down (12px of padding and 1px of border) and is 56px tall
+     (a 44px button and 6px above and below): 69px, plus a gap. */
+  .route-steps__item {
+    scroll-margin-top: 80px;
   }
 
   .route-summary {

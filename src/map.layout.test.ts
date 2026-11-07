@@ -10,6 +10,8 @@ const css = readFileSync(resolve(process.cwd(), 'src', 'map.css'), 'utf8');
 const PHONE_QUERY = '@media (max-width: 640px) {';
 /** Height of the fixed Anterior / Siguiente bar: a 44px button and 6px of padding above and below. */
 const NAV_HEIGHT_PX = 44 + 6 + 6;
+/** The least space to leave between the bar and the street brought into view. */
+const MIN_GAP_PX = 8;
 
 /** The CSS inside every phone media query of the stylesheet. */
 function phoneCss(): string {
@@ -30,6 +32,18 @@ function phoneCss(): string {
   }
   return blocks.join('\n');
 }
+
+/** A number of pixels of the (not phone) route panel rule, such as its padding or border. */
+function panelPixels(property: string): number {
+  const start = css.indexOf('\n.route-panel {');
+  const body = css.slice(start, css.indexOf('}', start));
+  const match = new RegExp(`${property}:\\s*(\\d+)px`).exec(body);
+  if (!match) throw new Error(`No ${property} in px on .route-panel`);
+  return Number(match[1]);
+}
+
+const panelPaddingTop = () => panelPixels('padding');
+const panelBorder = () => panelPixels('border');
 
 /** The declarations of a rule written inside the phone media queries. */
 function phoneRule(selector: string): string {
@@ -52,10 +66,19 @@ describe('the phone panel keeps the street picked below the fixed bar', () => {
     expect(list).toContain('overflow: visible');
   });
 
-  it('leaves at least the height of the bar above a street brought into view', () => {
-    const margin = /scroll-margin-top:\s*(\d+)px/.exec(phoneRule('.route-steps__entry'));
+  it('puts the scroll margin on the street button, the element that is scrolled into view', () => {
+    // The margin only counts on the element passed to scrollIntoView; on its list item it did nothing.
+    expect(phoneRule('.route-steps__item')).toContain('scroll-margin-top');
+    expect(phoneCss()).not.toMatch(/\.route-steps__entry\s*\{[^}]*scroll-margin-top/);
+  });
+
+  it('leaves room for the bar above a street brought into view, counting the panel padding', () => {
+    const margin = /scroll-margin-top:\s*(\d+)px/.exec(phoneRule('.route-steps__item'));
     expect(margin, 'scroll-margin-top in px').not.toBeNull();
-    expect(Number(margin?.[1])).toBeGreaterThanOrEqual(NAV_HEIGHT_PX);
+    // The bar sticks inside the padding of the panel, so the street must clear both.
+    expect(Number(margin?.[1])).toBeGreaterThanOrEqual(
+      NAV_HEIGHT_PX + panelPaddingTop() + panelBorder() + MIN_GAP_PX,
+    );
   });
 
   it('gives every phone button the 44px touch height the bar is computed from', () => {
