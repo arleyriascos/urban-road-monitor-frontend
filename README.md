@@ -40,12 +40,15 @@ La aplicación se abre en `http://localhost:5173`.
 
 ## Variables de entorno
 
-| Variable              | Descripción                                                                                              |
-| --------------------- | -------------------------------------------------------------------------------------------------------- |
-| `VITE_API_URL`        | URL del backend, sin `/` al final. Por defecto `http://localhost:3000`                                   |
-| `VITE_AI_SERVICE_URL` | Opcional. Dirección pública del servicio de IA, solo para despertarlo desde el navegador (ver más abajo) |
+| Variable                | Descripción                                                                                                                                                                                                          |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_API_URL`          | URL del backend, sin `/` al final. Por defecto `http://localhost:3000`                                                                                                                                               |
+| `VITE_AI_SERVICE_URL`   | Opcional. Dirección pública del servicio de IA, solo para despertarlo desde el navegador (ver más abajo)                                                                                                             |
+| `VITE_GOOGLE_CLIENT_ID` | Opcional. ID de cliente público del ingreso con Google (el mismo `GOOGLE_CLIENT_ID` del backend). Sin él, la pantalla de entrada avisa que el ingreso con Google no está disponible y solo deja entrar como invitado |
 
 **Por qué el navegador despierta al servicio de IA.** En el plan gratuito de Render, el servicio de IA (que calcula las rutas) se duerme tras unos minutos sin uso, y Render solo lo despierta cuando lo pide un navegador: si lo pide el backend, responde `hibernate-rate-limited` y no lo despierta (comprobado en producción). Por eso, al abrir la app, el navegador hace una petición a `VITE_AI_SERVICE_URL/health` sin esperar la respuesta, y si una ruta responde 503 con `retryAfterS`, la app espera esos segundos, lo despierta de nuevo y reintenta (hasta 4 intentos). Si aun así no despierta, el panel ofrece un enlace que abre el servicio en otra pestaña. Esa dirección es pública y no lleva ningún token.
+
+**Cuenta y sesión.** Al abrir la app sin sesión aparece una pantalla de entrada con el botón de Google y «Continuar como invitado»; invitado y persona con cuenta ven lo mismo, y el rol solo se muestra. El detalle del flujo está en `docs/AUTENTICACION.md`. La página `/privacidad` explica qué datos se guardan y cómo pedir su borrado.
 
 Para apuntar a otro backend en local, copia `.env.example` como `.env` y cambia el valor. En Vercel se configura en **Settings → Environment Variables**.
 
@@ -69,10 +72,10 @@ Todo lo que empieza con `VITE_` queda visible en el navegador (se puede ver con 
 La configuración está en `vercel.json` (Vite, compila con `npm run build` y publica `dist/`).
 
 1. En vercel.com: **Add New → Project** e importa este repositorio.
-2. En **Environment Variables** agrega `VITE_API_URL` con la URL del backend en Render, sin `/` al final, y `VITE_AI_SERVICE_URL` con `https://urban-road-monitor-ai.onrender.com`.
+2. En **Environment Variables** agrega `VITE_API_URL` con la URL del backend en Render, sin `/` al final, `VITE_AI_SERVICE_URL` con `https://urban-road-monitor-ai.onrender.com` y `VITE_GOOGLE_CLIENT_ID` con el ID de cliente de Google (el mismo que usa el backend).
 3. Pulsa **Deploy**.
 
-Cada push a `main` vuelve a desplegar automáticamente. Si cambias `VITE_API_URL` o `VITE_AI_SERVICE_URL`, hay que volver a desplegar (**Deployments → Redeploy**), porque Vite la incluye al compilar.
+Cada push a `main` vuelve a desplegar automáticamente. Si cambias `VITE_API_URL`, `VITE_AI_SERVICE_URL` o `VITE_GOOGLE_CLIENT_ID`, hay que volver a desplegar (**Deployments → Redeploy**), porque Vite la incluye al compilar.
 
 Después de desplegar, agrega la URL de Vercel a la variable `CORS_ORIGIN` del backend en Render; si no, el navegador bloqueará las peticiones.
 
@@ -80,19 +83,22 @@ Después de desplegar, agrega la URL de Vercel a la variable `CORS_ORIGIN` del b
 
 ```
 public/               Archivos estáticos (ícono)
-docs/                 Contratos del API del mapa (API-MAPA.md) y de las rutas (API-RUTAS.md)
+docs/                 Contratos del API del mapa (API-MAPA.md) y de las rutas (API-RUTAS.md) y el flujo de cuenta (AUTENTICACION.md)
 src/
-├── api/              Cliente HTTP, funciones que llaman al backend y despertar del servicio de IA
-├── components/       Pantallas y piezas de la interfaz (mapa, leyenda, Cómo llegar, carga, error)
+├── api/              Cliente HTTP, funciones que llaman al backend (mapa, rutas y cuenta) y despertar del servicio de IA
+├── components/       Pantallas y piezas de la interfaz (entrada, botón de Google, cuenta, privacidad, mapa, leyenda, Cómo llegar, carga, error)
 ├── config/           URL del backend y del servicio de IA
-├── hooks/            Carga de los datos del mapa y petición de la ruta (con reintentos)
-├── lib/              Lógica pura: formatos, estilos del mapa, leyenda, criterios, errores, agrupación por calle y geometría de las flechas
+├── hooks/            Carga de los datos del mapa, petición de la ruta (con reintentos) y sesión de la persona
+├── lib/              Lógica pura: estados y almacenamiento de la sesión, carga del script de Google, formatos, estilos del mapa, leyenda, criterios, errores, agrupación por calle y geometría de las flechas
 ├── map/              Código de Leaflet: mapa base, capas de calles y baches, marcadores, línea, flechas y resaltado de la ruta
 ├── test/             Configuración de las pruebas y datos de muestra
 ├── types/            Tipos del contrato del API
-├── App.tsx           Elige entre la pantalla de carga, la de error y el mapa
+├── App.tsx           Elige entre la página de privacidad, la entrada, la comprobación de la sesión y el mapa
 ├── main.tsx          Punto de entrada
 ├── map.css           Estilos del mapa y sus paneles
+├── account.css       Estilos de la cuenta en la barra superior
+├── entry.css         Estilos de la pantalla de entrada y del botón de Google
+├── privacy.css       Estilos de la página de privacidad
 ├── popups.css        Estilos de los cuadros de información
 └── styles.css        Estilos base y de las pantallas de carga y error
 ```
