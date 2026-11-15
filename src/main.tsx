@@ -4,6 +4,7 @@ import { App } from './App';
 import './styles.css';
 import './map.css';
 import './popups.css';
+import './entry.css';
 
 const rootElement = document.getElementById('root');
 

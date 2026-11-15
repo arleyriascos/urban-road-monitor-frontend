@@ -1,0 +1,113 @@
+/* Entry screen and the Google button. Colors come from the tokens of styles.css, so the
+   light and the dark theme both work. The card itself is the .splash__card of map.css. */
+
+.entry__title {
+  margin: 0 0 8px;
+  font-size: 1.6rem;
+  line-height: 1.25;
+}
+
+.entry__lead {
+  margin: 0 0 24px;
+  max-width: 52ch;
+  color: var(--muted);
+}
+
+.entry__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.entry__google[hidden] {
+  display: none;
+}
+
+.entry__working {
+  margin: 0;
+  font-weight: 700;
+}
+
+.entry__note {
+  margin: 16px 0 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.entry__actions > .entry__note {
+  margin: 0;
+}
+
+.entry__error {
+  margin: 0;
+  padding: 10px 14px;
+  border-left: 4px solid var(--fail);
+  background: var(--concrete);
+  border-radius: 4px;
+  max-width: 52ch;
+}
+
+.entry__error-title {
+  margin: 0;
+  font-weight: 700;
+  color: var(--fail);
+}
+
+.entry__error-help {
+  margin: 2px 0 0;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+/* The secondary button: same shape as .button, without the solid fill. */
+.button--ghost,
+.button--quiet {
+  background: transparent;
+  color: var(--asphalt);
+}
+
+.button--ghost:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.button--quiet {
+  padding: 6px 14px;
+  border-width: 1px;
+}
+
+/* The Google button: Google draws it inside .google-button__slot. */
+.google-button__slot {
+  min-height: 44px;
+}
+
+.google-button__slot[hidden] {
+  display: none;
+}
+
+.google-button__note {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+.google-button__note p {
+  margin: 0 0 8px;
+}
+
+@media (max-width: 640px) {
+  .entry__title {
+    font-size: 1.35rem;
+  }
+
+  .entry__actions {
+    align-items: stretch;
+  }
+
+  .button--ghost {
+    min-height: 44px;
+  }
+}
