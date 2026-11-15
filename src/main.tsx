@@ -5,6 +5,7 @@ import './styles.css';
 import './map.css';
 import './popups.css';
 import './entry.css';
+import './account.css';
 
 const rootElement = document.getElementById('root');
 

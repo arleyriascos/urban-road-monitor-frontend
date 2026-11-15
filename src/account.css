@@ -1,0 +1,67 @@
+/* Who is using the app: photo, name, role and the button, at the right of the top bar. */
+.account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  min-width: 0;
+}
+
+.account__avatar {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--line);
+}
+
+.account__avatar--initials {
+  display: grid;
+  place-items: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--asphalt);
+}
+
+.account__who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.account__name {
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.account__role {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.account__button {
+  flex: none;
+  min-height: 36px;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .account {
+    gap: 8px;
+  }
+
+  .account__name {
+    max-width: 110px;
+  }
+
+  .account__button {
+    min-height: 44px;
+  }
+}
