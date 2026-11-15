@@ -55,6 +55,7 @@ function showSession(state: SessionState) {
 
 beforeEach(() => {
   vi.resetAllMocks();
+  window.history.pushState({}, '', '/');
 });
 
 describe('App', () => {
@@ -139,5 +140,38 @@ describe('App', () => {
     rerender(<App />);
 
     expect(wakeAiService).toHaveBeenCalledOnce();
+  });
+
+  it('links to the privacy page from the entry', () => {
+    showSession({ status: 'entry', signIn: { phase: 'idle' } });
+    render(<App />);
+
+    expect(screen.getByRole('link', { name: 'Política de privacidad' }).getAttribute('href')).toBe(
+      '/privacidad',
+    );
+  });
+
+  it.each(['/privacidad', '/privacidad/'])(
+    'shows the privacy page at %s without starting a session or waking anything',
+    (path) => {
+      window.history.pushState({}, '', path);
+      showSession({ status: 'entry', signIn: { phase: 'idle' } });
+      render(<App />);
+
+      expect(
+        screen.getByRole('heading', { level: 1, name: 'Política de privacidad' }),
+      ).toBeTruthy();
+      expect(screen.queryByRole('button', { name: 'Continuar como invitado' })).toBeNull();
+      expect(useSession).not.toHaveBeenCalled();
+      expect(wakeAiService).not.toHaveBeenCalled();
+    },
+  );
+
+  it('does not take another path for the privacy page', () => {
+    window.history.pushState({}, '', '/privacidad-otra');
+    showSession({ status: 'entry', signIn: { phase: 'idle' } });
+    render(<App />);
+
+    expect(screen.getByRole('button', { name: 'Continuar como invitado' })).toBeTruthy();
   });
 });
