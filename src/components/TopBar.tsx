@@ -1,8 +1,9 @@
 import { summarizeNetwork } from '../lib/legend';
 import type { NetworkStats } from '../types/map';
+import { AccountBadge, type AccountActions } from './AccountBadge';
 
-/** Title of the app and the numbers of the city. */
-export function TopBar({ stats }: { stats: NetworkStats }) {
+/** Title of the app, the numbers of the city and, when given, who is using it. */
+export function TopBar({ stats, account }: { stats: NetworkStats; account?: AccountActions }) {
   const summary = summarizeNetwork(stats);
 
   return (
@@ -14,6 +15,7 @@ export function TopBar({ stats }: { stats: NetworkStats }) {
       <p className="topbar__summary">
         {summary.roads} · {summary.length} · {summary.potholes}
       </p>
+      {account && <AccountBadge {...account} />}
     </header>
   );
 }

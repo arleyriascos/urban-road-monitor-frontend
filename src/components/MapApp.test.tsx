@@ -7,7 +7,9 @@ import { potholesFixture, segmentsFixture, statsFixture } from '../test/fixtures
 
 vi.mock('../hooks/useMapData');
 vi.mock('./MapScreen', () => ({
-  MapScreen: () => <div data-testid="map-screen" />,
+  MapScreen: ({ account }: { account?: { user: { fullName: string } | null } }) => (
+    <div data-testid="map-screen">{account?.user?.fullName}</div>
+  ),
 }));
 
 const retry = vi.fn();
@@ -53,5 +55,17 @@ describe('MapApp', () => {
     render(<MapApp />);
     expect(screen.getByTestId('map-screen')).toBeTruthy();
     expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('gives the account actions to the map screen', () => {
+    showState({
+      status: 'success',
+      data: { segments: segmentsFixture, potholes: potholesFixture, stats: statsFixture },
+      receivedAt: new Date(),
+    });
+    const user = { id: 'u1', email: 'a@b.co', fullName: 'Ana Pérez', avatarUrl: null, roles: [] };
+    render(<MapApp account={{ user, onSignOut: vi.fn(), onSignIn: vi.fn() }} />);
+
+    expect(screen.getByTestId('map-screen').textContent).toBe('Ana Pérez');
   });
 });

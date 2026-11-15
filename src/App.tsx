@@ -38,5 +38,13 @@ export function App() {
     );
   }
 
-  return <MapApp />;
+  return (
+    <MapApp
+      account={{
+        user: state.status === 'signed_in' ? state.user : null,
+        onSignOut: session.signOut,
+        onSignIn: session.requestSignIn,
+      }}
+    />
+  );
 }

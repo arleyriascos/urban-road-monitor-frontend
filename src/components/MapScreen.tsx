@@ -13,10 +13,11 @@ import { LegendPanel } from './LegendPanel';
 import { MapView, type MapRouting } from './MapView';
 import { RecenterButton } from './RecenterButton';
 import { RoutePanel } from './RoutePanel';
+import type { AccountActions } from './AccountBadge';
 import { TopBar } from './TopBar';
 
 /** The main screen: the map with its top bar, legend, layer switches and "Cómo llegar". */
-export function MapScreen({ data }: { data: MapData }) {
+export function MapScreen({ data, account }: { data: MapData; account?: AccountActions }) {
   const [showPotholes, setShowPotholes] = useState(true);
   const [includeRepaired, setIncludeRepaired] = useState(false);
   const [recenterKey, setRecenterKey] = useState(0);
@@ -77,7 +78,7 @@ export function MapScreen({ data }: { data: MapData }) {
 
   return (
     <div className={routeOpen ? 'map-app map-app--routing' : 'map-app'}>
-      <TopBar stats={data.stats} />
+      <TopBar stats={data.stats} account={account} />
       <div className="map-app__body">
         <MapView
           segments={data.segments}

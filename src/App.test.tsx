@@ -8,7 +8,23 @@ import type { SessionState } from './lib/session-state';
 
 vi.mock('./api/ai-service', () => ({ wakeAiService: vi.fn() }));
 vi.mock('./hooks/useSession');
-vi.mock('./components/MapApp', () => ({ MapApp: () => <div data-testid="map-app" /> }));
+vi.mock('./components/MapApp', () => ({
+  MapApp: ({
+    account,
+  }: {
+    account: { user: { fullName: string } | null; onSignOut: () => void; onSignIn: () => void };
+  }) => (
+    <div data-testid="map-app">
+      <span>{account.user ? account.user.fullName : 'invitado'}</span>
+      <button type="button" onClick={account.onSignOut}>
+        salir
+      </button>
+      <button type="button" onClick={account.onSignIn}>
+        entrar
+      </button>
+    </div>
+  ),
+}));
 vi.mock('./components/GoogleSignInButton', () => ({
   GoogleSignInButton: () => <div data-testid="google-button" />,
 }));
@@ -93,6 +109,28 @@ describe('App', () => {
 
     expect(screen.getByTestId('map-app')).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Continuar como invitado' })).toBeNull();
+  });
+
+  it('tells the map who is signed in, and a guest is a null person', () => {
+    showSession({ status: 'signed_in', token: TOKEN, user });
+    const { unmount } = render(<App />);
+    expect(screen.getByText('Ana')).toBeTruthy();
+    unmount();
+
+    showSession({ status: 'guest', remembered: true });
+    render(<App />);
+    expect(screen.getByText('invitado')).toBeTruthy();
+  });
+
+  it('signs out and goes to the entry from the actions the map was given', () => {
+    const controls = showSession({ status: 'signed_in', token: TOKEN, user });
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'salir' }));
+    fireEvent.click(screen.getByRole('button', { name: 'entrar' }));
+
+    expect(controls.signOut).toHaveBeenCalledOnce();
+    expect(controls.requestSignIn).toHaveBeenCalledOnce();
   });
 
   it('starts waking the AI service once, in any screen, as soon as the app opens', () => {
