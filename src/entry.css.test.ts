@@ -15,7 +15,9 @@ describe('the entry stylesheet', () => {
 
   it('makes the guest button at least 44px tall on phones, for the finger', () => {
     const phone = css.slice(css.indexOf('@media (max-width: 640px)'));
-    expect(phone).toMatch(/\.button--ghost\s*{[^}]*min-height:\s*44px/);
+    expect(phone).toMatch(
+      /\.button--ghost,\s*\.entry__buttons \.button\s*{[^}]*min-height:\s*44px/,
+    );
   });
 
   it('keeps the hidden Google parts out of the layout', () => {

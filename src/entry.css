@@ -22,6 +22,12 @@
   border-top: 1px solid var(--line);
 }
 
+.entry__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .entry__google[hidden] {
   display: none;
 }
@@ -107,7 +113,8 @@
     align-items: stretch;
   }
 
-  .button--ghost {
+  .button--ghost,
+  .entry__buttons .button {
     min-height: 44px;
   }
 }
