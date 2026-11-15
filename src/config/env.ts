@@ -18,6 +18,12 @@ export function optionalUrl(value: string | undefined): string | null {
   return url === '' ? null : url;
 }
 
+/** An optional text: null when it is missing or blank. */
+export function optionalText(value: string | undefined): string | null {
+  const text = (value ?? '').trim();
+  return text === '' ? null : text;
+}
+
 export const apiUrl = normalizeUrl(import.meta.env.VITE_API_URL || DEFAULT_API_URL);
 
 /**
@@ -26,3 +32,10 @@ export const apiUrl = normalizeUrl(import.meta.env.VITE_API_URL || DEFAULT_API_U
  * the backend does. Without it the app works the same, but cannot wake the service.
  */
 export const aiServiceUrl = optionalUrl(import.meta.env.VITE_AI_SERVICE_URL);
+
+/**
+ * Public client id of the Google sign-in (optional). It is not a secret: Google needs the
+ * browser to send it, and the backend checks that every token was made for this same id.
+ * Without it the app still works as a guest, but the Google button is not shown.
+ */
+export const googleClientId = optionalText(import.meta.env.VITE_GOOGLE_CLIENT_ID);
