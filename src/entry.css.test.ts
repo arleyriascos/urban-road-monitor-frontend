@@ -24,4 +24,25 @@ describe('the entry stylesheet', () => {
     expect(css).toMatch(/\.entry__google\[hidden\]\s*{[^}]*display:\s*none/);
     expect(css).toMatch(/\.google-button__slot\[hidden\]\s*{[^}]*display:\s*none/);
   });
+
+  it('splits the screen in two columns, and stacks them on narrow screens', () => {
+    expect(css).toMatch(
+      /\.entry-page\s*{[^}]*grid-template-columns:\s*minmax\(0, 1\.15fr\) minmax\(0, 1fr\)/,
+    );
+    const narrow = css.slice(css.indexOf('@media (max-width: 860px)'));
+    expect(narrow).toMatch(/\.entry-page\s*{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/);
+  });
+
+  it('paints the left panel only with the hero tokens', () => {
+    const hero = css.slice(css.indexOf('.entry-hero {'), css.indexOf('.entry-hero__content'));
+    expect(hero).toContain('var(--hero-bg)');
+    expect(css).toContain('var(--hero-text)');
+    expect(css).toContain('var(--hero-muted)');
+    expect(css).toContain('var(--hero-main)');
+    expect(css).toContain('var(--hero-side)');
+  });
+
+  it('colors the links of the right panel with the theme link color', () => {
+    expect(css).toMatch(/\.entry__note a\s*{[^}]*color:\s*var\(--route-text\)/);
+  });
 });

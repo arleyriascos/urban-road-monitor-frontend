@@ -1,7 +1,137 @@
 /* Entry screen and the Google button. Colors come from the tokens of styles.css, so the
-   light and the dark theme both work. The card itself is the .splash__card of map.css. */
+   light and the dark theme both work. The left panel (.entry-hero) uses the --hero-* tokens,
+   which stay dark in both themes; the right side uses the page tokens. */
 
-.entry__title {
+.entry-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  min-height: calc(100vh - 10px);
+  min-height: calc(100dvh - 10px);
+}
+
+/* Left: the streets of Pasto, the headline and the card with the numbers. */
+
+.entry-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+  padding: clamp(24px, 4vw, 56px);
+  overflow: hidden;
+  background: var(--hero-bg);
+  color: var(--hero-text);
+}
+
+.pasto-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.pasto-art__side {
+  stroke: var(--hero-side);
+  stroke-width: 0.9;
+}
+
+.pasto-art__main {
+  stroke: var(--hero-main);
+  stroke-width: 1.5;
+}
+
+/* A veil from the corner where the text is, so the letters never sit on a busy street. */
+.entry-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, var(--hero-bg) 0%, var(--hero-bg) 22%, transparent 70%);
+  pointer-events: none;
+}
+
+.entry-hero__content,
+.entry-hero__card {
+  position: relative;
+}
+
+.entry-hero__brand {
+  margin: 0 0 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hero-accent);
+}
+
+.entry-hero__title {
+  margin: 0 0 12px;
+  max-width: 14ch;
+  font-size: clamp(2rem, 4.2vw, 3.4rem);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+}
+
+.entry-hero__lead {
+  margin: 0;
+  max-width: 36ch;
+  font-size: 1.05rem;
+  color: var(--hero-muted);
+}
+
+.entry-hero__card {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: start;
+  gap: 4px 28px;
+  margin: 0;
+  padding: 16px 20px;
+  border: 1px solid var(--hero-card-line);
+  border-radius: var(--radius);
+  background: var(--hero-card);
+}
+
+.entry-hero__card dt {
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hero-muted);
+}
+
+.entry-hero__card dd {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.entry-hero__source {
+  grid-column: 1 / -1;
+  margin: 8px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--hero-card-line);
+  font-size: 0.82rem;
+  color: var(--hero-muted);
+}
+
+/* Right: how to enter. */
+
+.entry {
+  display: grid;
+  place-items: center;
+  padding: clamp(24px, 4vw, 56px);
+  background: var(--surface);
+}
+
+.entry__inner {
+  width: min(400px, 100%);
+}
+
+.entry__heading {
   margin: 0 0 8px;
   font-size: 1.6rem;
   line-height: 1.25;
@@ -9,7 +139,6 @@
 
 .entry__lead {
   margin: 0 0 24px;
-  max-width: 52ch;
   color: var(--muted);
 }
 
@@ -104,8 +233,35 @@
   margin: 0 0 8px;
 }
 
+/* Tablets and phones: one column. The map and the headline go on top, shorter, and the way
+   to enter comes right under them, so the buttons are visible without scrolling far. */
+@media (max-width: 860px) {
+  .entry-page {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .entry-hero {
+    gap: 20px;
+    padding: 24px 20px;
+  }
+
+  .entry-hero__title {
+    max-width: none;
+    font-size: 1.9rem;
+  }
+
+  .entry-hero__brand {
+    margin-bottom: 12px;
+  }
+
+  .entry__inner {
+    width: min(440px, 100%);
+  }
+}
+
 @media (max-width: 640px) {
-  .entry__title {
+  .entry__heading {
     font-size: 1.35rem;
   }
 
@@ -113,8 +269,22 @@
     align-items: stretch;
   }
 
+  .entry-hero__card {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px 12px;
+    padding: 12px 14px;
+  }
+
+  .entry-hero__card dd {
+    font-size: 1.2rem;
+  }
+
   .button--ghost,
   .entry__buttons .button {
     min-height: 44px;
   }
+}
+
+.entry__note a {
+  color: var(--route-text);
 }

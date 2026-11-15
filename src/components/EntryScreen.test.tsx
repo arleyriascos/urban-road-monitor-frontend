@@ -41,6 +41,42 @@ describe('EntryScreen', () => {
     expect(screen.getByRole('button', { name: 'Continuar como invitado' })).toBeTruthy();
   });
 
+  it('shows the headline first and the way in after it, each with its own heading', () => {
+    renderEntry();
+
+    const title = screen.getByRole('heading', { level: 1 });
+    const way = screen.getByRole('heading', { level: 2 });
+
+    expect(title.textContent).toBe('Las calles de Pasto, sin sorpresas');
+    expect(way.textContent).toBe('Entra a la app');
+    // Reading order: the panel with the headline comes before the sign-in.
+    expect(title.compareDocumentPosition(way) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('shows the size of the loaded network, with thousands separators', () => {
+    renderEntry();
+
+    const card = screen.getByLabelText('La red vial cargada en la app');
+    expect(card.textContent).toContain('4.610');
+    expect(card.textContent).toContain('10.134');
+    expect(card.textContent).toContain('774');
+    expect(screen.getByText('Calles de OpenStreetMap')).toBeTruthy();
+  });
+
+  it('hides the drawing of the streets from assistive technology', () => {
+    const { container } = render(
+      <EntryScreen
+        signIn={idle}
+        googleClientId="client-1"
+        onCredential={vi.fn()}
+        onGuest={vi.fn()}
+      />,
+    );
+
+    const art = container.querySelector('svg.pasto-art');
+    expect(art?.getAttribute('aria-hidden')).toBe('true');
+  });
+
   it('hands the Google credential to the page', () => {
     const { onCredential } = renderEntry();
 

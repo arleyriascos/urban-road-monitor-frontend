@@ -13,6 +13,18 @@
   --severity-moderado: #ea7a1a;
   --severity-grave: #c62828;
   --radius: 10px;
+
+  /* The panel with the map on the entry screen. It stays dark in both themes, because the
+     streets read best light on dark; the dark theme only makes it a little deeper. */
+  --hero-bg: #1b2024;
+  --hero-side: #333b42;
+  --hero-main: #4f5861;
+  --hero-text: #f4f5f6;
+  --hero-muted: #cbd2d8;
+  --hero-card: #252b30;
+  --hero-card-line: #3d454c;
+  --hero-accent: #f2c230;
+
   --font: 'Archivo', 'Segoe UI', Roboto, Arial, sans-serif;
 
   color-scheme: light dark;
@@ -27,6 +39,10 @@
     --muted: #a7aeb4;
     --ok: #3fb47f;
     --fail: #e5674f;
+    --hero-bg: #121619;
+    --hero-side: #2a3238;
+    --hero-card: #1c2125;
+    --hero-card-line: #343b42;
   }
 }
 
