@@ -6,6 +6,7 @@ import './map.css';
 import './popups.css';
 import './entry.css';
 import './account.css';
+import './privacy.css';
 
 const rootElement = document.getElementById('root');
 

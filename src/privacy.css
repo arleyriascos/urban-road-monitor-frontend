@@ -1,0 +1,71 @@
+/* Privacy page: a readable column of text. Colors come from the design tokens. */
+.privacy {
+  display: grid;
+  justify-items: center;
+  padding: 24px;
+}
+
+.privacy__card {
+  width: min(720px, 100%);
+  margin: 0;
+}
+
+.privacy__title {
+  margin: 0 0 4px;
+  font-size: 1.7rem;
+  line-height: 1.25;
+}
+
+.privacy__updated {
+  margin: 0 0 8px;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.privacy h2 {
+  margin: 28px 0 8px;
+  font-size: 1.1rem;
+}
+
+.privacy p,
+.privacy li {
+  max-width: 68ch;
+}
+
+.privacy ul {
+  padding-left: 22px;
+}
+
+.privacy li + li {
+  margin-top: 8px;
+}
+
+.privacy a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+
+.privacy a:focus-visible {
+  outline: 3px solid var(--marking);
+  outline-offset: 3px;
+}
+
+.privacy__back {
+  margin: 32px 0 0;
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .privacy {
+    padding: 12px;
+  }
+
+  .privacy__title {
+    font-size: 1.4rem;
+  }
+
+  .privacy__back a {
+    display: inline-block;
+    padding: 12px 0;
+  }
+}
