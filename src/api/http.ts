@@ -25,6 +25,8 @@ interface RequestOptions {
    * close to a minute, so the default timeout is generous.
    */
   timeoutMs?: number;
+  /** The session identifier, sent as "Authorization: Bearer <identifier>". */
+  token?: string;
 }
 
 interface ErrorBody {
@@ -34,6 +36,11 @@ interface ErrorBody {
 /** GET request to the backend that returns the parsed JSON body. */
 export function getJson<T>(path: string, options: RequestOptions = {}): Promise<T> {
   return requestJson<T>(path, { method: 'GET' }, options);
+}
+
+/** POST request without a body, for the calls that answer "204 No Content". */
+export async function postEmpty(path: string, options: RequestOptions = {}): Promise<void> {
+  await requestJson<undefined>(path, { method: 'POST' }, options);
 }
 
 /** POST request with a JSON body to the backend that returns the parsed JSON body. */
@@ -48,12 +55,13 @@ export function postJson<T>(path: string, body: unknown, options: RequestOptions
 async function requestJson<T>(
   path: string,
   request: { method: 'GET' | 'POST'; body?: string; contentType?: string },
-  { signal, timeoutMs = 60_000 }: RequestOptions,
+  { signal, timeoutMs = 60_000, token }: RequestOptions,
 ): Promise<T> {
   const timeoutSignal = AbortSignal.timeout(timeoutMs);
   const combinedSignal = signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal;
   const headers: Record<string, string> = { Accept: 'application/json' };
   if (request.contentType) headers['Content-Type'] = request.contentType;
+  if (token) headers.Authorization = `Bearer ${token}`;
 
   let response: Response;
   try {
@@ -88,5 +96,7 @@ async function requestJson<T>(
     );
   }
 
+  // 204 No Content (the sign-out) has no body to read.
+  if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }

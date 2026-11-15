@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { apiUrl } from '../config/env';
-import { ApiError, getJson, postJson } from './http';
+import { ApiError, getJson, postEmpty, postJson } from './http';
 
 function jsonResponse(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -115,5 +115,64 @@ describe('postJson', () => {
 
     const error = await request.catch((value: unknown) => value);
     expect(error).not.toBeInstanceOf(ApiError);
+  });
+});
+
+describe('the session identifier', () => {
+  it('goes in the Authorization header of a GET and of a POST when there is one', async () => {
+    const fetch = mockFetch(async () => jsonResponse(200, {}));
+
+    await getJson('/api/auth/me', { token: 'abc' });
+    await postJson('/api/x', {}, { token: 'abc' });
+
+    expect(new Headers(fetch.mock.calls[0][1]?.headers).get('Authorization')).toBe('Bearer abc');
+    expect(new Headers(fetch.mock.calls[1][1]?.headers).get('Authorization')).toBe('Bearer abc');
+  });
+
+  it('is not sent when there is none, so the other requests do not change', async () => {
+    const fetch = mockFetch(async () => jsonResponse(200, {}));
+
+    await getJson('/api/road-segments');
+    await getJson('/api/road-segments', { token: '' });
+
+    for (const [, init] of fetch.mock.calls) {
+      expect(new Headers(init?.headers).has('Authorization')).toBe(false);
+    }
+  });
+
+  it('keeps a 401 as an ApiError with its status and code, so the session can be closed', async () => {
+    mockFetch(async () =>
+      jsonResponse(401, {
+        error: { code: 'UNAUTHORIZED', message: 'A valid session is required' },
+      }),
+    );
+
+    const error = await caught(getJson('/api/auth/me', { token: 'abc' }));
+
+    expect(error.kind).toBe('http');
+    expect(error.status).toBe(401);
+    expect(error.code).toBe('UNAUTHORIZED');
+  });
+});
+
+describe('postEmpty', () => {
+  it('sends a POST without a body or content type and accepts the 204 answer', async () => {
+    const fetch = mockFetch(async () => new Response(null, { status: 204 }));
+
+    await expect(postEmpty('/api/auth/logout', { token: 'abc' })).resolves.toBeUndefined();
+
+    const [url, init] = fetch.mock.calls[0];
+    expect(url).toBe(`${apiUrl}/api/auth/logout`);
+    expect(init?.method).toBe('POST');
+    expect(init?.body).toBeUndefined();
+    const headers = new Headers(init?.headers);
+    expect(headers.has('Content-Type')).toBe(false);
+    expect(headers.get('Authorization')).toBe('Bearer abc');
+  });
+
+  it('throws the ApiError of a refused request', async () => {
+    mockFetch(async () => jsonResponse(401, { error: { code: 'UNAUTHORIZED', message: 'x' } }));
+
+    expect((await caught(postEmpty('/api/auth/logout'))).status).toBe(401);
   });
 });
