@@ -42,6 +42,29 @@ describe('PrivacyPage', () => {
     expect(screen.getByText(/no te pide ningún dato ni guarda nada tuyo/)).toBeTruthy();
   });
 
+  it('says what is sent when the camera detects a pothole, and that no picture leaves', () => {
+    render(<PrivacyPage />);
+    const text = document.body.textContent ?? '';
+    for (const part of [
+      'no se guarda ni se envía ninguna foto ni video',
+      'ubicación del teléfono',
+      'colaborador',
+      'se conservan aunque la cuenta se desactive',
+    ]) {
+      expect(text).toContain(part);
+    }
+  });
+
+  it('says the queue of the browser is deleted once the server has the potholes', () => {
+    render(<PrivacyPage />);
+    expect(screen.getByText(/hasta 500/)).toBeTruthy();
+  });
+
+  it('tells a guest that the camera does not save anything', () => {
+    render(<PrivacyPage />);
+    expect(screen.getByText(/pero no se guardan ni se envían/)).toBeTruthy();
+  });
+
   it('names the services that take part', () => {
     render(<PrivacyPage />);
     const text = document.body.textContent ?? '';
@@ -75,6 +98,7 @@ describe('PrivacyPage', () => {
       'Quién es responsable',
       'Qué datos guardamos si ingresas con Google',
       'Qué guarda tu navegador',
+      'Los baches que detecta la cámara',
       'Si entras como invitado',
       'Para qué usamos los datos',
       'Servicios que intervienen',

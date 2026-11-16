@@ -1,10 +1,10 @@
 # La cámara y el detector de baches
 
-La pantalla `/camara` abre la cámara del dispositivo, busca baches en el video con un modelo que corre **dentro del navegador** y dibuja un recuadro sobre cada uno. Tiene dos medidores: uno de rendimiento y otro de tamaño y gravedad. Esta parte **no envía nada al servidor** (el envío viene en otra etapa).
+La pantalla `/camara` abre la cámara del dispositivo, busca baches en el video con un modelo que corre **dentro del navegador** y dibuja un recuadro sobre cada uno. Tiene dos medidores: uno de rendimiento y otro de tamaño y gravedad. Si la persona es **colaborador**, además guarda cada bache con la ubicación del teléfono y lo envía al servidor (ver `docs/ENVIO.md`); un **invitado** ve los recuadros, pero no se guarda nada.
 
 ## Privacidad
 
-Las imágenes de la cámara se analizan en el dispositivo y no salen de él. No se guardan ni se envían. La pantalla lo dice en una nota visible. La cámara solo se enciende cuando la persona pulsa «Activar la cámara», y se apaga al pulsar «Apagar la cámara» o al salir de la pantalla.
+Las imágenes de la cámara se analizan en el dispositivo y no salen de él: no se guarda ni se envía ninguna foto ni video. Lo único que sale, y solo si la cuenta es de colaborador, es dónde está cada bache y qué tan grande se ve. La pantalla lo dice en una nota visible. La cámara solo se enciende cuando la persona pulsa «Activar la cámara», y se apaga al pulsar «Apagar la cámara» o al salir de la pantalla.
 
 ## Cómo funciona
 
@@ -39,4 +39,3 @@ Estos límites (`SEVERITY_LIMITS` en `src/detection/severity.ts`) son **valores 
 
 - Probar en teléfonos reales (Android y iPhone) y ajustar la velocidad según lo que midan los medidores.
 - Ajustar los límites de gravedad.
-- Guardar y enviar las detecciones, y la pantalla de estado de la cola (etapa siguiente).

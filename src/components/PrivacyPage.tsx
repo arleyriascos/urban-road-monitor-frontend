@@ -2,7 +2,7 @@
 export const PRIVACY_CONTACT_EMAIL = 'arley.riascos@campusucc.edu.co';
 
 /** When the text below was last revised. */
-export const PRIVACY_UPDATED_AT = '14 de noviembre de 2026';
+export const PRIVACY_UPDATED_AT = '16 de noviembre de 2026';
 
 /** What the app does with a person's data, in plain Spanish. Google asks for this page. */
 export function PrivacyPage() {
@@ -48,19 +48,33 @@ export function PrivacyPage() {
         <p>
           Guarda en tu propio dispositivo el identificador de tu sesión, o la elección de entrar
           como invitado, para que no tengas que decidir en cada visita. Se borra cuando cierras
-          sesión. No usamos cookies de seguimiento ni de publicidad. El botón de Google lo carga
+          sesión. Si eres colaborador, también guarda mientras no haya conexión los baches que la
+          cámara vio y aún no se enviaron (hasta 500); se borran del dispositivo cuando el servidor
+          los recibe. No usamos cookies de seguimiento ni de publicidad. El botón de Google lo carga
           Google desde sus servidores y se rige por su propia política de privacidad.
+        </p>
+
+        <h2>Los baches que detecta la cámara</h2>
+        <p>
+          Las imágenes de la cámara se analizan en tu dispositivo y no salen de él: no se guarda ni
+          se envía ninguna foto ni video. Si tu cuenta es de colaborador, por cada bache detectado
+          se envía y se guarda en el servidor: la ubicación del teléfono y su precisión, la fecha y
+          hora, la confianza del modelo, qué parte de la imagen cubría el bache, y el sistema y el
+          navegador de tu teléfono para reconocer el dispositivo. Esos datos quedan ligados a tu
+          cuenta, forman el mapa de baches y se conservan aunque la cuenta se desactive.
         </p>
 
         <h2>Si entras como invitado</h2>
         <p>
-          La app no te pide ningún dato ni guarda nada tuyo. Como cualquier servicio en internet, el
+          La app no te pide ningún dato ni guarda nada tuyo. La cámara te muestra los baches en
+          pantalla, pero no se guardan ni se envían. Como cualquier servicio en internet, el
           proveedor del servidor puede registrar direcciones IP en sus registros técnicos.
         </p>
 
         <h2>Para qué usamos los datos</h2>
         <p>
-          Solo para reconocerte, mostrarte tu nombre, tu foto y tu rol, y mantener tu sesión. No
+          Para reconocerte, mostrarte tu nombre, tu foto y tu rol, mantener tu sesión y, en el caso
+          de los colaboradores, dibujar el mapa de baches y calcular rutas que los evitan. No
           vendemos ni compartimos tus datos con nadie para otros fines.
         </p>
 
