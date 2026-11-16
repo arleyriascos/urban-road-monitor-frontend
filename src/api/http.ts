@@ -52,9 +52,22 @@ export function postJson<T>(path: string, body: unknown, options: RequestOptions
   );
 }
 
+/** PATCH request with a JSON body to the backend that returns the parsed JSON body. */
+export function patchJson<T>(
+  path: string,
+  body: unknown,
+  options: RequestOptions = {},
+): Promise<T> {
+  return requestJson<T>(
+    path,
+    { method: 'PATCH', body: JSON.stringify(body), contentType: 'application/json' },
+    options,
+  );
+}
+
 async function requestJson<T>(
   path: string,
-  request: { method: 'GET' | 'POST'; body?: string; contentType?: string },
+  request: { method: 'GET' | 'POST' | 'PATCH'; body?: string; contentType?: string },
   { signal, timeoutMs = 60_000, token }: RequestOptions,
 ): Promise<T> {
   const timeoutSignal = AbortSignal.timeout(timeoutMs);

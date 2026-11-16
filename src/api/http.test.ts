@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { apiUrl } from '../config/env';
-import { ApiError, getJson, postEmpty, postJson } from './http';
+import { ApiError, getJson, patchJson, postEmpty, postJson } from './http';
 
 function jsonResponse(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -174,5 +174,22 @@ describe('postEmpty', () => {
     mockFetch(async () => jsonResponse(401, { error: { code: 'UNAUTHORIZED', message: 'x' } }));
 
     expect((await caught(postEmpty('/api/auth/logout'))).status).toBe(401);
+  });
+});
+
+describe('patchJson', () => {
+  it('sends a PATCH with the body as JSON and the session', async () => {
+    const fetchMock = vi.fn<typeof fetch>(async () => new Response('{"ok":true}', { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    expect(await patchJson('/api/x', { a: 1 }, { token: 'tok' })).toEqual({ ok: true });
+
+    const [, init] = fetchMock.mock.calls[0];
+    expect(init?.method).toBe('PATCH');
+    expect(init?.body).toBe('{"a":1}');
+    const headers = new Headers(init?.headers);
+    expect(headers.get('Content-Type')).toBe('application/json');
+    expect(headers.get('Authorization')).toBe('Bearer tok');
+    vi.unstubAllGlobals();
   });
 });
