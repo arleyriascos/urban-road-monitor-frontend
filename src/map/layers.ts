@@ -9,6 +9,7 @@ import {
   summaryLoadingHtml,
 } from '../lib/popups';
 import type { SummaryLoader } from '../lib/summary-cache';
+import { isPhoneViewport } from '../lib/viewport';
 import type {
   PotholeCollection,
   PotholeProperties,
@@ -16,7 +17,21 @@ import type {
   SegmentProperties,
 } from '../types/map';
 
-const POPUP_OPTIONS: L.PopupOptions = { maxWidth: 260 };
+const POPUP_OPTIONS: L.PopupOptions = { maxWidth: 280 };
+
+/**
+ * The street popup is tall, and the search box, "Cómo llegar" and the legend float over the map.
+ * When a popup opens the map moves so it stays clear of them, and on a phone the popup scrolls
+ * instead of growing past the screen.
+ */
+export function segmentPopupOptions(phone: boolean): L.PopupOptions {
+  return {
+    ...POPUP_OPTIONS,
+    autoPanPaddingTopLeft: L.point(8, phone ? 140 : 110),
+    autoPanPaddingBottomRight: L.point(8, phone ? 76 : 12),
+    maxHeight: phone ? 380 : undefined,
+  };
+}
 
 export interface LayerOptions {
   /** False while the person picks route points: a tap must place a point, not open a popup. */
@@ -45,13 +60,13 @@ export function createSegmentLayer(
     style: (feature) => (feature ? segmentStyle(feature.properties) : {}),
     onEachFeature: (feature, layer) => {
       if (!popups) return;
-      const facts = segmentPopupHtml(feature.properties);
       const segmentId = Number(feature.id);
+      const popupWith = (extra = '') => segmentPopupHtml(feature.properties, extra);
       if (!loadSummary || !Number.isFinite(segmentId)) {
-        layer.bindPopup(facts, POPUP_OPTIONS);
+        layer.bindPopup(popupWith(), POPUP_OPTIONS);
         return;
       }
-      layer.bindPopup(facts + summaryLoadingHtml(), POPUP_OPTIONS);
+      layer.bindPopup(popupWith(summaryLoadingHtml()), segmentPopupOptions(isPhoneViewport()));
 
       // Each time the popup opens it asks for the summary; closing it cancels the request.
       let pending: AbortController | null = null;
@@ -59,13 +74,21 @@ export function createSegmentLayer(
         pending?.abort();
         const mine = new AbortController();
         pending = mine;
-        event.popup.setContent(facts + summaryLoadingHtml());
+        event.popup.setContent(popupWith(summaryLoadingHtml()));
         loadSummary(segmentId, mine.signal).then(
           (answer) => {
-            if (!mine.signal.aborted) event.popup.setContent(facts + segmentSummaryHtml(answer));
+            if (mine.signal.aborted) return;
+            let html: string;
+            try {
+              html = segmentSummaryHtml(answer);
+            } catch {
+              // An answer that does not have the expected shape must not leave "Cargando…" forever.
+              html = summaryErrorHtml();
+            }
+            event.popup.setContent(popupWith(html));
           },
           () => {
-            if (!mine.signal.aborted) event.popup.setContent(facts + summaryErrorHtml());
+            if (!mine.signal.aborted) event.popup.setContent(popupWith(summaryErrorHtml()));
           },
         );
       });

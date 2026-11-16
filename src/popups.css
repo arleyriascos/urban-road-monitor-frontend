@@ -74,3 +74,38 @@
   font-size: 0.85rem;
   color: #5d646b;
 }
+
+.popup .popup__table {
+  width: 100%;
+  margin-top: 4px;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.popup .popup__table th,
+.popup .popup__table td {
+  padding: 3px 0;
+  border-top: 1px solid #e5e7eb;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.popup .popup__table thead th,
+.popup .popup__table thead td {
+  padding-left: 8px;
+  border-top: 0;
+  color: #5d646b;
+  font-weight: 600;
+}
+
+.popup .popup__table tbody th {
+  padding-right: 8px;
+  color: #5d646b;
+  font-weight: 400;
+  text-align: left;
+}
+
+.popup .popup__table td {
+  padding-left: 8px;
+  font-weight: 600;
+}

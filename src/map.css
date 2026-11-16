@@ -882,8 +882,9 @@
 }
 
 @media (max-width: 640px) {
+  /* Below the zoom buttons (they end about 80 px down), so none of them is hidden. */
   .street-search {
-    top: 60px;
+    top: 92px;
     right: 8px;
     left: 8px;
     width: auto;

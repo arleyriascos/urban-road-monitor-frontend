@@ -113,36 +113,39 @@ const ANSWER: SegmentSummaryAnswer = {
   },
 };
 
+describe('segmentPopupHtml with extra content', () => {
+  it('puts the extra content inside the popup, after the facts', () => {
+    const html = segmentPopupHtml(severe, '<p class="popup__note">hola</p>');
+    expect(html.endsWith('<p class="popup__note">hola</p></div>')).toBe(true);
+    expect(html.indexOf('Costo de ruta')).toBeLessThan(html.indexOf('hola'));
+  });
+});
+
 describe('segmentSummaryHtml', () => {
   it('says where the segment is in its street', () => {
-    expect(segmentSummaryHtml(ANSWER)).toContain('Tramo 4 de 12 de esta calle');
+    expect(segmentSummaryHtml(ANSWER)).toContain('Tramo 4 de 12 de Calle 18');
   });
 
-  it('adds up the stretch around the segment', () => {
+  it('compares the stretch around the segment with the whole street in one table', () => {
     const html = segmentSummaryHtml(ANSWER);
-    expect(html).toContain('Alrededor (5 tramos)');
-    expect(html).toContain('403 m');
-    expect(html).toContain('Baches a la vista');
-    expect(html).toContain('Baches confirmados');
-    expect(html).toContain('3,3');
-    expect(html).toContain('Grave');
+    expect(html).toContain('<th scope="col">Alrededor</th>');
+    expect(html).toContain('<th scope="col">Toda la calle</th>');
+    expect(html).toContain('<th scope="row">Tramos</th><td>5</td><td>12</td>');
+    expect(html).toContain('<th scope="row">Longitud</th><td>403 m</td><td>1,5 km</td>');
+    expect(html).toContain('<th scope="row">Baches a la vista</th><td>3</td><td>0</td>');
+    expect(html).toContain('<th scope="row">Confirmados</th><td>2</td><td>0</td>');
+    expect(html).toContain('<th scope="row">Daño</th><td>3,3</td><td>0,0</td>');
   });
 
-  it('adds up the whole street, and says no pothole is confirmed when none is', () => {
-    const html = segmentSummaryHtml(ANSWER);
-    expect(html).toContain('Calle 18, completa');
-    expect(html).toContain('1,5 km');
-    expect(html).toContain('Ninguna confirmada');
-  });
-
-  it('writes "1 tramo" in the singular', () => {
-    const one = { ...ANSWER, window: { ...ANSWER.window, summary: { ...SUMMARY, segments: 1 } } };
-    expect(segmentSummaryHtml(one)).toContain('Alrededor (1 tramo)');
+  it('names the worst severity, or says none when no pothole is confirmed', () => {
+    expect(segmentSummaryHtml(ANSWER)).toContain(
+      '<th scope="row">Peor gravedad</th><td>Grave</td><td>Ninguna</td>',
+    );
   });
 
   it('names a street without a name and cannot inject markup', () => {
     const unnamed = { ...ANSWER, road: { ...ANSWER.road, roadName: null } };
-    expect(segmentSummaryHtml(unnamed)).toContain('Calle sin nombre, completa');
+    expect(segmentSummaryHtml(unnamed)).toContain('de Calle sin nombre');
     const hostile = { ...ANSWER, road: { ...ANSWER.road, roadName: '<b onmouseover=x>' } };
     expect(segmentSummaryHtml(hostile)).not.toContain('<b ');
   });

@@ -8,7 +8,6 @@ import {
   formatLength,
   formatNumber,
   formatPercent,
-  pluralize,
 } from './format';
 import { escapeHtml, safeColor } from './html';
 
@@ -25,8 +24,8 @@ function badge(color: string, text: string): string {
   );
 }
 
-/** Content of the popup that opens when a street is tapped. */
-export function segmentPopupHtml(segment: SegmentProperties): string {
+/** Content of the popup that opens when a street is tapped. `extra` goes at the end, inside it. */
+export function segmentPopupHtml(segment: SegmentProperties, extra = ''): string {
   return (
     '<div class="popup">' +
     `<p class="popup__title">${escapeHtml(segment.name ?? UNNAMED_STREET)}</p>` +
@@ -37,7 +36,9 @@ export function segmentPopupHtml(segment: SegmentProperties): string {
     fact('Sentido', segment.isOneway ? 'Un solo sentido' : 'Doble sentido') +
     fact('Baches activos', formatNumber(segment.activePotholes)) +
     fact('Costo de ruta', formatCostMultiplier(segment.damageScore)) +
-    '</dl></div>'
+    '</dl>' +
+    extra +
+    '</div>'
   );
 }
 
@@ -66,23 +67,6 @@ export function potholePopupHtml(pothole: PotholeProperties): string {
   );
 }
 
-/** What a stretch of street adds up to, as the rows of a popup. */
-function stretchFacts(summary: StretchSummary): string {
-  return (
-    '<dl class="popup__facts">' +
-    fact('Tramos', formatNumber(summary.segments)) +
-    fact('Longitud', formatLength(summary.lengthM)) +
-    fact('Baches a la vista', formatNumber(summary.visiblePotholes)) +
-    fact('Baches confirmados', formatNumber(summary.confirmedPotholes)) +
-    fact('Daño', formatDecimal(summary.damageScore, 1)) +
-    fact(
-      'Peor gravedad',
-      summary.worstSeverity ? capitalize(summary.worstSeverity.name) : 'Ninguna confirmada',
-    ) +
-    '</dl>'
-  );
-}
-
 /** Shown in the popup of a segment while its summary is on the way. */
 export function summaryLoadingHtml(): string {
   return '<p class="popup__note" role="status">Cargando el resumen de la calle…</p>';
@@ -93,21 +77,37 @@ export function summaryErrorHtml(): string {
   return '<p class="popup__note">No se pudo cargar el resumen de la calle. Toca el tramo otra vez para reintentar.</p>';
 }
 
+type SummaryRow = [label: string, pick: (summary: StretchSummary) => string];
+
+const SUMMARY_ROWS: SummaryRow[] = [
+  ['Tramos', (summary) => formatNumber(summary.segments)],
+  ['Longitud', (summary) => formatLength(summary.lengthM)],
+  ['Baches a la vista', (summary) => formatNumber(summary.visiblePotholes)],
+  ['Confirmados', (summary) => formatNumber(summary.confirmedPotholes)],
+  ['Daño', (summary) => formatDecimal(summary.damageScore, 1)],
+  [
+    'Peor gravedad',
+    (summary) => (summary.worstSeverity ? capitalize(summary.worstSeverity.name) : 'Ninguna'),
+  ],
+];
+
 /**
- * The part of the segment popup that comes from the backend: where the segment is in its street,
- * what the stretch around it adds up to, and the whole street. Only confirmed potholes count
- * for the damage and the worst severity.
+ * The part of the segment popup that comes from the backend: where the segment is in its
+ * street, and a small table that compares what the stretch around it adds up to with the
+ * whole street. Only confirmed potholes count for the damage and the worst severity.
  */
 export function segmentSummaryHtml(answer: SegmentSummaryAnswer): string {
   const { segment, window, road } = answer;
-  const around = window.summary.segments;
+  const rows = SUMMARY_ROWS.map(
+    ([label, pick]) =>
+      `<tr><th scope="row">${escapeHtml(label)}</th><td>${escapeHtml(pick(window.summary))}</td>` +
+      `<td>${escapeHtml(pick(road.summary))}</td></tr>`,
+  ).join('');
   return (
     '<div class="popup__summary">' +
-    `<p class="popup__section">Tramo ${formatNumber(segment.position)} de ${formatNumber(segment.segmentsInRoad)} de esta calle</p>` +
-    `<p class="popup__section">Alrededor (${pluralize(around, 'tramo', 'tramos')})</p>` +
-    stretchFacts(window.summary) +
-    `<p class="popup__section">${escapeHtml(road.roadName ?? UNNAMED_STREET)}, completa</p>` +
-    stretchFacts(road.summary) +
-    '</div>'
+    `<p class="popup__section">Tramo ${formatNumber(segment.position)} de ${formatNumber(segment.segmentsInRoad)} de ${escapeHtml(road.roadName ?? UNNAMED_STREET)}</p>` +
+    '<table class="popup__table">' +
+    `<thead><tr><td></td><th scope="col">Alrededor</th><th scope="col">Toda la calle</th></tr></thead>` +
+    `<tbody>${rows}</tbody></table></div>`
   );
 }

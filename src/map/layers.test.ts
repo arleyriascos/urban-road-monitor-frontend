@@ -2,7 +2,7 @@ import * as L from 'leaflet';
 import { describe, expect, it, vi } from 'vitest';
 import { potholesFixture, segmentsFixture } from '../test/fixtures';
 import { PANES } from './base-map';
-import { createPotholeLayer, createSegmentLayer } from './layers';
+import { createPotholeLayer, createSegmentLayer, segmentPopupOptions } from './layers';
 
 describe('createSegmentLayer', () => {
   const layers = createSegmentLayer(segmentsFixture).getLayers() as L.Polyline[];
@@ -149,6 +149,16 @@ describe('the popup of a segment with a summary', () => {
     map.remove();
   });
 
+  it('shows the error when the answer does not have the expected shape', async () => {
+    const loadSummary = vi.fn(async () => ({}) as unknown as typeof summary);
+    const layer = createSegmentLayer(segmentsFixture, { loadSummary });
+    const map = mapWith(layer);
+
+    const popup = open(layer.getLayers()[0]);
+    await vi.waitFor(() => expect(String(popup.getContent())).toContain('No se pudo cargar'));
+    map.remove();
+  });
+
   it('cancels the request when the popup closes', async () => {
     let signal: AbortSignal | undefined;
     const loadSummary = vi.fn((_id: number, abort: AbortSignal) => {
@@ -169,5 +179,22 @@ describe('the popup of a segment with a summary', () => {
     expect(String(plain.getLayers()[0].getPopup()?.getContent())).not.toContain('Cargando');
     const picking = createSegmentLayer(segmentsFixture, { popups: false, loadSummary: vi.fn() });
     expect(picking.getLayers().every((layer) => layer.getPopup() === undefined)).toBe(true);
+  });
+});
+
+describe('segmentPopupOptions', () => {
+  it('keeps the popup clear of the controls that float over the map', () => {
+    const desktop = segmentPopupOptions(false);
+    const phone = segmentPopupOptions(true);
+    expect((desktop.autoPanPaddingTopLeft as L.Point).y).toBeGreaterThanOrEqual(100);
+    expect((phone.autoPanPaddingTopLeft as L.Point).y).toBeGreaterThan(
+      (desktop.autoPanPaddingTopLeft as L.Point).y,
+    );
+    expect((phone.autoPanPaddingBottomRight as L.Point).y).toBeGreaterThan(60);
+  });
+
+  it('makes the popup scroll on a phone and lets it grow on a larger screen', () => {
+    expect(segmentPopupOptions(true).maxHeight).toBe(380);
+    expect(segmentPopupOptions(false).maxHeight).toBeUndefined();
   });
 });
