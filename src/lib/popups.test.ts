@@ -61,6 +61,14 @@ describe('potholePopupHtml', () => {
     expect(html).toContain('2026');
   });
 
+  it('explains what each status means for the damage and the routes', () => {
+    expect(potholePopupHtml(confirmed)).toContain('al menos dos veces');
+    expect(potholePopupHtml({ ...confirmed, status: 'sin confirmar' })).toContain(
+      'no cambia el daño de la calle ni las rutas',
+    );
+    expect(potholePopupHtml({ ...confirmed, status: 'reparado' })).toContain('Ya fue reparado');
+  });
+
   it('shows "Calle sin nombre" when the street has no name', () => {
     expect(potholePopupHtml(confirmed)).toContain('Calle sin nombre');
   });

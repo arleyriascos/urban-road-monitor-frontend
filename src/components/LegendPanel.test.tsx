@@ -22,6 +22,11 @@ describe('LegendPanel', () => {
     expect(screen.getByText(/Reparados/).nextSibling?.textContent).toBe('6');
   });
 
+  it('says that only the confirmed potholes change the damage and the routes', () => {
+    render(<LegendPanel legend={legend} potholes={potholes} />);
+    expect(screen.getByText(/Solo los confirmados/)).toBeTruthy();
+  });
+
   it('folds and unfolds with its button', () => {
     render(<LegendPanel legend={legend} potholes={potholes} />);
     const button = screen.getByRole('button', { name: /Leyenda/ });

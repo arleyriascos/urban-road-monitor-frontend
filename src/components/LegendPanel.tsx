@@ -61,6 +61,10 @@ export function LegendPanel({ legend, potholes, defaultOpen = true, children }: 
             </li>
           </ul>
           <p className="legend__note">El tamaño del círculo indica la severidad del bache.</p>
+          <p className="legend__note">
+            Solo los confirmados (vistos al menos dos veces) cambian el daño de las calles y las
+            rutas.
+          </p>
 
           {children}
         </div>

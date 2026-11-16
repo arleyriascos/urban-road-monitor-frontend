@@ -41,12 +41,21 @@ export function segmentPopupHtml(segment: SegmentProperties): string {
   );
 }
 
+const STATUS_NOTES: Record<PotholeProperties['status'], string> = {
+  'sin confirmar':
+    'Aún se vio una sola vez: no cambia el daño de la calle ni las rutas hasta que otra persona lo confirme.',
+  confirmado:
+    'Lo vieron al menos dos veces: cuenta para el daño de la calle y las rutas lo evitan.',
+  reparado: 'Ya fue reparado: no cuenta para el daño ni para las rutas.',
+};
+
 /** Content of the popup that opens when a pothole is tapped. */
 export function potholePopupHtml(pothole: PotholeProperties): string {
   return (
     '<div class="popup">' +
     `<p class="popup__title">Bache ${escapeHtml(pothole.severity)}</p>` +
     badge(pothole.color, pothole.status) +
+    `<p class="popup__note">${escapeHtml(STATUS_NOTES[pothole.status] ?? '')}</p>` +
     '<dl class="popup__facts">' +
     fact('Calle', pothole.roadName ?? UNNAMED_STREET) +
     fact('Confianza', formatPercent(pothole.confidence)) +
