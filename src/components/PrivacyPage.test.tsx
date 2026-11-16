@@ -48,7 +48,7 @@ describe('PrivacyPage', () => {
     for (const part of [
       'no se guarda ni se envía ninguna foto ni video',
       'ubicación del teléfono',
-      'colaborador',
+      'usas el detector con tu cuenta',
       'se conservan aunque la cuenta se desactive',
     ]) {
       expect(text).toContain(part);
@@ -60,9 +60,9 @@ describe('PrivacyPage', () => {
     expect(screen.getByText(/hasta 500/)).toBeTruthy();
   });
 
-  it('tells a guest that the camera does not save anything', () => {
+  it('tells a guest that the detector asks to sign in', () => {
     render(<PrivacyPage />);
-    expect(screen.getByText(/pero no se guardan ni se envían/)).toBeTruthy();
+    expect(screen.getByText(/pide ingresar con Google/)).toBeTruthy();
   });
 
   it('names the services that take part', () => {
