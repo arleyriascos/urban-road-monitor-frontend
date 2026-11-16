@@ -335,6 +335,43 @@ describe('the sender', () => {
     expect(sender.getState()).toMatchObject({ stored: 1, discarded: 2 });
   });
 
+  it('retryNow skips the pause after a failure', async () => {
+    const send = vi
+      .fn<SenderApi['sendDetections']>()
+      .mockRejectedValueOnce(new ApiError('network', 'down'))
+      .mockImplementation(async (_t, batch) => answer({ stored: batch.length }));
+    const { sender, queue, clock } = setup({ sendDetections: send });
+    fill(queue, 1);
+    sender.kick();
+    await vi.waitFor(() => expect(sender.getState().status).toBe('waiting'));
+
+    sender.retryNow();
+    await vi.waitFor(() => expect(queue.size()).toBe(0));
+    expect(clock.pending).toHaveLength(0);
+  });
+
+  it('retryNow does not insist when sending is stopped on purpose', async () => {
+    const send = vi.fn<SenderApi['sendDetections']>(async () => {
+      throw httpError(401, 'UNAUTHORIZED');
+    });
+    const { sender, queue } = setup({ sendDetections: send });
+    fill(queue, 1);
+    sender.kick();
+    await vi.waitFor(() => expect(sender.getState().status).toBe('session_over'));
+    sender.retryNow();
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  it('asks for the start of the trip when it is time to open it, not before', async () => {
+    let begin = new Date(Date.now() - 600_000);
+    const { sender, api, queue } = setup({}, { startedAt: () => begin });
+    begin = new Date(Date.now() - 120_000);
+    fill(queue, 1);
+    sender.kick();
+    await vi.waitFor(() => expect(api.startTrip).toHaveBeenCalled());
+    expect(vi.mocked(api.startTrip).mock.calls[0][0].startedAt).toBe(begin.toISOString());
+  });
+
   it('keeps pending in step with the queue', () => {
     const { sender, queue } = setup();
     const listener = vi.fn();

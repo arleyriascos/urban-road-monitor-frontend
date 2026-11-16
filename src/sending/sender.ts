@@ -61,7 +61,7 @@ export interface SenderOptions {
   device: DeviceInfo;
   modelVersion: string;
   /** When the person turned the camera on: the trip starts then, not when the first batch goes. */
-  startedAt: Date;
+  startedAt: Date | (() => Date);
   /** Largest batch, until the server says its own limit when it opens a trip. */
   maxBatchSize?: number;
   /** Called each time the server stored detections, e.g. to wake the AI service. */
@@ -74,6 +74,8 @@ export interface Sender {
   kick(): void;
   /** Sends what is left and closes the trip; resolves when it is done or gave up. */
   finish(closing: Omit<TripClosing, 'endedAt'>): Promise<void>;
+  /** Tries now, skipping the pause: the connection came back or the page is in view again. */
+  retryNow(): void;
   /** Stops the timers and cancels the call in flight. Nothing is lost: the queue stays. */
   stop(): void;
   getState(): SenderState;
@@ -130,7 +132,8 @@ export function createSender(options: SenderOptions): Sender {
     const earliest = queue
       .items()
       .reduce((min, item) => Math.min(min, Date.parse(item.detectedAt)), Infinity);
-    const start = Math.min(options.startedAt.getTime(), earliest);
+    const begin = typeof options.startedAt === 'function' ? options.startedAt() : options.startedAt;
+    const start = Math.min(begin.getTime(), earliest);
     // The server does not believe a trip older than two days: it uses its own clock then.
     return Date.now() - start < 2 * MS_PER_DAY ? new Date(start).toISOString() : undefined;
   }
@@ -217,6 +220,14 @@ export function createSender(options: SenderOptions): Sender {
       if (state.status === 'waiting' || queue.size() === 0) return;
       if (state.status === 'session_over' || state.status === 'not_allowed') return;
       if (state.status === 'model_outdated') return;
+      void run();
+    },
+    retryNow() {
+      if (stopped || queue.size() === 0) return;
+      if (state.status === 'session_over' || state.status === 'not_allowed') return;
+      if (state.status === 'model_outdated') return;
+      clearTimer();
+      if (state.status === 'waiting') update({ status: 'idle' });
       void run();
     },
     async finish(closing) {
