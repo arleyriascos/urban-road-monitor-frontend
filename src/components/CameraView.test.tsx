@@ -12,6 +12,7 @@ function renderView(overrides: Partial<CameraViewProps> = {}) {
     camera: { status: 'off' } as CameraState,
     model: { status: 'idle' } as ModelState,
     detection: NO_DETECTION,
+    sending: { messages: [{ tone: 'info', text: 'Entraste como invitado' }], counts: null },
     onStart: vi.fn(),
     onStop: vi.fn(),
     videoRef: vi.fn(),
@@ -28,6 +29,17 @@ describe('CameraView', () => {
     expect(screen.getByText(/no salen de él/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Activar la cámara' }));
     expect(props.onStart).toHaveBeenCalledOnce();
+  });
+
+  it('tells what happens to the potholes', () => {
+    renderView({
+      sending: {
+        messages: [{ tone: 'warning', text: 'No se pudo enviar por ahora.' }],
+        counts: { stored: 2, pending: 1 },
+      },
+    });
+    expect(screen.getByText('No se pudo enviar por ahora.')).toBeTruthy();
+    expect(screen.getByText('Enviados')).toBeTruthy();
   });
 
   it('has a link back to the map', () => {
@@ -62,6 +74,7 @@ describe('CameraView', () => {
         camera={{ status: 'opening' }}
         model={{ status: 'loading', progress: null }}
         detection={NO_DETECTION}
+        sending={{ messages: [], counts: null }}
         onStart={vi.fn()}
         onStop={vi.fn()}
         videoRef={vi.fn()}
@@ -73,6 +86,7 @@ describe('CameraView', () => {
         camera={{ status: 'opening' }}
         model={{ status: 'loading', progress: { loadedBytes: 50, totalBytes: 200 } }}
         detection={NO_DETECTION}
+        sending={{ messages: [], counts: null }}
         onStart={vi.fn()}
         onStop={vi.fn()}
         videoRef={vi.fn()}

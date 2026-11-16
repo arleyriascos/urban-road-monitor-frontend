@@ -3,14 +3,18 @@ import type { DetectionState } from '../hooks/useDetection';
 import type { ModelState } from '../hooks/useDetectorModel';
 import { progressFraction } from '../detection/model-download';
 import { formatPercent } from '../lib/format';
+import type { SendingSummary } from '../sending/status';
 import { OverlayCanvas } from './OverlayCanvas';
 import { PerformanceMeter } from './PerformanceMeter';
+import { SendingStatus } from './SendingStatus';
 import { SizeMeter } from './SizeMeter';
 
 export interface CameraViewProps {
   camera: CameraState;
   model: ModelState;
   detection: DetectionState;
+  /** What to tell the person about saving the potholes. */
+  sending: SendingSummary;
   onStart: () => void;
   onStop: () => void;
   /** Gives the page the video element, so the camera can be shown in it and analyzed. */
@@ -33,6 +37,7 @@ export function CameraView({
   camera,
   model,
   detection,
+  sending,
   onStart,
   onStop,
   videoRef,
@@ -52,8 +57,8 @@ export function CameraView({
       </header>
 
       <p className="camera__privacy">
-        Las imágenes de la cámara se analizan en tu dispositivo y no salen de él. Por ahora no se
-        guarda nada.
+        Las imágenes de la cámara se analizan en tu dispositivo y no salen de él. Solo se envía, si
+        eres colaborador, dónde está cada bache y qué tan grande se ve.
       </p>
 
       <div className="camera__stage">
@@ -94,6 +99,8 @@ export function CameraView({
           Buscando baches…
         </p>
       )}
+
+      <SendingStatus summary={sending} />
 
       <div className="camera__actions">
         {on || opening ? (

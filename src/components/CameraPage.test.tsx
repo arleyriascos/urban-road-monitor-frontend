@@ -124,3 +124,52 @@ describe('CameraPage', () => {
     expect(release).toHaveBeenCalledOnce();
   });
 });
+
+describe('CameraPage and the saving of potholes', () => {
+  it('tells a guest that nothing is saved, and does not ask for the position', async () => {
+    const { dependencies } = setup();
+    const watch = vi.fn(() => () => undefined);
+    render(
+      <CameraPage
+        dependencies={{
+          ...dependencies,
+          access: { store: { readToken: () => null }, getMe: vi.fn() },
+          geolocation: { watch },
+        }}
+      />,
+    );
+    expect(screen.getByText(/Entraste como invitado/)).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Activar la cámara' }));
+    await screen.findByRole('button', { name: 'Apagar la cámara' });
+    await waitFor(() => expect(HTMLMediaElement.prototype.play).toHaveBeenCalled());
+    expect(watch).not.toHaveBeenCalled();
+  });
+
+  it('follows the position and tells a collaborator that the potholes are saved', async () => {
+    const { dependencies } = setup();
+    const watch = vi.fn(() => () => undefined);
+    const getMe = vi.fn(async () => ({
+      id: 'u1',
+      email: 'ana@example.com',
+      fullName: 'Ana',
+      avatarUrl: null,
+      roles: ['colaborador'],
+      permissions: ['detections.create'],
+    }));
+    render(
+      <CameraPage
+        dependencies={{
+          ...dependencies,
+          access: { store: { readToken: () => 'a'.repeat(43) }, getMe },
+          geolocation: { watch },
+        }}
+      />,
+    );
+    await waitFor(() => expect(screen.getByText(/se guardan y se envían/)).toBeTruthy());
+
+    fireEvent.click(screen.getByRole('button', { name: 'Activar la cámara' }));
+    await waitFor(() => expect(watch).toHaveBeenCalled());
+    await waitFor(() => expect(HTMLMediaElement.prototype.play).toHaveBeenCalled());
+  });
+});
