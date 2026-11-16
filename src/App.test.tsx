@@ -25,6 +25,10 @@ vi.mock('./components/MapApp', () => ({
     </div>
   ),
 }));
+vi.mock('./components/CameraPage', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./components/CameraPage')>()),
+  CameraPage: () => <div data-testid="camera-page" />,
+}));
 vi.mock('./components/GoogleSignInButton', () => ({
   GoogleSignInButton: () => <div data-testid="google-button" />,
 }));
@@ -172,6 +176,29 @@ describe('App', () => {
     showSession({ status: 'entry', signIn: { phase: 'idle' } });
     render(<App />);
 
+    expect(screen.getByRole('button', { name: 'Continuar como invitado' })).toBeTruthy();
+  });
+
+  it.each(['/camara', '/camara/'])(
+    'shows the camera at %s without starting a session or waking anything',
+    (path) => {
+      window.history.pushState({}, '', path);
+      showSession({ status: 'entry', signIn: { phase: 'idle' } });
+      render(<App />);
+
+      expect(screen.getByTestId('camera-page')).toBeTruthy();
+      expect(screen.queryByRole('button', { name: 'Continuar como invitado' })).toBeNull();
+      expect(useSession).not.toHaveBeenCalled();
+      expect(wakeAiService).not.toHaveBeenCalled();
+    },
+  );
+
+  it('does not take another path for the camera', () => {
+    window.history.pushState({}, '', '/camara-otra');
+    showSession({ status: 'entry', signIn: { phase: 'idle' } });
+    render(<App />);
+
+    expect(screen.queryByTestId('camera-page')).toBeNull();
     expect(screen.getByRole('button', { name: 'Continuar como invitado' })).toBeTruthy();
   });
 });

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { wakeAiService } from './api/ai-service';
+import { CAMERA_PATH, CameraPage } from './components/CameraPage';
 import { EntryScreen } from './components/EntryScreen';
 import { MapApp } from './components/MapApp';
 import { PrivacyPage } from './components/PrivacyPage';
@@ -10,14 +11,19 @@ import { useSession } from './hooks/useSession';
 /** The address of the privacy page. The host rewrites every path to the app, so no router is needed. */
 export const PRIVACY_PATH = '/privacidad';
 
-function isPrivacyPath(pathname: string): boolean {
-  return pathname.replace(/\/+$/, '') === PRIVACY_PATH;
+function isPath(pathname: string, path: string): boolean {
+  return pathname.replace(/\/+$/, '') === path;
 }
 
-/** The whole app: the privacy page, or else the entry, the check of a saved session, or the map. */
+/**
+ * The whole app: the privacy page, the camera, or else the entry, the check of a saved session,
+ * or the map.
+ */
 export function App() {
   // The privacy page is public and needs no session, so it does not even start one.
-  if (isPrivacyPath(window.location.pathname)) return <PrivacyPage />;
+  if (isPath(window.location.pathname, PRIVACY_PATH)) return <PrivacyPage />;
+  // The camera only shows the boxes on the device for now: it needs no session either.
+  if (isPath(window.location.pathname, CAMERA_PATH)) return <CameraPage />;
   return <SessionApp />;
 }
 
