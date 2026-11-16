@@ -113,6 +113,19 @@
   outline-offset: 2px;
 }
 
+/* What a guest sees instead of the camera: a short explanation and the way in. */
+.camera__gate {
+  display: grid;
+  gap: 12px;
+  max-width: 46ch;
+}
+
+.camera__gate-lead {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
 .camera__meters {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
