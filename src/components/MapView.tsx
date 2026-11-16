@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { getSegmentSummary } from '../api/roads';
 import { createSummaryCache } from '../lib/summary-cache';
 import { createMap } from '../map/base-map';
+import { createStreetHighlight, streetBounds } from '../map/street-layers';
 import { attachBasemap } from '../map/basemap';
 import { MAP_CENTER, MAP_ZOOM } from '../map/config';
 import { createPotholeLayer, createSegmentLayer } from '../map/layers';
@@ -27,6 +28,7 @@ import {
 import { isPhoneViewport } from '../lib/viewport';
 import type { RoutePointName } from '../lib/route-errors';
 import type { PotholeCollection, SegmentCollection } from '../types/map';
+import type { StreetMatch } from '../types/roads';
 import type { LatLng, RouteAnswer, RouteStepFeature } from '../types/route';
 
 /** The popup of a segment shows the street around it: the answers are kept a few seconds. */
@@ -55,6 +57,8 @@ interface MapViewProps {
   recenterKey: number;
   /** Null when the "Cómo llegar" panel is closed. */
   routing?: MapRouting | null;
+  /** The street found by the search: the map highlights it and shows all of it. */
+  street?: StreetMatch | null;
 }
 
 /** The box of an element on the page, or null when it is not there or not shown. */
@@ -100,6 +104,7 @@ export function MapView({
   showPotholes,
   recenterKey,
   routing = null,
+  street = null,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
@@ -261,6 +266,17 @@ export function MapView({
       layer.remove();
     };
   }, [route, highlight]);
+
+  // The street found by the search goes over the others and the map moves to show all of it.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !street) return;
+    const layer = createStreetHighlight(segments, street.roadIds).addTo(map);
+    map.fitBounds(streetBounds(street.bounds), { ...currentInsets(map), maxZoom: 18 });
+    return () => {
+      layer.remove();
+    };
+  }, [street, segments]);
 
   useEffect(() => {
     if (recenterKey > 0) mapRef.current?.setView(MAP_CENTER, MAP_ZOOM);

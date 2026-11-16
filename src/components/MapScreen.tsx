@@ -7,12 +7,14 @@ import { describeRouteError, type RoutePointName } from '../lib/route-errors';
 import { groupRouteSteps } from '../lib/route-groups';
 import { isPhoneViewport } from '../lib/viewport';
 import type { MapData } from '../hooks/useMapData';
+import type { StreetMatch } from '../types/roads';
 import type { LatLng, RouteAnswer, RouteCriterion } from '../types/route';
 import { LayerToggles } from './LayerToggles';
 import { LegendPanel } from './LegendPanel';
 import { MapView, type MapRouting } from './MapView';
 import { RecenterButton } from './RecenterButton';
 import { RoutePanel } from './RoutePanel';
+import { StreetSearch } from './StreetSearch';
 import type { AccountActions } from './AccountBadge';
 import { TopBar } from './TopBar';
 
@@ -21,6 +23,7 @@ export function MapScreen({ data, account }: { data: MapData; account?: AccountA
   const [showPotholes, setShowPotholes] = useState(true);
   const [includeRepaired, setIncludeRepaired] = useState(false);
   const [recenterKey, setRecenterKey] = useState(0);
+  const [street, setStreet] = useState<StreetMatch | null>(null);
   const [legendOpenAtStart] = useState(() => !isPhoneViewport());
 
   const [routeOpen, setRouteOpen] = useState(false);
@@ -86,7 +89,9 @@ export function MapScreen({ data, account }: { data: MapData; account?: AccountA
           showPotholes={showPotholes}
           recenterKey={recenterKey}
           routing={routing}
+          street={routeOpen ? null : street}
         />
+        <StreetSearch onSelect={setStreet} onClear={() => setStreet(null)} />
         {routeOpen ? (
           <RoutePanel
             origin={origin}

@@ -1,11 +1,13 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../api/http';
+import { searchStreets } from '../api/roads';
 import type { MapData } from '../hooks/useMapData';
 import { useRoute, type RouteState } from '../hooks/useRoute';
 import { potholesFixture, segmentsFixture, statsFixture } from '../test/fixtures';
 import { routeFixture } from '../test/route-fixtures';
 import type { PotholeCollection } from '../types/map';
+import type { StreetMatch } from '../types/roads';
 import { MapScreen } from './MapScreen';
 import type { MapRouting } from './MapView';
 
@@ -18,6 +20,7 @@ vi.mock('./MapView', () => ({
     showPotholes: boolean;
     recenterKey: number;
     routing: MapRouting | null;
+    street?: StreetMatch | null;
   }) => (
     <div
       data-testid="map"
@@ -30,6 +33,7 @@ vi.mock('./MapView', () => ({
       data-error-point={String(props.routing?.errorPoint ?? null)}
       data-route-steps={String(props.routing?.route?.summary.steps ?? 0)}
       data-highlight={String(props.routing?.highlight?.length ?? 0)}
+      data-street={props.street?.name ?? ''}
     >
       {props.routing ? (
         <>
@@ -50,6 +54,8 @@ vi.mock('./MapView', () => ({
     </div>
   ),
 }));
+
+vi.mock('../api/roads', () => ({ searchStreets: vi.fn(), getSegmentSummary: vi.fn() }));
 
 vi.mock('../hooks/useRoute', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../hooks/useRoute')>()),
@@ -303,5 +309,54 @@ describe('MapScreen "Cómo llegar"', () => {
       expect(map().dataset.highlight).toBe('0');
       expect(screen.queryByRole('region', { name: 'Recorrido de la ruta' })).toBeNull();
     });
+  });
+});
+
+describe('MapScreen street search', () => {
+  const found: StreetMatch = {
+    name: 'Calle 18',
+    roadIds: [7, 12],
+    segments: 24,
+    center: { latitude: 1.2136, longitude: -77.2811 },
+    bounds: {
+      minLatitude: 1.211,
+      maxLatitude: 1.216,
+      minLongitude: -77.284,
+      maxLongitude: -77.278,
+    },
+  };
+  const box = () => screen.getByRole('combobox', { name: 'Buscar una calle' });
+
+  async function pickStreet() {
+    vi.mocked(searchStreets).mockResolvedValue({ query: 'cal', streets: [found] });
+    fireEvent.change(box(), { target: { value: 'cal' } });
+    fireEvent.click(await screen.findByRole('option', { name: /Calle 18/ }));
+  }
+
+  it('has the search box and no street highlighted at first', () => {
+    render(<MapScreen data={data} />);
+    expect(box()).toBeTruthy();
+    expect(map().dataset.street).toBe('');
+  });
+
+  it('gives the street that was picked to the map', async () => {
+    render(<MapScreen data={data} />);
+    await pickStreet();
+    expect(map().dataset.street).toBe('Calle 18');
+    expect(vi.mocked(searchStreets).mock.calls[0][0]).toBe('cal');
+  });
+
+  it('lets the street go when the box is cleared', async () => {
+    render(<MapScreen data={data} />);
+    await pickStreet();
+    fireEvent.click(screen.getByRole('button', { name: 'Borrar búsqueda' }));
+    await waitFor(() => expect(map().dataset.street).toBe(''));
+  });
+
+  it('does not show the street on the map while the "Cómo llegar" panel is open', async () => {
+    render(<MapScreen data={data} />);
+    await pickStreet();
+    fireEvent.click(screen.getByRole('button', { name: 'Cómo llegar' }));
+    expect(map().dataset.street).toBe('');
   });
 });
