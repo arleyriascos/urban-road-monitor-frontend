@@ -759,3 +759,133 @@
 .map--far .route-arrow-wrapper {
   display: none;
 }
+
+/* Street search: a box over the map, below "Cómo llegar". It hides while the route panel is open. */
+.street-search {
+  position: absolute;
+  top: 56px;
+  left: 58px;
+  z-index: 1001;
+  width: min(320px, calc(100% - 70px));
+}
+
+.map-app--routing .street-search {
+  display: none;
+}
+
+.street-search__box {
+  position: relative;
+}
+
+.street-search__input {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 40px 8px 12px;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--asphalt);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 14%);
+}
+
+.street-search__input:focus-visible,
+.street-search__clear:focus-visible,
+.street-search__retry:focus-visible {
+  outline: 3px solid var(--marking);
+  outline-offset: 2px;
+}
+
+.street-search__clear {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 100%;
+  font: inherit;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.street-search__panel {
+  margin-top: 4px;
+  max-height: 40vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 18%);
+}
+
+.street-search__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.street-search__option {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.street-search__option:first-child {
+  border-top: 0;
+}
+
+.street-search__option--active,
+.street-search__option:hover {
+  background: var(--concrete);
+}
+
+.street-search__name {
+  font-weight: 700;
+}
+
+.street-search__meta {
+  flex: none;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.street-search__note {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.street-search__note p {
+  margin: 0 0 6px;
+}
+
+.street-search__retry {
+  min-height: 40px;
+  padding: 6px 14px;
+  font: inherit;
+  font-weight: 700;
+  color: var(--asphalt);
+  background: var(--concrete);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .street-search {
+    top: 60px;
+    right: 8px;
+    left: 8px;
+    width: auto;
+  }
+}
