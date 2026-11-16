@@ -5,7 +5,7 @@ Cómo ingresa una persona, cómo se recuerda y qué pasa cuando algo falla. El b
 ## Qué ve la persona
 
 1. **Sin sesión ni elección guardada:** pantalla de entrada con el botón «Ingresar con Google» y «Continuar como invitado». Debajo hay un enlace a `/privacidad`.
-2. **Invitado o con cuenta:** el mismo mapa. La barra superior muestra «Ingresar» al invitado, o la foto (o iniciales), el nombre, el rol y «Cerrar sesión» a quien tiene cuenta. El rol solo se muestra: no cambia lo que se ve.
+2. **Invitado o con cuenta:** el mismo mapa, el buscador y las rutas; la cámara (`/camara`) pide cuenta. La barra superior muestra «Ingresar» al invitado, o la foto (o iniciales), el nombre, el rol y «Cerrar sesión» a quien tiene cuenta. El rol solo se muestra: no cambia lo que se ve (todo rol, desde `usuario`, puede usar la cámara).
 
 No hay formulario de correo ni contraseña: el ingreso es solo con Google.
 

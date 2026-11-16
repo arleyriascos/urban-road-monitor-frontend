@@ -48,9 +48,9 @@ La aplicación se abre en `http://localhost:5173`.
 
 **Por qué el navegador despierta al servicio de IA.** En el plan gratuito de Render, el servicio de IA (que calcula las rutas) se duerme tras unos minutos sin uso, y Render solo lo despierta cuando lo pide un navegador: si lo pide el backend, responde `hibernate-rate-limited` y no lo despierta (comprobado en producción). Por eso, al abrir la app, el navegador hace una petición a `VITE_AI_SERVICE_URL/health` sin esperar la respuesta, y si una ruta responde 503 con `retryAfterS`, la app espera esos segundos, lo despierta de nuevo y reintenta (hasta 4 intentos). Si aun así no despierta, el panel ofrece un enlace que abre el servicio en otra pestaña. Esa dirección es pública y no lleva ningún token.
 
-**Cuenta y sesión.** Al abrir la app sin sesión aparece una pantalla de entrada con el botón de Google y «Continuar como invitado»; invitado y persona con cuenta ven lo mismo, y el rol solo se muestra. El detalle del flujo está en `docs/AUTENTICACION.md`. La página `/privacidad` explica qué datos se guardan y cómo pedir su borrado.
+**Cuenta y sesión.** Al abrir la app sin sesión aparece una pantalla de entrada con el botón de Google y «Continuar como invitado»; el invitado ve el mapa, el buscador y las rutas, y quien ingresa con Google además puede usar la cámara; el rol solo se muestra. El detalle del flujo está en `docs/AUTENTICACION.md`. La página `/privacidad` explica qué datos se guardan y cómo pedir su borrado.
 
-**Cámara.** La página `/camara` detecta baches con el modelo entrenado, dentro del navegador, y muestra el rendimiento y el tamaño de cada bache. Si la cuenta es de colaborador, guarda cada bache en el teléfono y lo envía al backend; como invitado solo ve los cuadros. El detalle está en `docs/CAMARA.md` y `docs/ENVIO.md`.
+**Cámara.** La página `/camara` detecta baches con el modelo entrenado, dentro del navegador, y muestra el rendimiento y el tamaño de cada bache. Con una cuenta de Google guarda cada bache en el teléfono y lo envía al backend; a un invitado la página le pide ingresar en lugar de abrir la cámara. El detalle está en `docs/CAMARA.md` y `docs/ENVIO.md`.
 
 **Calles.** El mapa tiene un buscador de calles y, al tocar un tramo, una ventanita con el resumen del tramo y de toda la calle. Ver `docs/CALLES.md`.
 

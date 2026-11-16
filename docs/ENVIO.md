@@ -1,18 +1,18 @@
 # Envío de detecciones (Etapa 4, paquete 6)
 
-Cuando la persona es **colaborador** y la cámara está encendida, cada bache que ve el modelo se guarda con la ubicación del teléfono y se envía al backend. Un **invitado** ve los recuadros, pero no se guarda ni se envía nada. El backend y sus reglas están explicados en `docs/API-VIAJES.md` del repositorio del backend.
+Cuando la persona ingresó con su cuenta y la cámara está encendida, cada bache que ve el modelo se guarda con la ubicación del teléfono y se envía al backend. Un **invitado** no puede abrir la cámara: no hay cuenta a cuyo nombre guardar. El backend y sus reglas están explicados en `docs/API-VIAJES.md` del repositorio del backend.
 
 ## Quién puede enviar
 
-La pantalla `/camara` no pide sesión para abrirse. Si hay una sesión guardada, pregunta al backend quién es (`GET /api/auth/me`) y envía solo si tiene el permiso `detections.create` (el rol `colaborador`).
+La pantalla `/camara` lee la sesión guardada. Sin sesión muestra una pantalla que pide ingresar con Google (y no pide la cámara, el modelo ni la ubicación). Con sesión, pregunta al backend quién es (`GET /api/auth/me`) y envía solo si tiene el permiso `detections.create`, que desde la migración 11 del backend tiene todo rol, desde `usuario`.
 
 | Situación               | Qué pasa                                                             |
 | ----------------------- | -------------------------------------------------------------------- |
-| Sin sesión (invitado)   | Se ven los recuadros. No se guarda nada ni se pide la ubicación.     |
-| Cuenta sin el permiso   | Igual que un invitado, y la pantalla dice cómo pedir el rol.         |
+| Sin sesión (invitado)   | No se abre la cámara: la pantalla pide ingresar con Google.          |
+| Cuenta sin el permiso   | Se ven los recuadros, no se guarda nada y se pide revisar la cuenta. |
 | Sesión terminada (401)  | No se guarda; la pantalla pide ingresar de nuevo desde el mapa.      |
 | El servidor no contesta | Se vuelve a preguntar cada 10 segundos; mientras tanto no se guarda. |
-| Colaborador             | Se guardan los baches y se envían.                                   |
+| Cuenta con el permiso   | Se guardan los baches y se envían (también el rol `usuario`).        |
 
 ## Qué se guarda de cada bache
 
@@ -62,7 +62,7 @@ Un 503 **nunca** cierra la sesión. Cuando vuelve la conexión (`online`) o la p
 
 ## Cómo probar
 
-1. Entrar con una cuenta de colaborador y abrir `/camara` (en `localhost`, o en Vercel desde un teléfono).
+1. Entrar con cualquier cuenta de Google (no hace falta ser colaborador) y abrir `/camara` (en `localhost`, o en Vercel desde un teléfono).
 2. Encender la cámara y permitir la ubicación. La pantalla dice «Los baches que veas se guardan y se envían a tu nombre».
 3. Para ver la cola: apagar la conexión en las herramientas del navegador, pasar frente a un bache y ver «En espera»; al volver la conexión pasa a «Enviados».
 4. Después de probar en la calle, borrar los viajes de prueba en el backend con `npm run trips:cleanup`.
