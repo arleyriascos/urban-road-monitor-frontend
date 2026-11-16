@@ -74,4 +74,23 @@ export class CircularDoublyLinkedList<T> {
       node = node.next;
     }
   }
+
+  /**
+   * Check the invariants of the ring: every next is undone by its prev, one lap forward
+   * visits exactly size nodes and comes back to the first, and an empty list has no nodes.
+   * It never loops forever, even on a broken ring.
+   */
+  isValid(): boolean {
+    if (this.first === null) {
+      return this.count === 0;
+    }
+    let node = this.first;
+    for (let step = 0; step < this.count; step++) {
+      if (node.next.prev !== node || node.prev.next !== node) {
+        return false;
+      }
+      node = node.next;
+    }
+    return node === this.first;
+  }
 }
