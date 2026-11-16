@@ -19,6 +19,7 @@ function makeDependencies(hidden = false) {
   const options: DetectionLoopOptions[] = [];
   const loop = { start: vi.fn(), stop: vi.fn(), isRunning: vi.fn(() => false) };
   const state = { hidden };
+  const clock = { value: 0 };
   let listener: () => void = () => undefined;
   const stopListening = vi.fn();
   const dependencies: DetectionDependencies = {
@@ -27,12 +28,13 @@ function makeDependencies(hidden = false) {
       return loop;
     },
     isHidden: () => state.hidden,
+    now: () => clock.value,
     onVisibilityChange: (callback) => {
       listener = callback;
       return stopListening;
     },
   };
-  return { dependencies, options, loop, state, stopListening, notify: () => listener() };
+  return { dependencies, options, loop, clock, state, stopListening, notify: () => listener() };
 }
 
 describe('useDetection', () => {
@@ -53,6 +55,21 @@ describe('useDetection', () => {
     act(() => options[0].onResult(RESULT));
 
     expect(result.current.latest).toBe(RESULT);
+  });
+
+  it('gives the readings of the meters with each result', () => {
+    const { dependencies, options, clock } = makeDependencies();
+    const video = fakeVideo();
+    const { result } = renderHook(() => useDetection(detector, video, true, dependencies));
+
+    clock.value = 1000;
+    act(() => options[0].onResult(RESULT));
+    clock.value = 1500;
+    act(() => options[0].onResult(RESULT));
+
+    expect(result.current.reading?.performance.fps).toBeCloseTo(2);
+    expect(result.current.reading?.performance.inferenceMs).toBe(2);
+    expect(result.current.reading?.size.boxes).toEqual([]);
   });
 
   it('gives the video and its size as the picture to analyze, or nothing if it has none yet', () => {

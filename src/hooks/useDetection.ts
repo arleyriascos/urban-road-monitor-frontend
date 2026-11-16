@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { createDetectionLoop } from '../detection/detection-loop';
 import type { DetectionResult, Detector } from '../detection/detector';
+import { createMeters, type MeterReading } from '../detection/meters';
 import type { FrameSize } from '../detection/types';
 
 export interface DetectionDependencies {
   createLoop: typeof createDetectionLoop;
   isHidden: () => boolean;
+  now: () => number;
   /** Calls the listener when the page is hidden or shown; gives back how to stop listening. */
   onVisibilityChange: (listener: () => void) => () => void;
 }
@@ -13,6 +15,7 @@ export interface DetectionDependencies {
 const defaultDependencies: DetectionDependencies = {
   createLoop: createDetectionLoop,
   isHidden: () => document.hidden,
+  now: () => performance.now(),
   onVisibilityChange: (listener) => {
     document.addEventListener('visibilitychange', listener);
     return () => document.removeEventListener('visibilitychange', listener);
@@ -21,10 +24,12 @@ const defaultDependencies: DetectionDependencies = {
 
 export interface DetectionState {
   latest: DetectionResult | null;
+  /** What the two meters show for the latest detection. */
+  reading: MeterReading | null;
   error: unknown;
 }
 
-const EMPTY_STATE: DetectionState = { latest: null, error: null };
+const EMPTY_STATE: DetectionState = { latest: null, reading: null, error: null };
 
 /**
  * Runs the detector on the video while `active` is true. It pauses while the page is hidden
@@ -41,7 +46,8 @@ export function useDetection(
 
   useEffect(() => {
     if (!detector || !video || !active) return;
-    const { createLoop, isHidden, onVisibilityChange } = dependenciesRef.current;
+    const { createLoop, isHidden, now, onVisibilityChange } = dependenciesRef.current;
+    const meters = createMeters();
 
     const loop = createLoop({
       detector,
@@ -51,7 +57,8 @@ export function useDetection(
         if (frame.width === 0 || frame.height === 0 || video.readyState < 2) return null;
         return { source: video, frame };
       },
-      onResult: (latest) => setState({ latest, error: null }),
+      onResult: (latest) =>
+        setState({ latest, reading: meters.record(latest, now()), error: null }),
       onError: (error) => setState((previous) => ({ ...previous, error })),
     });
 
