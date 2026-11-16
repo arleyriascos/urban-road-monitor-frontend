@@ -90,6 +90,9 @@ export class CircularDoublyLinkedList<T> {
         return false;
       }
       node = node.next;
+      if (node === this.first && step < this.count - 1) {
+        return false; // the ring closes before size nodes: size is too big
+      }
     }
     return node === this.first;
   }
