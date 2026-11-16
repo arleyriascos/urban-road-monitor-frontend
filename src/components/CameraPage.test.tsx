@@ -12,6 +12,15 @@ const RESULT: DetectionResult = {
   timings: { captureMs: 2, inferenceMs: 100, totalMs: 110 },
 };
 
+const PERSON = {
+  id: 'u1',
+  email: 'ana@example.com',
+  fullName: 'Ana',
+  avatarUrl: null,
+  roles: ['usuario'],
+  permissions: ['detections.create', 'trips.view_own'],
+};
+
 afterEach(() => vi.restoreAllMocks());
 
 function setup() {
@@ -27,6 +36,7 @@ function setup() {
   const loops: DetectionLoopOptions[] = [];
   const loop = { start: vi.fn(), stop: vi.fn(), isRunning: vi.fn(() => false) };
   const dependencies: CameraPageDependencies = {
+    access: { store: { readToken: () => 'a'.repeat(43) }, getMe: vi.fn(async () => PERSON) },
     camera: { openCamera: vi.fn(async () => ({ stream, stop: stopTracks })) },
     model: { loadModel: vi.fn(async () => loaded), makeDetector: () => detector },
     detection: {
@@ -126,7 +136,7 @@ describe('CameraPage', () => {
 });
 
 describe('CameraPage and the saving of potholes', () => {
-  it('tells a guest that nothing is saved, and does not ask for the position', async () => {
+  it('shows a guest the screen to sign in instead of the camera', () => {
     const { dependencies } = setup();
     const watch = vi.fn(() => () => undefined);
     render(
@@ -138,15 +148,44 @@ describe('CameraPage and the saving of potholes', () => {
         }}
       />,
     );
-    expect(screen.getByText(/Ingresa con tu cuenta de Google/)).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Activar la cámara' }));
-    await screen.findByRole('button', { name: 'Apagar la cámara' });
-    await waitFor(() => expect(HTMLMediaElement.prototype.play).toHaveBeenCalled());
+    expect(screen.getByText(/necesitas ingresar con tu cuenta de Google/)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Activar la cámara' })).toBeNull();
+    expect(dependencies.camera?.openCamera).not.toHaveBeenCalled();
+    expect(dependencies.model?.loadModel).not.toHaveBeenCalled();
     expect(watch).not.toHaveBeenCalled();
   });
 
-  it('follows the position and tells a collaborator that the potholes are saved', async () => {
+  it('takes a guest to the entry screen: the guest choice is forgotten first', () => {
+    const { dependencies } = setup();
+    const order: string[] = [];
+    render(
+      <CameraPage
+        dependencies={{
+          ...dependencies,
+          access: { store: { readToken: () => null }, getMe: vi.fn() },
+          gate: {
+            store: { clearGuest: () => order.push('clear') },
+            goTo: (path) => order.push(`go ${path}`),
+          },
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ingresar con Google' }));
+
+    expect(order).toEqual(['clear', 'go /']);
+  });
+
+  it('lets an account with the base role use the camera and tells that the potholes are saved', async () => {
+    const { dependencies } = setup();
+    render(<CameraPage dependencies={dependencies} />);
+
+    await waitFor(() => expect(screen.getByText(/se guardan y se envían/)).toBeTruthy());
+    expect(screen.getByRole('button', { name: 'Activar la cámara' })).toBeTruthy();
+  });
+
+  it('follows the position of a signed-in account while the potholes are saved', async () => {
     const { dependencies } = setup();
     const watch = vi.fn(() => () => undefined);
     const getMe = vi.fn(async () => ({
