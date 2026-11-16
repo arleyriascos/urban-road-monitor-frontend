@@ -55,7 +55,7 @@ describe('the detection queue', () => {
     expect(QUEUE_CAP).toBe(500);
   });
 
-  it('removes the detections that were delivered and forgets the trip when it empties', () => {
+  it('removes the detections that were delivered and keeps the trip to close it', () => {
     const queue = createDetectionQueue(() => memoryStorage().storage);
     queue.push(item(1));
     queue.push(item(2));
@@ -65,7 +65,7 @@ describe('the detection queue', () => {
     expect(queue.tripId()).toBe('trip-1');
     queue.remove(['id-2', 'unknown']);
     expect(queue.size()).toBe(0);
-    expect(queue.tripId()).toBeNull();
+    expect(queue.tripId()).toBe('trip-1');
   });
 
   it('survives a reload of the page', () => {
@@ -113,13 +113,17 @@ describe('the detection queue', () => {
     expect(queue.size()).toBe(0);
   });
 
-  it('cleans the storage when nothing is left to send', () => {
+  it('cleans the storage when nothing is left to send and no trip is open', () => {
     const { storage, data } = memoryStorage();
     const queue = createDetectionQueue(() => storage);
     queue.adopt('u1');
     queue.push(item(1));
     expect(data.has(KEY)).toBe(true);
     queue.remove(['id-1']);
+    expect(data.has(KEY)).toBe(false);
+    queue.setTripId('trip-1');
+    expect(data.has(KEY)).toBe(true);
+    queue.setTripId(null);
     expect(data.has(KEY)).toBe(false);
   });
 

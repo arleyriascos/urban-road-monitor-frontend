@@ -130,7 +130,7 @@ export function createDetectionQueue(
       if (gone.size === 0) return;
       const items = state.items.filter((item) => !gone.has(item.id));
       if (items.length === state.items.length) return;
-      state = { ...state, items, tripId: items.length === 0 ? null : state.tripId };
+      state = { ...state, items };
       changed();
     },
     setTripId(tripId) {
