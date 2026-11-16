@@ -50,6 +50,8 @@ La aplicación se abre en `http://localhost:5173`.
 
 **Cuenta y sesión.** Al abrir la app sin sesión aparece una pantalla de entrada con el botón de Google y «Continuar como invitado»; invitado y persona con cuenta ven lo mismo, y el rol solo se muestra. El detalle del flujo está en `docs/AUTENTICACION.md`. La página `/privacidad` explica qué datos se guardan y cómo pedir su borrado.
 
+**Cámara.** La página `/camara` detecta baches con el modelo entrenado, dentro del navegador, y muestra el rendimiento y el tamaño de cada bache. Por ahora no guarda ni envía nada. El detalle está en `docs/CAMARA.md`.
+
 Para apuntar a otro backend en local, copia `.env.example` como `.env` y cambia el valor. En Vercel se configura en **Settings → Environment Variables**.
 
 Todo lo que empieza con `VITE_` queda visible en el navegador (se puede ver con F12), así que aquí **nunca** van claves ni contraseñas: esas viven solo en el backend.
@@ -83,7 +85,7 @@ Después de desplegar, agrega la URL de Vercel a la variable `CORS_ORIGIN` del b
 
 ```
 public/               Archivos estáticos (ícono)
-docs/                 Contratos del API del mapa (API-MAPA.md) y de las rutas (API-RUTAS.md) y el flujo de cuenta (AUTENTICACION.md)
+docs/                 Contratos del API del mapa (API-MAPA.md) y de las rutas (API-RUTAS.md) y el flujo de cuenta (AUTENTICACION.md) y la cámara (CAMARA.md)
 src/
 ├── api/              Cliente HTTP, funciones que llaman al backend (mapa, rutas y cuenta) y despertar del servicio de IA
 ├── components/       Pantallas y piezas de la interfaz (entrada, botón de Google, cuenta, privacidad, mapa, leyenda, Cómo llegar, carga, error)
