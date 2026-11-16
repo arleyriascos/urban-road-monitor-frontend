@@ -14,6 +14,13 @@ describe('TopBar', () => {
     expect(screen.getByText('4.610 vías · 774,1 km · 54 baches activos')).toBeTruthy();
   });
 
+  it('links to the camera that detects potholes', () => {
+    render(<TopBar stats={statsFixture} />);
+    expect(screen.getByRole('link', { name: 'Detector de baches' }).getAttribute('href')).toBe(
+      '/camara',
+    );
+  });
+
   it('shows no account area when it is not given one', () => {
     render(<TopBar stats={statsFixture} />);
     expect(screen.queryByRole('button', { name: 'Ingresar' })).toBeNull();

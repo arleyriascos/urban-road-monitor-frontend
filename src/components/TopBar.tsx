@@ -1,5 +1,6 @@
 import { summarizeNetwork } from '../lib/legend';
 import type { NetworkStats } from '../types/map';
+import { CAMERA_PATH } from './CameraPage';
 import { AccountBadge, type AccountActions } from './AccountBadge';
 
 /** Title of the app, the numbers of the city and, when given, who is using it. */
@@ -15,6 +16,9 @@ export function TopBar({ stats, account }: { stats: NetworkStats; account?: Acco
       <p className="topbar__summary">
         {summary.roads} · {summary.length} · {summary.potholes}
       </p>
+      <a className="topbar__camera" href={CAMERA_PATH}>
+        Detector de baches
+      </a>
       {account && <AccountBadge {...account} />}
     </header>
   );
