@@ -7,7 +7,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig(
-  { ignores: ['dist/', 'node_modules/'] },
+  { ignores: ['dist/', 'node_modules/', 'public/ort/'] },
   js.configs.recommended,
   tseslint.configs.recommended,
   {
@@ -22,6 +22,12 @@ export default defineConfig(
     rules: {
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+    },
+  },
+  {
+    files: ['scripts/**/*.mjs'],
+    languageOptions: {
+      globals: globals.node,
     },
   },
   prettier,

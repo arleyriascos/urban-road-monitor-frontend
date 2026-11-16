@@ -13,3 +13,6 @@ dist/
 *.log
 .DS_Store
 Thumbs.db
+
+# Copied from onnxruntime-web before dev and build (see scripts/copy-ort.mjs)
+public/ort/
