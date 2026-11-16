@@ -7,6 +7,7 @@ import './popups.css';
 import './entry.css';
 import './account.css';
 import './privacy.css';
+import './camera.css';
 
 const rootElement = document.getElementById('root');
 

@@ -1,0 +1,232 @@
+/* Camera screen: the video with the boxes over it, the controls and the two meters.
+   Colors come from the design tokens, so both themes work. */
+.camera {
+  display: grid;
+  gap: 14px;
+  width: min(960px, 100%);
+  margin: 0 auto;
+  padding: 16px clamp(12px, 3vw, 24px) 32px;
+}
+
+.camera__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+}
+
+.camera__back {
+  font-weight: 600;
+  color: var(--asphalt);
+  text-decoration: underline;
+}
+
+.camera__title {
+  margin: 0;
+  font-size: 1.3rem;
+  line-height: 1.25;
+}
+
+.camera__privacy {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* The video keeps its proportion and is shown whole, so the boxes line up with the road. */
+.camera__stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  max-height: 70vh;
+  background: var(--asphalt);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.camera__video,
+.camera__overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.camera__video {
+  object-fit: contain;
+}
+
+.camera__overlay {
+  pointer-events: none;
+}
+
+.camera__placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 16px;
+  text-align: center;
+  color: var(--surface);
+}
+
+.camera__message {
+  margin: 0;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.camera__message--error {
+  border-color: var(--fail);
+  border-left-width: 6px;
+}
+
+.camera__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.camera__button {
+  min-height: 44px;
+  padding: 10px 20px;
+  font: inherit;
+  font-weight: 700;
+  color: var(--surface);
+  background: var(--asphalt);
+  border: 2px solid var(--asphalt);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.camera__button--stop {
+  color: var(--asphalt);
+  background: var(--surface);
+}
+
+.camera__button:focus-visible,
+.camera__back:focus-visible,
+.topbar__camera:focus-visible {
+  outline: 3px solid var(--marking);
+  outline-offset: 2px;
+}
+
+.camera__meters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.meter {
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.meter__title {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.meter__list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.meter__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.meter__row dt {
+  color: var(--muted);
+}
+
+.meter__row dd {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.meter__headline {
+  margin: 0 0 8px;
+  font-weight: 700;
+}
+
+.meter__counts,
+.meter__boxes {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.meter__boxes {
+  margin-top: 10px;
+}
+
+/* The severity is written in every item; the color on the left is only a help. */
+.meter__count,
+.meter__box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  padding: 6px 10px;
+  border-left: 6px solid var(--line);
+}
+
+.meter__count--leve,
+.meter__box--leve {
+  border-left-color: var(--severity-leve);
+}
+
+.meter__count--moderado,
+.meter__box--moderado {
+  border-left-color: var(--severity-moderado);
+}
+
+.meter__count--grave,
+.meter__box--grave {
+  border-left-color: var(--severity-grave);
+}
+
+.meter__count-number {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.meter__count-label,
+.meter__box-severity {
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.meter__count-rule {
+  flex-basis: 100%;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.topbar__camera {
+  font-weight: 700;
+  color: var(--route-text);
+}
+
+/* Phones: the meters go one under the other and the buttons are easy to press. */
+@media (max-width: 640px) {
+  .camera__meters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .camera__actions .camera__button {
+    flex: 1;
+  }
+}
