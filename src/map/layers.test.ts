@@ -1,5 +1,5 @@
 import * as L from 'leaflet';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { potholesFixture, segmentsFixture } from '../test/fixtures';
 import { PANES } from './base-map';
 import { createPotholeLayer, createSegmentLayer } from './layers';
@@ -67,5 +67,107 @@ describe('createPotholeLayer', () => {
 
   it('opens a popup with the details of the pothole', () => {
     expect(String(layers[0].getPopup()?.getContent())).toContain('Bache grave');
+  });
+});
+
+describe('the popup of a segment with a summary', () => {
+  const summary = {
+    segment: { id: 3, roadId: 1, roadName: 'Calle 16', position: 2, segmentsInRoad: 9 },
+    radius: 2,
+    window: {
+      roadId: 1,
+      roadName: 'Calle 16',
+      fromSegmentIndex: 0,
+      toSegmentIndex: 3,
+      summary: {
+        segments: 4,
+        lengthM: 300,
+        visiblePotholes: 1,
+        confirmedPotholes: 1,
+        damageScore: 2,
+        worstSeverity: { name: 'moderado', weight: 3 },
+      },
+    },
+    road: {
+      roadId: 1,
+      roadName: 'Calle 16',
+      fromSegmentIndex: 0,
+      toSegmentIndex: 8,
+      summary: {
+        segments: 9,
+        lengthM: 700,
+        visiblePotholes: 1,
+        confirmedPotholes: 1,
+        damageScore: 2,
+        worstSeverity: { name: 'moderado', weight: 3 },
+      },
+    },
+  };
+
+  function open(layer: L.Layer): L.Popup {
+    layer.openPopup(L.latLng(1.2136, -77.2811));
+    const popup = layer.getPopup();
+    if (!popup) throw new Error('no popup');
+    return popup;
+  }
+
+  function mapWith(layer: L.GeoJSON) {
+    const element = document.createElement('div');
+    document.body.appendChild(element);
+    const map = L.map(element, { center: [1.2136, -77.2811], zoom: 15 });
+    layer.addTo(map);
+    return map;
+  }
+
+  it('opens with the facts and a loading note, then adds the summary', async () => {
+    let resolve: (value: typeof summary) => void = () => undefined;
+    const loadSummary = vi.fn(() => new Promise<typeof summary>((done) => (resolve = done)));
+    const layer = createSegmentLayer(segmentsFixture, { loadSummary });
+    const map = mapWith(layer);
+    const first = layer.getLayers()[0];
+
+    const popup = open(first);
+    expect(String(popup.getContent())).toContain('Cargando el resumen');
+    expect(loadSummary).toHaveBeenCalledWith(1, expect.any(AbortSignal));
+
+    resolve(summary);
+    await vi.waitFor(() => expect(String(popup.getContent())).toContain('Tramo 2 de 9'));
+    expect(String(popup.getContent())).toContain('Calle 16');
+    map.remove();
+  });
+
+  it('keeps the facts and says so when the summary does not come', async () => {
+    const loadSummary = vi.fn(async () => {
+      throw new Error('down');
+    });
+    const layer = createSegmentLayer(segmentsFixture, { loadSummary });
+    const map = mapWith(layer);
+
+    const popup = open(layer.getLayers()[0]);
+    await vi.waitFor(() => expect(String(popup.getContent())).toContain('No se pudo cargar'));
+    expect(String(popup.getContent())).toContain('Doble sentido');
+    map.remove();
+  });
+
+  it('cancels the request when the popup closes', async () => {
+    let signal: AbortSignal | undefined;
+    const loadSummary = vi.fn((_id: number, abort: AbortSignal) => {
+      signal = abort;
+      return new Promise<typeof summary>(() => undefined);
+    });
+    const layer = createSegmentLayer(segmentsFixture, { loadSummary });
+    const map = mapWith(layer);
+
+    open(layer.getLayers()[0]);
+    layer.getLayers()[0].closePopup();
+    expect(signal?.aborted).toBe(true);
+    map.remove();
+  });
+
+  it('asks nothing when there is no loader, and opens no popup while picking', () => {
+    const plain = createSegmentLayer(segmentsFixture);
+    expect(String(plain.getLayers()[0].getPopup()?.getContent())).not.toContain('Cargando');
+    const picking = createSegmentLayer(segmentsFixture, { popups: false, loadSummary: vi.fn() });
+    expect(picking.getLayers().every((layer) => layer.getPopup() === undefined)).toBe(true);
   });
 });

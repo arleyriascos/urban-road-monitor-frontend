@@ -1,6 +1,8 @@
 import 'leaflet/dist/leaflet.css';
 import type { LatLngBounds, LeafletMouseEvent, Map as LeafletMap } from 'leaflet';
 import { useEffect, useRef } from 'react';
+import { getSegmentSummary } from '../api/roads';
+import { createSummaryCache } from '../lib/summary-cache';
 import { createMap } from '../map/base-map';
 import { attachBasemap } from '../map/basemap';
 import { MAP_CENTER, MAP_ZOOM } from '../map/config';
@@ -26,6 +28,11 @@ import { isPhoneViewport } from '../lib/viewport';
 import type { RoutePointName } from '../lib/route-errors';
 import type { PotholeCollection, SegmentCollection } from '../types/map';
 import type { LatLng, RouteAnswer, RouteStepFeature } from '../types/route';
+
+/** The popup of a segment shows the street around it: the answers are kept a few seconds. */
+const loadSegmentSummary = createSummaryCache((segmentId, signal) =>
+  getSegmentSummary(segmentId, { radius: 2 }, signal),
+);
 
 /** What the map needs while the "Cómo llegar" panel is open. */
 export interface MapRouting {
@@ -129,7 +136,10 @@ export function MapView({
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    const layer = createSegmentLayer(segments, { popups: !picking }).addTo(map);
+    const layer = createSegmentLayer(segments, {
+      popups: !picking,
+      loadSummary: loadSegmentSummary,
+    }).addTo(map);
     return () => {
       layer.remove();
     };
