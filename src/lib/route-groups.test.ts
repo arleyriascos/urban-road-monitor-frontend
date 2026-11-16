@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { routeFixture } from '../test/route-fixtures';
 import type { RouteAnswer, RouteStepFeature } from '../types/route';
 import { UNNAMED_STREET, countDamagedSteps, groupRouteSteps } from './route-groups';
+import type { RouteStreet } from '../types/route';
 
 function step(
   order: number,
@@ -95,5 +96,53 @@ describe('countDamagedSteps', () => {
       routeOf(step(1, 'A', 100, 2), step(2, 'A', 100, 0), step(3, 'B', 100, 0.5)),
     );
     expect(countDamagedSteps(groups)).toBe(2);
+  });
+});
+
+describe('groupRouteSteps with the streets of the backend', () => {
+  const street = (
+    fromOrder: number,
+    toOrder: number,
+    potholes: number,
+    weight = 6,
+  ): RouteStreet => ({
+    roadId: fromOrder,
+    roadName: 'x',
+    fromOrder,
+    toOrder,
+    steps: toOrder - fromOrder + 1,
+    fromSegmentIndex: 0,
+    toSegmentIndex: 1,
+    summary: {
+      segments: toOrder - fromOrder + 1,
+      lengthM: 100,
+      visiblePotholes: potholes,
+      confirmedPotholes: potholes,
+      damageScore: potholes,
+      worstSeverity: potholes > 0 ? { name: 'grave', weight } : null,
+    },
+  });
+
+  it('has no summary when the backend sent no streets', () => {
+    expect(groupRouteSteps(routeFixture).every((group) => group.summary === null)).toBe(true);
+    expect(groupRouteSteps({ ...routeFixture, streets: [] })[0].summary).toBeNull();
+  });
+
+  it('gives each group the summary of the street that starts in it', () => {
+    const route = { ...routeFixture, streets: [street(1, 2, 3), street(3, 3, 0)] };
+    const [calle18, unnamed] = groupRouteSteps(route);
+    expect(calle18.summary?.visiblePotholes).toBe(3);
+    expect(unnamed.summary?.visiblePotholes).toBe(0);
+  });
+
+  it('adds up two streets that the route follows under the same name', () => {
+    const route = { ...routeFixture, streets: [street(1, 1, 1), street(2, 2, 2)] };
+    const [calle18] = groupRouteSteps(route);
+    expect(calle18.summary).toMatchObject({ visiblePotholes: 3, segments: 2 });
+  });
+
+  it('leaves a group without summary when no street starts in it', () => {
+    const route = { ...routeFixture, streets: [street(1, 2, 1)] };
+    expect(groupRouteSteps(route)[1].summary).toBeNull();
   });
 });

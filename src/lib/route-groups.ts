@@ -1,4 +1,6 @@
-import type { RouteAnswer, RouteStepFeature } from '../types/route';
+import type { RouteAnswer, RouteStepFeature, RouteStreet } from '../types/route';
+import type { StretchSummary } from '../types/roads';
+import { combineSummaries } from './street-summary';
 
 export const UNNAMED_STREET = 'Calle sin nombre';
 
@@ -12,6 +14,8 @@ export interface RouteGroup {
   lengthM: number;
   /** How many of its segments have damage. */
   damagedSteps: number;
+  /** The potholes along this street, when the backend sent them; null when it did not. */
+  summary: StretchSummary | null;
 }
 
 /**
@@ -39,9 +43,29 @@ export function groupRouteSteps(route: RouteAnswer): RouteGroup[] {
         steps: [step],
         lengthM: step.properties.lengthM,
         damagedSteps: damaged,
+        summary: null,
       });
     }
     lastName = roadName;
+  }
+  return attachStreets(groups, route.streets);
+}
+
+/**
+ * The backend answers the potholes of each street the route follows (`streets`). Each group
+ * takes the summaries of the streets that begin at one of its steps. The streets are an extra:
+ * without them the groups are the same, only without the summary.
+ */
+function attachStreets(
+  groups: RouteGroup[],
+  streets: readonly RouteStreet[] | undefined,
+): RouteGroup[] {
+  if (!streets || streets.length === 0) return groups;
+  for (const group of groups) {
+    const first = group.steps[0].properties.order;
+    const last = group.steps[group.steps.length - 1].properties.order;
+    const mine = streets.filter((street) => street.fromOrder >= first && street.fromOrder <= last);
+    group.summary = mine.length > 0 ? combineSummaries(mine.map((street) => street.summary)) : null;
   }
   return groups;
 }

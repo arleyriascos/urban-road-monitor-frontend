@@ -1,5 +1,6 @@
 import { useEffect, useRef, type KeyboardEvent } from 'react';
 import { formatDecimal, formatLength, pluralize } from '../lib/format';
+import { describeStreetSummary } from '../lib/street-summary';
 import type { RouteGroup } from '../lib/route-groups';
 
 interface RouteStepsProps {
@@ -95,6 +96,11 @@ export function RouteSteps({ groups, selected, onSelect }: RouteStepsProps) {
                     {pluralize(group.steps.length, 'tramo', 'tramos')}
                     {group.damagedSteps > 0 ? ` · ${group.damagedSteps} con daño` : ''}
                   </span>
+                  {group.summary ? (
+                    <span className="route-steps__meta">
+                      {describeStreetSummary(group.summary)}
+                    </span>
+                  ) : null}
                 </span>
               </button>
               {isSelected ? (

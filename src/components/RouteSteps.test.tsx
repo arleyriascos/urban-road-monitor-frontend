@@ -198,3 +198,43 @@ describe('RouteSteps scrolling into view', () => {
     expect(spy).not.toHaveBeenCalled();
   });
 });
+
+describe('RouteSteps with the potholes of each street', () => {
+  it('shows the potholes along each street when the backend sent them', () => {
+    const groups = groupRouteSteps({
+      ...routeFixture,
+      streets: [
+        {
+          roadId: 7,
+          roadName: 'Calle 18',
+          fromOrder: 1,
+          toOrder: 2,
+          steps: 2,
+          fromSegmentIndex: 0,
+          toSegmentIndex: 1,
+          summary: {
+            segments: 2,
+            lengthM: 223.5,
+            visiblePotholes: 2,
+            confirmedPotholes: 1,
+            damageScore: 3,
+            worstSeverity: { name: 'grave', weight: 6 },
+          },
+        },
+      ],
+    });
+    render(<RouteSteps groups={groups} selected={null} onSelect={() => undefined} />);
+    expect(screen.getByText('2 baches a la vista · 1 confirmado · peor: Grave')).toBeTruthy();
+  });
+
+  it('shows nothing extra when there is no summary', () => {
+    render(
+      <RouteSteps
+        groups={groupRouteSteps(routeFixture)}
+        selected={null}
+        onSelect={() => undefined}
+      />,
+    );
+    expect(screen.queryByText(/a la vista/)).toBeNull();
+  });
+});
