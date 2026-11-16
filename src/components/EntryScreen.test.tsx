@@ -41,6 +41,15 @@ describe('EntryScreen', () => {
     expect(screen.getByRole('button', { name: 'Continuar como invitado' })).toBeTruthy();
   });
 
+  it('says what a guest and an account can each do', () => {
+    renderEntry();
+
+    expect(
+      screen.getByText(/Como invitado ves el mapa, buscas calles y trazas rutas/),
+    ).toBeTruthy();
+    expect(screen.getByText(/además usas el detector de baches y guardas/)).toBeTruthy();
+  });
+
   it('shows the headline first and the way in after it, each with its own heading', () => {
     renderEntry();
 

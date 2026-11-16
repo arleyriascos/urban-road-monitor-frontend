@@ -64,7 +64,8 @@ export function EntryScreen({
         <div className="entry__inner">
           <h2 className="entry__heading">Entra a la app</h2>
           <p className="entry__lead">
-            Con una cuenta de Google o como invitado ves lo mismo: el mapa y las rutas.
+            Como invitado ves el mapa, buscas calles y trazas rutas. Con tu cuenta de Google además
+            usas el detector de baches y guardas lo que encuentra.
           </p>
 
           <div className="entry__actions">
