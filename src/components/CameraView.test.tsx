@@ -12,7 +12,7 @@ function renderView(overrides: Partial<CameraViewProps> = {}) {
     camera: { status: 'off' } as CameraState,
     model: { status: 'idle' } as ModelState,
     detection: NO_DETECTION,
-    sending: { messages: [{ tone: 'info', text: 'Entraste como invitado' }], counts: null },
+    sending: { messages: [{ tone: 'info', text: 'Ingresa con tu cuenta' }], counts: null },
     onStart: vi.fn(),
     onStop: vi.fn(),
     videoRef: vi.fn(),

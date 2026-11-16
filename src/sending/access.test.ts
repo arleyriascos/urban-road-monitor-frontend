@@ -31,7 +31,11 @@ describe('describeAccess', () => {
     expect(new Set(texts).size).toBe(states.length);
   });
 
-  it('tells a guest that nothing is saved', () => {
-    expect(describeAccess({ status: 'guest' })).toMatch(/no se guardan/);
+  it('asks a guest to sign in with Google', () => {
+    expect(describeAccess({ status: 'guest' })).toMatch(/Ingresa con tu cuenta de Google/);
+  });
+
+  it('does not ask for the role of collaborator any more', () => {
+    expect(describeAccess({ status: 'no_permission' })).not.toMatch(/colaborador/);
   });
 });

@@ -19,14 +19,14 @@ const view = (patch: Partial<SendingView> = {}): SendingView => ({
 });
 
 describe('summarizeSending', () => {
-  it('tells a guest that nothing is saved and shows no counts', () => {
+  it('asks a guest to sign in and shows no counts', () => {
     const summary = summarizeSending({ status: 'guest' }, { status: 'off' }, view(), true);
     expect(summary.messages).toHaveLength(1);
-    expect(summary.messages[0].text).toMatch(/no se guardan/);
+    expect(summary.messages[0].text).toMatch(/Ingresa con tu cuenta/);
     expect(summary.counts).toBeNull();
   });
 
-  it('tells a collaborator that what they see is saved', () => {
+  it('tells a signed-in person that what they see is saved', () => {
     const summary = summarizeSending(ALLOWED, READY, view(), true);
     expect(summary.messages.map((m) => m.tone)).toEqual(['info']);
     expect(summary.messages[0].text).toMatch(/se guardan y se envían/);

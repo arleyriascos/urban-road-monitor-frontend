@@ -138,7 +138,7 @@ describe('CameraPage and the saving of potholes', () => {
         }}
       />,
     );
-    expect(screen.getByText(/Entraste como invitado/)).toBeTruthy();
+    expect(screen.getByText(/Ingresa con tu cuenta de Google/)).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: 'Activar la cámara' }));
     await screen.findByRole('button', { name: 'Apagar la cámara' });
