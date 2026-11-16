@@ -57,8 +57,8 @@ export function CameraView({
       </header>
 
       <p className="camera__privacy">
-        Las imágenes de la cámara se analizan en tu dispositivo y no salen de él. Solo se envía, si
-        eres colaborador, dónde está cada bache y qué tan grande se ve.
+        Las imágenes de la cámara se analizan en tu dispositivo y no salen de él. Solo se envía, con
+        tu cuenta, dónde está cada bache y qué tan grande se ve.
       </p>
 
       <div className="camera__stage">

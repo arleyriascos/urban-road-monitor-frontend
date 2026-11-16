@@ -27,6 +27,7 @@ describe('CameraView', () => {
     const props = renderView();
     expect(screen.getByText('La cámara está apagada.')).toBeTruthy();
     expect(screen.getByText(/no salen de él/)).toBeTruthy();
+    expect(screen.getByText(/Solo se envía, con tu cuenta/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Activar la cámara' }));
     expect(props.onStart).toHaveBeenCalledOnce();
   });
