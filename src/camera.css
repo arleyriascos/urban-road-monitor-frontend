@@ -230,3 +230,47 @@
     flex: 1;
   }
 }
+
+/* What happens to the potholes: saved or not, how many were sent and how many wait. */
+.sending {
+  display: grid;
+  gap: 8px;
+}
+
+.sending__message {
+  margin: 0;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+}
+
+.sending__message--warning {
+  border-left: 6px solid var(--marking);
+}
+
+.sending__counts {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+}
+
+.sending__count {
+  flex: 1;
+  padding: 8px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.sending__count dt {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.sending__count dd {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
