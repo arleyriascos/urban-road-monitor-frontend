@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { potholesFixture, segmentsFixture } from '../test/fixtures';
-import { potholePopupHtml, segmentPopupHtml } from './popups';
+import type { SegmentSummaryAnswer } from '../types/roads';
+import {
+  potholePopupHtml,
+  segmentPopupHtml,
+  segmentSummaryHtml,
+  summaryErrorHtml,
+  summaryLoadingHtml,
+} from './popups';
 
 const [clean, severe, longStreet] = segmentsFixture.features.map((feature) => feature.properties);
 const [confirmed] = potholesFixture.features.map((feature) => feature.properties);
@@ -60,5 +67,87 @@ describe('potholePopupHtml', () => {
 
   it('shows the street name when there is one', () => {
     expect(potholePopupHtml({ ...confirmed, roadName: 'Carrera 24' })).toContain('Carrera 24');
+  });
+});
+
+const SUMMARY = {
+  segments: 5,
+  lengthM: 402.5,
+  visiblePotholes: 3,
+  confirmedPotholes: 2,
+  damageScore: 3.25,
+  worstSeverity: { name: 'grave', weight: 6 },
+};
+
+const ANSWER: SegmentSummaryAnswer = {
+  segment: { id: 7, roadId: 3, roadName: 'Calle 18', position: 4, segmentsInRoad: 12 },
+  radius: 2,
+  window: {
+    roadId: 3,
+    roadName: 'Calle 18',
+    fromSegmentIndex: 1,
+    toSegmentIndex: 5,
+    summary: SUMMARY,
+  },
+  road: {
+    roadId: 3,
+    roadName: 'Calle 18',
+    fromSegmentIndex: 0,
+    toSegmentIndex: 11,
+    summary: {
+      segments: 12,
+      lengthM: 1530,
+      visiblePotholes: 0,
+      confirmedPotholes: 0,
+      damageScore: 0,
+      worstSeverity: null,
+    },
+  },
+};
+
+describe('segmentSummaryHtml', () => {
+  it('says where the segment is in its street', () => {
+    expect(segmentSummaryHtml(ANSWER)).toContain('Tramo 4 de 12 de esta calle');
+  });
+
+  it('adds up the stretch around the segment', () => {
+    const html = segmentSummaryHtml(ANSWER);
+    expect(html).toContain('Alrededor (5 tramos)');
+    expect(html).toContain('403 m');
+    expect(html).toContain('Baches a la vista');
+    expect(html).toContain('Baches confirmados');
+    expect(html).toContain('3,3');
+    expect(html).toContain('Grave');
+  });
+
+  it('adds up the whole street, and says no pothole is confirmed when none is', () => {
+    const html = segmentSummaryHtml(ANSWER);
+    expect(html).toContain('Calle 18, completa');
+    expect(html).toContain('1,5 km');
+    expect(html).toContain('Ninguna confirmada');
+  });
+
+  it('writes "1 tramo" in the singular', () => {
+    const one = { ...ANSWER, window: { ...ANSWER.window, summary: { ...SUMMARY, segments: 1 } } };
+    expect(segmentSummaryHtml(one)).toContain('Alrededor (1 tramo)');
+  });
+
+  it('names a street without a name and cannot inject markup', () => {
+    const unnamed = { ...ANSWER, road: { ...ANSWER.road, roadName: null } };
+    expect(segmentSummaryHtml(unnamed)).toContain('Calle sin nombre, completa');
+    const hostile = { ...ANSWER, road: { ...ANSWER.road, roadName: '<b onmouseover=x>' } };
+    expect(segmentSummaryHtml(hostile)).not.toContain('<b ');
+  });
+});
+
+describe('the states of the summary', () => {
+  it('tells it is loading, as a status', () => {
+    expect(summaryLoadingHtml()).toContain('role="status"');
+    expect(summaryLoadingHtml()).toContain('Cargando');
+  });
+
+  it('tells it failed and how to try again', () => {
+    expect(summaryErrorHtml()).toContain('No se pudo cargar');
+    expect(summaryErrorHtml()).toContain('otra vez');
   });
 });

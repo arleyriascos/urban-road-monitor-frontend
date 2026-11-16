@@ -57,3 +57,20 @@
   text-align: right;
   white-space: nowrap;
 }
+
+.popup .popup__summary {
+  margin-top: 8px;
+}
+
+.popup .popup__section {
+  margin: 8px 0 2px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #2b2f33;
+}
+
+.popup .popup__note {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: #5d646b;
+}
