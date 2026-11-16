@@ -1,0 +1,7 @@
+{
+  "format": "onnx",
+  "input_size": 416,
+  "classes": ["pothole"],
+  "half_precision": false,
+  "size_bytes": 12168118
+}
