@@ -3,6 +3,7 @@
  * GeoJSON uses [longitude, latitude], the opposite of Leaflet's [latitude, longitude].
  */
 import type { Position } from './map';
+import type { StretchSummary } from './roads';
 
 /** shortest ignores potholes, balanced weighs them and avoid_potholes avoids them hard. */
 export type RouteCriterion = 'shortest' | 'balanced' | 'avoid_potholes';
@@ -38,6 +39,19 @@ export interface RouteStepFeature {
   properties: RouteStepProperties;
 }
 
+/** One street the route follows, with the potholes along that part (POST /api/routes `streets`). */
+export interface RouteStreet {
+  roadId: number;
+  roadName: string | null;
+  /** The route steps (`properties.order`) that lie on this street. */
+  fromOrder: number;
+  toOrder: number;
+  steps: number;
+  fromSegmentIndex: number;
+  toSegmentIndex: number;
+  summary: StretchSummary;
+}
+
 export interface RouteAnswer {
   criterion: RouteCriterion;
   algorithm: RouteAlgorithm;
@@ -52,4 +66,9 @@ export interface RouteAnswer {
     computationMs: number;
   };
   route: { type: 'FeatureCollection'; features: RouteStepFeature[] };
+  /**
+   * The streets the route follows, in order. The backend leaves it out when it cannot work
+   * it out at that moment: the route is still good, so it is always optional.
+   */
+  streets?: RouteStreet[];
 }
