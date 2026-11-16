@@ -37,3 +37,9 @@ export const NMS_IOU_THRESHOLD = 0.5;
 
 /** The most potholes kept in one picture. */
 export const MAX_DETECTIONS = 20;
+
+/**
+ * The version of this model, as the server knows it. A trip only opens when it is the one the
+ * server has active: if the model is trained again, change this at the same time as the file.
+ */
+export const MODEL_VERSION = '1.0.0';
