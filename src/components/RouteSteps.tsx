@@ -1,7 +1,8 @@
-import { useEffect, useRef, type KeyboardEvent } from 'react';
+import { useEffect, useMemo, useRef, type KeyboardEvent } from 'react';
 import { formatDecimal, formatLength, pluralize } from '../lib/format';
 import { describeStreetSummary } from '../lib/street-summary';
 import type { RouteGroup } from '../lib/route-groups';
+import { CircularDoublyLinkedList } from '../structures/circular-doubly-linked-list';
 
 interface RouteStepsProps {
   groups: readonly RouteGroup[];
@@ -18,10 +19,20 @@ function damageText(damageScore: number): string {
  * The route street by street, with Anterior and Siguiente to walk through it. The street
  * picked is shown on the map and opens to list its segments. The arrow keys do the same as
  * the buttons, and Escape goes back to the whole route.
+ *
+ * The streets are kept in a circular doubly linked list, so Siguiente on the last street
+ * goes to the first and Anterior on the first goes to the last, with no special cases at
+ * the ends. With no street picked, Siguiente starts at the first and Anterior at the last.
  */
 export function RouteSteps({ groups, selected, onSelect }: RouteStepsProps) {
   const listRef = useRef<HTMLOListElement | null>(null);
   const total = groups.length;
+
+  // One ring node per street, in travel order; nodes[i] is the node of street i.
+  const { ring, nodes } = useMemo(() => {
+    const list = new CircularDoublyLinkedList<number>();
+    return { ring: list, nodes: groups.map((group) => list.append(group.index)) };
+  }, [groups]);
 
   // Keep the street picked in view when it is chosen with the buttons or the keyboard.
   useEffect(() => {
@@ -30,9 +41,16 @@ export function RouteSteps({ groups, selected, onSelect }: RouteStepsProps) {
 
   if (total === 0) return null;
 
-  const go = (index: number) => onSelect(Math.min(Math.max(index, 0), total - 1));
-  const next = () => go(selected === null ? 0 : selected + 1);
-  const previous = () => go(selected === null ? 0 : selected - 1);
+  const next = () => {
+    const node = selected === null ? ring.head : nodes[selected]?.next;
+    if (node) onSelect(node.value);
+  };
+  const previous = () => {
+    const node = selected === null ? ring.tail : nodes[selected]?.prev;
+    if (node) onSelect(node.value);
+  };
+  // With a single street there is nowhere to go: the ring points back to itself.
+  const canWalk = total > 1;
 
   const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
@@ -54,7 +72,7 @@ export function RouteSteps({ groups, selected, onSelect }: RouteStepsProps) {
           type="button"
           className="route-button route-button--quiet"
           onClick={previous}
-          disabled={selected === null || selected === 0}
+          disabled={!canWalk}
         >
           Anterior
         </button>
@@ -65,7 +83,7 @@ export function RouteSteps({ groups, selected, onSelect }: RouteStepsProps) {
           type="button"
           className="route-button route-button--quiet"
           onClick={next}
-          disabled={selected === total - 1}
+          disabled={!canWalk}
         >
           Siguiente
         </button>

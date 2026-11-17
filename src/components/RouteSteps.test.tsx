@@ -34,11 +34,11 @@ describe('RouteSteps', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('starts with nothing picked: Siguiente goes to the first street and Anterior is off', () => {
+  it('starts with nothing picked: Siguiente goes to the first street', () => {
     const onSelect = renderSteps(null);
 
     expect(screen.getByText('Recorre la ruta')).toBeTruthy();
-    expect(previous().disabled).toBe(true);
+    expect(previous().disabled).toBe(false);
     fireEvent.click(next());
 
     expect(onSelect).toHaveBeenCalledWith(0);
@@ -64,18 +64,30 @@ describe('RouteSteps', () => {
     expect(onSelect).toHaveBeenLastCalledWith(1);
   });
 
-  it('turns Anterior and Siguiente off at the two ends', () => {
+  it('keeps Anterior and Siguiente on at the two ends, because the ring goes around', () => {
     renderSteps(0);
-    expect(previous().disabled).toBe(true);
+    expect(previous().disabled).toBe(false);
     expect(next().disabled).toBe(false);
   });
 
-  it('turns Siguiente off on the last street, and Anterior goes back', () => {
+  it('goes from the last street back to the first with Siguiente', () => {
     const onSelect = renderSteps(1);
 
-    expect(next().disabled).toBe(true);
-    fireEvent.click(previous());
+    expect(next().disabled).toBe(false);
+    fireEvent.click(next());
     expect(onSelect).toHaveBeenCalledWith(0);
+  });
+
+  it('goes from the first street to the last with Anterior', () => {
+    const onSelect = renderSteps(0);
+    fireEvent.click(previous());
+    expect(onSelect).toHaveBeenCalledWith(1);
+  });
+
+  it('goes from nothing picked to the last street with Anterior', () => {
+    const onSelect = renderSteps(null);
+    fireEvent.click(previous());
+    expect(onSelect).toHaveBeenCalledWith(1);
   });
 
   it('opens the street picked to show its segments one by one', () => {
@@ -121,10 +133,10 @@ describe('RouteSteps', () => {
       expect(onSelect).toHaveBeenCalledWith(0);
     });
 
-    it('does not go past the first or the last street', () => {
+    it('goes around: up on the first street reaches the last, down on the last the first', () => {
       const first = renderSteps(0);
       fireEvent.keyDown(section(), { key: 'ArrowUp' });
-      expect(first).toHaveBeenCalledWith(0);
+      expect(first).toHaveBeenCalledWith(1);
     });
 
     it('starts at the first street from nothing', () => {
