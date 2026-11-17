@@ -1,9 +1,11 @@
 import { useEffect, useState, type ComponentProps } from 'react';
 import { MAX_WAKE_ATTEMPTS, type RouteState } from '../hooks/useRoute';
+import { formatDecimal } from '../lib/format';
 import { describeRouteError } from '../lib/route-errors';
 import type { RouteGroup } from '../lib/route-groups';
 import type { LatLng, RouteCriterion } from '../types/route';
 import { CriterionPicker } from './CriterionPicker';
+import { Icon } from './Icon';
 import { RouteDetails } from './RouteDetails';
 import { RouteSteps } from './RouteSteps';
 
@@ -33,6 +35,50 @@ function hint(origin: LatLng | null, destination: LatLng | null): string {
   if (!origin) return 'Toca el mapa para poner el origen (A).';
   if (!destination) return 'Ahora toca el mapa para poner el destino (B).';
   return 'Arrastra A o B para moverlos, o toca el mapa para empezar otra ruta.';
+}
+
+/** Where a point was placed, as latitude and longitude. */
+function describePoint(point: LatLng | null): string {
+  if (!point) return 'Sin poner';
+  return `${formatDecimal(point.latitude, 5)} · ${formatDecimal(point.longitude, 5)}`;
+}
+
+/** The two points of the route: A is the origin and B the destination. */
+function RoutePoints({
+  origin,
+  destination,
+}: {
+  origin: LatLng | null;
+  destination: LatLng | null;
+}) {
+  const points = [
+    { letter: 'A', name: 'Origen', point: origin, modifier: 'origin' },
+    { letter: 'B', name: 'Destino', point: destination, modifier: 'destination' },
+  ];
+  return (
+    <ul className="route-points" aria-label="Puntos de la ruta">
+      {points.map(({ letter, name, point, modifier }) => (
+        <li key={letter} className="route-points__item">
+          <span
+            className={`route-points__badge route-points__badge--${modifier}`}
+            aria-hidden="true"
+          >
+            {letter}
+          </span>
+          <span className="route-points__text">
+            <span className="route-points__name">{name}</span>
+            <span
+              className={
+                point ? 'route-points__value' : 'route-points__value route-points__value--empty'
+              }
+            >
+              {describePoint(point)}
+            </span>
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 /** "Reintentar", which waits the seconds the server asked for before it can be used. */
@@ -124,10 +170,11 @@ export function RoutePanel(props: RoutePanelProps) {
           onClick={onClose}
           aria-label="Cerrar Cómo llegar"
         >
-          ×
+          <Icon name="close" />
         </button>
       </div>
       <p className="route-panel__hint">{hint(origin, destination)}</p>
+      <RoutePoints origin={origin} destination={destination} />
       <CriterionPicker value={criterion} onChange={onCriterionChange} />
       <RouteStatus
         state={props.state}
@@ -155,6 +202,7 @@ export function RoutePanel(props: RoutePanelProps) {
           onClick={onSwap}
           disabled={!origin || !destination}
         >
+          <Icon name="swap" />
           Intercambiar A y B
         </button>
         <button

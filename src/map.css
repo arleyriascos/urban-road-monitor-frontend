@@ -517,17 +517,19 @@
 
 .route-panel {
   position: absolute;
-  top: 12px;
-  left: 58px;
+  top: 16px;
+  left: 16px;
   z-index: 1002;
-  width: min(340px, calc(100% - 70px));
-  max-height: calc(100% - 90px);
+  width: min(400px, calc(100% - 32px));
+  max-height: calc(100% - 32px);
   overflow-y: auto;
-  padding: 12px 14px 14px;
+  padding: 16px 18px 18px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: 0 6px 24px rgb(0 0 0 / 18%);
+  border-radius: 16px;
+  box-shadow: var(--shadow-strong);
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
 }
 
 .route-panel__header {
@@ -538,25 +540,96 @@
 
 .route-panel__title {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1.3rem;
+  letter-spacing: -0.01em;
 }
 
 .route-panel__close {
-  width: 32px;
-  height: 32px;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
   font: inherit;
-  font-size: 1.3rem;
-  line-height: 1;
+  font-size: 1.1rem;
   color: var(--muted);
-  background: none;
-  border: 0;
-  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
   cursor: pointer;
 }
 
+.route-panel__close:hover {
+  color: var(--asphalt);
+  background: var(--concrete);
+}
+
 .route-panel__hint {
-  margin: 4px 0 10px;
+  margin: 6px 0 12px;
   font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* A and B, with where each one was placed. */
+.route-points {
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+  background: var(--concrete);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.route-points__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+}
+
+.route-points__item + .route-points__item {
+  border-top: 1px solid var(--line);
+}
+
+.route-points__badge {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  border-radius: 50%;
+}
+
+.route-points__badge--origin {
+  background: #13201e;
+}
+
+.route-points__badge--destination {
+  background: var(--brand);
+}
+
+.route-points__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.route-points__name {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.route-points__value {
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.route-points__value--empty {
+  font-family: var(--font);
+  font-weight: 400;
   color: var(--muted);
 }
 
@@ -564,44 +637,55 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .criteria__label {
-  margin: 0 0 4px;
-  font-size: 0.78rem;
+  margin: 0 0 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
+/* The three criteria, as one segmented control. */
 .criteria__options {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 4px;
+  padding: 4px;
+  background: var(--concrete);
+  border: 1px solid var(--line);
+  border-radius: 12px;
 }
 
 .criteria__option {
-  padding: 7px 2px;
+  min-height: 38px;
+  padding: 6px 4px;
   font: inherit;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   line-height: 1.2;
-  font-weight: 700;
-  color: var(--asphalt);
-  background: var(--concrete);
-  border: 1px solid var(--line);
-  border-radius: 6px;
+  font-weight: 600;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  border-radius: 9px;
   cursor: pointer;
+}
+
+.criteria__option:hover {
+  color: var(--asphalt);
 }
 
 .criteria__option[aria-pressed='true'] {
   color: #ffffff;
   background: var(--route);
-  border-color: var(--route);
+  box-shadow: 0 2px 6px rgb(37 99 235 / 30%);
 }
 
 .criteria__hint {
-  margin: 6px 0 0;
+  margin: 8px 0 0;
   font-size: 0.82rem;
   color: var(--muted);
 }
@@ -615,6 +699,23 @@
   margin: 0;
 }
 
+.route-status--ok {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--brand-ink);
+}
+
+.route-status--ok::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--brand);
+  box-shadow: 0 0 0 4px var(--brand-soft);
+}
+
 .route-status__title {
   font-weight: 700;
 }
@@ -622,6 +723,7 @@
 .route-status__help,
 .route-status__note {
   font-size: 0.85rem;
+  font-weight: 400;
   color: var(--muted);
 }
 
@@ -630,14 +732,19 @@
 }
 
 .route-button {
-  padding: 7px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 7px 14px;
   font: inherit;
   font-size: 0.88rem;
-  font-weight: 700;
+  font-weight: 600;
   color: #ffffff;
   background: var(--route);
   border: 1px solid var(--route);
-  border-radius: 6px;
+  border-radius: var(--radius-small);
   cursor: pointer;
 }
 
@@ -647,9 +754,13 @@
   border-color: var(--line);
 }
 
+.route-button--quiet:hover:not(:disabled) {
+  background: var(--concrete);
+}
+
 .route-button:disabled {
   cursor: default;
-  opacity: 0.55;
+  opacity: 0.5;
 }
 
 .route-link {
@@ -679,11 +790,11 @@
 }
 
 .route-pin--origin {
-  background: var(--ok);
+  background: #13201e;
 }
 
 .route-pin--destination {
-  background: var(--fail);
+  background: var(--brand);
 }
 
 .route-pin--error {
@@ -696,17 +807,30 @@
 }
 
 @media (max-width: 640px) {
-  .route-toggle {
-    min-height: 40px;
-  }
-
+  /* A sheet that rises from the bottom edge, with a handle on top. */
   .route-panel {
     top: auto;
-    right: 8px;
-    bottom: 26px;
-    left: 8px;
+    right: 0;
+    bottom: 0;
+    left: 0;
     width: auto;
-    max-height: 55%;
+    max-height: 60%;
+    border-width: 1px 0 0;
+    border-radius: 22px 22px 0 0;
+  }
+
+  .route-panel::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 5px;
+    margin: -6px auto 10px;
+    border-radius: 3px;
+    background: var(--line);
+  }
+
+  .route-points__item {
+    padding: 8px 12px;
   }
 
   .route-panel button,
@@ -728,48 +852,68 @@
 .route-summary {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
   margin: 0;
+  overflow: hidden;
+  background: var(--concrete);
+  border: 1px solid var(--line);
+  border-radius: 12px;
 }
 
 .route-summary > div {
   min-width: 0;
-  padding: 6px;
-  background: var(--concrete);
-  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.route-summary > div + div {
+  border-left: 1px solid var(--line);
 }
 
 .route-summary dt {
-  font-size: 0.66rem;
+  font-size: 0.72rem;
   white-space: nowrap;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
   color: var(--muted);
 }
 
 .route-summary dd {
   margin: 2px 0 0;
-  font-size: 0.9rem;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 600;
   white-space: nowrap;
-  font-weight: 800;
 }
 
 .route-details {
-  margin-top: 8px;
-  font-size: 0.85rem;
+  margin-top: 10px;
+  font-size: 0.86rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
 }
 
 .route-details > summary {
+  padding: 10px 14px;
   cursor: pointer;
   font-weight: 700;
   color: var(--route-text);
 }
 
+.route-details[open] > summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.route-details > :not(summary) {
+  margin-right: 14px;
+  margin-left: 14px;
+}
+
+.route-details > :last-child {
+  margin-bottom: 12px;
+}
+
 .route-facts {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 2px 12px;
-  margin: 8px 0;
+  gap: 4px 12px;
+  margin: 10px 0;
 }
 
 .route-facts dt {
@@ -778,7 +922,10 @@
 
 .route-facts dd {
   margin: 0;
-  font-weight: 700;
+  font-family: var(--mono);
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-align: right;
 }
 
 .route-info__note {
@@ -789,16 +936,26 @@
 
 .route-compare__table {
   width: 100%;
-  margin-top: 8px;
+  margin-top: 10px;
   font-size: 0.82rem;
   border-collapse: collapse;
 }
 
 .route-compare__table th,
 .route-compare__table td {
-  padding: 4px 6px;
+  padding: 6px;
   text-align: right;
   border-bottom: 1px solid var(--line);
+}
+
+.route-compare__table td {
+  font-family: var(--mono);
+}
+
+.route-compare__table thead th {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--muted);
 }
 
 .route-compare__table th:first-child {
@@ -806,7 +963,7 @@
 }
 
 .route-compare__note {
-  margin: 6px 0 0;
+  margin: 8px 0 0;
   font-size: 0.82rem;
   color: var(--muted);
 }
@@ -815,11 +972,9 @@
   color: var(--route-fail);
 }
 
-/* Route: street by street */
+/* Route: street by street, drawn as a line with a stop for each street. */
 .route-steps {
-  margin-top: 12px;
-  border-top: 1px solid var(--line);
-  padding-top: 10px;
+  margin-top: 16px;
 }
 
 .route-steps__nav {
@@ -831,44 +986,64 @@
 
 .route-steps__counter {
   margin: 0;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 700;
   text-align: center;
 }
 
 .route-link-button {
-  margin: 6px 0 0;
+  margin: 8px 0 0;
   padding: 0;
   font: inherit;
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--route-text);
   text-decoration: underline;
+  text-underline-offset: 3px;
   background: none;
   border: 0;
   cursor: pointer;
 }
 
 .route-steps__list {
-  max-height: 220px;
-  margin: 8px 0 0;
+  position: relative;
+  max-height: 260px;
+  margin: 10px 0 0;
   padding: 0;
   overflow-y: auto;
   list-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+.route-steps__entry {
+  position: relative;
+}
+
+/* The line that joins the stops. */
+.route-steps__entry:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: 26px;
+  bottom: -10px;
+  left: 20px;
+  width: 2px;
+  background: var(--line);
 }
 
 .route-steps__item {
+  position: relative;
   display: flex;
-  gap: 8px;
+  gap: 12px;
   align-items: flex-start;
   width: 100%;
-  padding: 7px 6px;
+  padding: 8px 8px;
   font: inherit;
   color: var(--asphalt);
   text-align: left;
   background: none;
   border: 0;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
 }
 
@@ -891,13 +1066,17 @@
   display: grid;
   flex: none;
   place-items: center;
-  width: 22px;
-  height: 22px;
-  font-size: 0.75rem;
-  font-weight: 800;
+  width: 26px;
+  height: 26px;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 600;
   color: #ffffff;
   background: var(--route);
+  border: 3px solid var(--surface);
   border-radius: 50%;
+  box-sizing: content-box;
+  margin: -3px 0 0 -3px;
 }
 
 .route-steps__item[aria-current='step'] .route-steps__number {
@@ -906,22 +1085,26 @@
 
 .route-steps__text {
   display: grid;
+  gap: 1px;
 }
 
 .route-steps__name {
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: 0.94rem;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .route-steps__meta {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   color: var(--muted);
 }
 
 .route-steps__segments {
-  margin: 2px 0 6px 36px;
+  margin: 2px 0 8px 46px;
   padding: 0;
-  font-size: 0.8rem;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  line-height: 1.7;
   color: var(--muted);
   list-style: none;
 }
@@ -954,14 +1137,22 @@
 
   /* A street brought into view must stop below the fixed bar, not under it. The browser scrolls
      the street's button, so the margin goes on the button and not on its list item. From the top
-     of the panel the bar starts 13px down (12px of padding and 1px of border) and is 56px tall
-     (a 44px button and 6px above and below): 69px, plus a gap. */
+     of the panel the bar starts 17px down (16px of padding and 1px of border) and is 56px tall
+     (a 44px button and 6px above and below): 73px, plus a gap. */
   .route-steps__item {
-    scroll-margin-top: 80px;
+    scroll-margin-top: 84px;
   }
 
   .route-summary {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .route-summary > div:nth-child(3) {
+    border-left: 0;
+  }
+
+  .route-summary > div:nth-child(n + 3) {
+    border-top: 1px solid var(--line);
   }
 }
 

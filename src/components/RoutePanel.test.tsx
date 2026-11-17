@@ -52,6 +52,14 @@ describe('RoutePanel', () => {
     expect(screen.getByText(text)).toBeTruthy();
   });
 
+  it('shows where A and B were placed, and which one is still missing', () => {
+    renderPanel({ origin: A, destination: null });
+
+    const points = screen.getByRole('list', { name: 'Puntos de la ruta' });
+    const items = [...points.querySelectorAll('li')].map((item) => item.textContent);
+    expect(items).toEqual(['AOrigen1,21360 · -77,28110', 'BDestinoSin poner']);
+  });
+
   it('shows the three criteria with the chosen one pressed', () => {
     renderPanel({ criterion: 'avoid_potholes' });
 
