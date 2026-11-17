@@ -2,7 +2,11 @@
 .privacy {
   display: grid;
   justify-items: center;
-  padding: 24px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: clamp(16px, 4vw, 48px) 24px;
+  background:
+    radial-gradient(circle at 15% 0%, var(--brand-soft), transparent 40%), var(--concrete);
 }
 
 .privacy__card {
@@ -12,7 +16,8 @@
 
 .privacy__title {
   margin: 0 0 4px;
-  font-size: 1.7rem;
+  font-size: 2rem;
+  letter-spacing: -0.02em;
   line-height: 1.25;
 }
 
@@ -24,7 +29,14 @@
 
 .privacy h2 {
   margin: 28px 0 8px;
+  padding-top: 20px;
   font-size: 1.1rem;
+  border-top: 1px solid var(--line);
+}
+
+.privacy__updated + h2 {
+  padding-top: 0;
+  border-top: 0;
 }
 
 .privacy p,
@@ -41,7 +53,7 @@
 }
 
 .privacy a {
-  color: inherit;
+  color: var(--brand-ink);
   text-underline-offset: 3px;
 }
 
@@ -53,6 +65,11 @@
 .privacy__back {
   margin: 32px 0 0;
   font-weight: 700;
+}
+
+.privacy .brand {
+  color: var(--asphalt);
+  text-decoration: none;
 }
 
 @media (max-width: 640px) {

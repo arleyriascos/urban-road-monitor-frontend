@@ -1,3 +1,5 @@
+import { Brand } from './BrandMark';
+
 /** Where to ask about the data: the contact of the academic project. */
 export const PRIVACY_CONTACT_EMAIL = 'arley.riascos@campusucc.edu.co';
 
@@ -9,7 +11,9 @@ export function PrivacyPage() {
   return (
     <main className="privacy">
       <article className="panel privacy__card">
-        <p className="splash__brand">Urban Road Monitor</p>
+        <div className="splash__brand">
+          <Brand href="/" subtitle="Pasto · Nariño" />
+        </div>
         <h1 className="privacy__title">Política de privacidad</h1>
         <p className="privacy__updated">Última actualización: {PRIVACY_UPDATED_AT}</p>
 
