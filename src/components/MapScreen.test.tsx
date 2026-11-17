@@ -280,6 +280,26 @@ describe('MapScreen "Cómo llegar"', () => {
       expect(map().dataset.highlight).toBe('2');
     });
 
+    it('goes around the streets: Siguiente after the last one returns to the first', () => {
+      arrive();
+
+      fireEvent.click(screen.getByRole('button', { name: /Calle sin nombre/ }));
+      expect(screen.getByText('Calle 2 de 2')).toBeTruthy();
+      fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }));
+
+      expect(screen.getByText('Calle 1 de 2')).toBeTruthy();
+      expect(map().dataset.highlight).toBe('2');
+    });
+
+    it('goes to the last street with Anterior when none is picked', () => {
+      arrive();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Anterior' }));
+
+      expect(screen.getByText('Calle 2 de 2')).toBeTruthy();
+      expect(map().dataset.highlight).toBe('1');
+    });
+
     it('goes back to the whole route', () => {
       arrive();
       fireEvent.click(screen.getByRole('button', { name: /Calle 18/ }));
