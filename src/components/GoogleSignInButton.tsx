@@ -52,7 +52,8 @@ export function GoogleSignInButton({
           text: 'signin_with',
           shape: 'rectangular',
           locale: 'es',
-          width: 280,
+          // As wide as the column it sits in; Google accepts from 200 to 400 pixels.
+          width: Math.round(Math.min(400, Math.max(200, parent.clientWidth || 280))),
         });
         setStatus('ready');
       })

@@ -44,10 +44,20 @@ describe('EntryScreen', () => {
   it('says what a guest and an account can each do', () => {
     renderEntry();
 
-    expect(
-      screen.getByText(/Como invitado ves el mapa, buscas calles y trazas rutas/),
-    ).toBeTruthy();
-    expect(screen.getByText(/además usas el detector de baches y guardas/)).toBeTruthy();
+    const table = screen.getByRole('table', {
+      name: 'Qué puedes hacer como invitado y con tu cuenta de Google',
+    });
+    const row = (label: string) =>
+      [...table.querySelectorAll('tbody tr')]
+        .find((tr) => tr.querySelector('th')?.textContent === label)
+        ?.querySelectorAll('td');
+
+    for (const label of ['Ver el mapa de baches', 'Buscar calles y trazar rutas']) {
+      expect([...(row(label) ?? [])].map((cell) => cell.textContent)).toEqual(['Sí', 'Sí']);
+    }
+    for (const label of ['Detectar baches con la cámara', 'Guardar y enviar lo que detecta']) {
+      expect([...(row(label) ?? [])].map((cell) => cell.textContent)).toEqual(['No', 'Sí']);
+    }
   });
 
   it('shows the headline first and the way in after it, each with its own heading', () => {

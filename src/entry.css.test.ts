@@ -27,7 +27,7 @@ describe('the entry stylesheet', () => {
 
   it('splits the screen in two columns, and stacks them on narrow screens', () => {
     expect(css).toMatch(
-      /\.entry-page\s*{[^}]*grid-template-columns:\s*minmax\(0, 1\.15fr\) minmax\(0, 1fr\)/,
+      /\.entry-page\s*{[^}]*grid-template-columns:\s*minmax\(0, 1\.6fr\) minmax\(0, 1fr\)/,
     );
     const narrow = css.slice(css.indexOf('@media (max-width: 860px)'));
     expect(narrow).toMatch(/\.entry-page\s*{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/);
@@ -42,7 +42,7 @@ describe('the entry stylesheet', () => {
     expect(css).toContain('var(--hero-side)');
   });
 
-  it('colors the links of the right panel with the theme link color', () => {
-    expect(css).toMatch(/\.entry__note a\s*{[^}]*color:\s*var\(--route-text\)/);
+  it('colors the links of the right panel with the theme link color, or the brand outside the map', () => {
+    expect(css).toMatch(/\.entry__note a\s*{[^}]*color:\s*var\(--route-text, var\(--brand\)\)/);
   });
 });

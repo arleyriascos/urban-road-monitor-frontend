@@ -4,9 +4,10 @@
 
 .entry-page {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  min-height: calc(100vh - 10px);
-  min-height: calc(100dvh - 10px);
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--surface);
 }
 
 /* Left: the streets of Pasto, the headline and the card with the numbers. */
@@ -17,7 +18,7 @@
   flex-direction: column;
   justify-content: space-between;
   gap: 32px;
-  padding: clamp(24px, 4vw, 56px);
+  padding: clamp(24px, 4.2vw, 64px);
   overflow: hidden;
   background: var(--hero-bg);
   color: var(--hero-text);
@@ -41,81 +42,122 @@
 
 .pasto-art__main {
   stroke: var(--hero-main);
-  stroke-width: 1.5;
+  stroke-width: 1.6;
 }
 
-/* A veil from the corner where the text is, so the letters never sit on a busy street. */
+/* A veil at the top and the bottom, where the text is, so the letters never sit on a busy
+   street; the middle stays clear so the city can be seen. */
 .entry-hero::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(160deg, var(--hero-bg) 0%, var(--hero-bg) 22%, transparent 70%);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--hero-bg) 75%, transparent) 0%,
+      transparent 24%,
+      transparent 42%,
+      color-mix(in srgb, var(--hero-bg) 88%, transparent) 78%,
+      var(--hero-bg) 100%
+    ),
+    linear-gradient(90deg, color-mix(in srgb, var(--hero-bg) 60%, transparent) 0%, transparent 55%);
   pointer-events: none;
 }
 
-.entry-hero__content,
-.entry-hero__card {
+.entry-hero__top,
+.entry-hero__content {
   position: relative;
 }
 
-.entry-hero__brand {
-  margin: 0 0 20px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--hero-accent);
+.entry-hero .brand-mark {
+  width: 46px;
+  height: 46px;
+}
+
+.entry-hero .brand__name {
+  font-size: 1.15rem;
+}
+
+.entry-hero .brand__sub {
+  color: var(--hero-muted);
 }
 
 .entry-hero__title {
-  margin: 0 0 12px;
-  max-width: 14ch;
-  font-size: clamp(2rem, 4.2vw, 3.4rem);
-  line-height: 1.08;
-  letter-spacing: -0.01em;
+  margin: 0 0 14px;
+  max-width: 13ch;
+  font-size: clamp(2.2rem, 3.8vw, 3.6rem);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.025em;
 }
 
 .entry-hero__lead {
-  margin: 0;
-  max-width: 36ch;
-  font-size: 1.05rem;
+  margin: 0 0 28px;
+  max-width: 42ch;
+  font-size: 1.1rem;
   color: var(--hero-muted);
+}
+
+.entry-hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px;
 }
 
 .entry-hero__card {
   display: grid;
   grid-template-columns: repeat(3, auto);
-  justify-content: start;
-  gap: 4px 28px;
   margin: 0;
-  padding: 16px 20px;
+  background: color-mix(in srgb, var(--hero-card) 85%, transparent);
   border: 1px solid var(--hero-card-line);
   border-radius: var(--radius);
-  background: var(--hero-card);
+  backdrop-filter: blur(8px);
+}
+
+.entry-hero__card > div {
+  padding: 14px 24px;
+}
+
+.entry-hero__card > div + div {
+  border-left: 1px solid var(--hero-card-line);
 }
 
 .entry-hero__card dt {
-  font-size: 0.74rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 0.82rem;
   color: var(--hero-muted);
 }
 
 .entry-hero__card dd {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
+  margin: 2px 0 0;
+  font-family: var(--mono);
+  font-size: 1.35rem;
+  font-weight: 600;
   line-height: 1.2;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
 
 .entry-hero__source {
-  grid-column: 1 / -1;
-  margin: 8px 0 0;
-  padding-top: 10px;
-  border-top: 1px solid var(--hero-card-line);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px;
+  padding: 6px 12px;
   font-size: 0.82rem;
   color: var(--hero-muted);
+  background: var(--hero-card);
+  border: 1px solid var(--hero-card-line);
+  border-radius: 999px;
+}
+
+.entry-hero__source::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--hero-accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--hero-accent) 22%, transparent);
 }
 
 /* Right: how to enter. */
@@ -123,32 +165,43 @@
 .entry {
   display: grid;
   place-items: center;
-  padding: clamp(24px, 4vw, 56px);
+  padding: clamp(28px, 4.5vw, 72px);
   background: var(--surface);
 }
 
 .entry__inner {
-  width: min(400px, 100%);
+  width: min(440px, 100%);
+}
+
+.entry__eyebrow {
+  display: inline-block;
+  margin: 0 0 18px;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--brand-ink);
+  background: var(--brand-soft);
+  border-radius: 999px;
 }
 
 .entry__heading {
-  margin: 0 0 8px;
-  font-size: 1.6rem;
-  line-height: 1.25;
+  margin: 0 0 6px;
+  font-size: 2rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
 .entry__lead {
-  margin: 0 0 24px;
+  margin: 0 0 28px;
+  font-size: 1.02rem;
   color: var(--muted);
 }
 
 .entry__actions {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 14px;
-  padding-top: 24px;
-  border-top: 1px solid var(--line);
 }
 
 .entry__buttons {
@@ -157,13 +210,43 @@
   gap: 10px;
 }
 
+.entry__google {
+  display: flex;
+  justify-content: center;
+  min-height: 44px;
+}
+
 .entry__google[hidden] {
   display: none;
+}
+
+.entry__or {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.entry__or::before,
+.entry__or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.entry__guest {
+  width: 100%;
+  min-height: 48px;
+  box-shadow: var(--shadow);
 }
 
 .entry__working {
   margin: 0;
   font-weight: 700;
+  text-align: center;
 }
 
 .entry__note {
@@ -181,8 +264,7 @@
   padding: 10px 14px;
   border-left: 4px solid var(--fail);
   background: var(--concrete);
-  border-radius: 4px;
-  max-width: 52ch;
+  border-radius: 6px;
 }
 
 .entry__error-title {
@@ -197,21 +279,103 @@
   color: var(--muted);
 }
 
+/* What each way in allows. */
+.entry-compare {
+  width: 100%;
+  margin-top: 28px;
+  font-size: 0.92rem;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.entry-compare th,
+.entry-compare td {
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 400;
+}
+
+.entry-compare thead th {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--concrete);
+}
+
+.entry-compare thead th + th,
+.entry-compare td {
+  width: 86px;
+  text-align: center;
+}
+
+.entry-compare tbody tr > * {
+  border-top: 1px solid var(--line);
+}
+
+.entry-compare__yes,
+.entry-compare__no {
+  display: inline-flex;
+  font-size: 1.1rem;
+}
+
+.entry-compare__yes {
+  color: var(--brand);
+}
+
+.entry-compare__no {
+  color: var(--muted);
+}
+
+.entry__secure {
+  display: flex;
+  gap: 10px;
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  color: var(--brand);
+}
+
+.entry__secure > .icon {
+  margin-top: 2px;
+}
+
+.entry__secure .entry__note {
+  margin: 0;
+}
+
+.entry__secure .entry__note + .entry__note {
+  margin-top: 4px;
+}
+
 /* The secondary button: same shape as .button, without the solid fill. */
 .button--ghost,
 .button--quiet {
   background: transparent;
   color: var(--asphalt);
+  border-color: var(--line);
 }
 
-.button--ghost:disabled {
+.button--ghost:hover,
+.button--quiet:hover {
+  filter: none;
+  background: var(--concrete);
+}
+
+.button--ghost:disabled,
+.entry__guest:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
 
 .button--quiet {
+  min-height: 36px;
   padding: 6px 14px;
-  border-width: 1px;
+  font-size: 0.9rem;
 }
 
 /* The Google button: Google draws it inside .google-button__slot. */
@@ -234,49 +398,76 @@
 }
 
 /* Tablets and phones: one column. The map and the headline go on top, shorter, and the way
-   to enter comes right under them, so the buttons are visible without scrolling far. */
+   to enter comes right under them, as a sheet over the map, so the buttons are near. */
 @media (max-width: 860px) {
   .entry-page {
     grid-template-columns: minmax(0, 1fr);
-    min-height: 0;
+    grid-template-rows: auto 1fr;
   }
 
   .entry-hero {
-    gap: 20px;
-    padding: 24px 20px;
+    min-height: 400px;
+    gap: 24px;
+    padding: 22px 20px 52px;
   }
 
   .entry-hero__title {
-    max-width: none;
-    font-size: 1.9rem;
+    max-width: 15ch;
+    font-size: 2.1rem;
   }
 
-  .entry-hero__brand {
-    margin-bottom: 12px;
+  .entry-hero__lead {
+    margin-bottom: 18px;
+    font-size: 1rem;
+  }
+
+  .entry {
+    position: relative;
+    margin-top: -28px;
+    padding: 28px 20px 32px;
+    border-radius: 24px 24px 0 0;
   }
 
   .entry__inner {
-    width: min(440px, 100%);
+    width: min(480px, 100%);
   }
 }
 
 @media (max-width: 640px) {
-  .entry__heading {
-    font-size: 1.35rem;
-  }
-
-  .entry__actions {
-    align-items: stretch;
+  .entry-hero__lead,
+  .entry-hero__source {
+    display: none;
   }
 
   .entry-hero__card {
     grid-template-columns: repeat(3, 1fr);
-    gap: 4px 12px;
-    padding: 12px 14px;
+    width: 100%;
+  }
+
+  .entry-hero__card > div {
+    padding: 10px 14px;
   }
 
   .entry-hero__card dd {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+  }
+
+  .entry__heading {
+    font-size: 1.6rem;
+  }
+
+  .entry__lead {
+    margin-bottom: 20px;
+  }
+
+  .entry-compare th,
+  .entry-compare td {
+    padding: 9px 12px;
+  }
+
+  .entry-compare thead th + th,
+  .entry-compare td {
+    width: 72px;
   }
 
   .button--ghost,
@@ -286,5 +477,6 @@
 }
 
 .entry__note a {
-  color: var(--route-text);
+  font-weight: 600;
+  color: var(--route-text, var(--brand));
 }
