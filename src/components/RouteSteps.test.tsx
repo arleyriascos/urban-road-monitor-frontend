@@ -165,6 +165,82 @@ describe('RouteSteps', () => {
   });
 });
 
+function groupsNamed(names: (string | null)[]) {
+  return groupRouteSteps({
+    ...routeFixture,
+    route: {
+      ...routeFixture.route,
+      features: routeFixture.route.features.map((feature, i) => ({
+        ...feature,
+        properties: { ...feature.properties, roadName: names[i] },
+      })),
+    },
+  });
+}
+
+describe('RouteSteps going around the ring', () => {
+  it('with three streets, Siguiente goes 0, 1, 2 and then back to 0', () => {
+    const three = groupsNamed(['A', 'B', 'C']);
+    expect(three).toHaveLength(3);
+    const picks: number[] = [];
+    let selected: number | null = null;
+    const { rerender } = render(
+      <RouteSteps groups={three} selected={selected} onSelect={(i) => picks.push(i as number)} />,
+    );
+    for (let step = 0; step < 4; step++) {
+      fireEvent.click(next());
+      selected = picks[picks.length - 1];
+      rerender(
+        <RouteSteps groups={three} selected={selected} onSelect={(i) => picks.push(i as number)} />,
+      );
+    }
+    expect(picks).toEqual([0, 1, 2, 0]);
+  });
+
+  it('with three streets, Anterior goes 2, 1, 0 and then back to 2', () => {
+    const three = groupsNamed(['A', 'B', 'C']);
+    const picks: number[] = [];
+    let selected: number | null = null;
+    const { rerender } = render(
+      <RouteSteps groups={three} selected={selected} onSelect={(i) => picks.push(i as number)} />,
+    );
+    for (let step = 0; step < 4; step++) {
+      fireEvent.click(previous());
+      selected = picks[picks.length - 1];
+      rerender(
+        <RouteSteps groups={three} selected={selected} onSelect={(i) => picks.push(i as number)} />,
+      );
+    }
+    expect(picks).toEqual([2, 1, 0, 2]);
+  });
+
+  it('keeps the ring right when the route changes', () => {
+    const onSelect = vi.fn();
+    const { rerender } = render(<RouteSteps groups={groups} selected={1} onSelect={onSelect} />);
+    rerender(<RouteSteps groups={groupsNamed(['A', 'B', 'C'])} selected={2} onSelect={onSelect} />);
+
+    fireEvent.click(next());
+    expect(onSelect).toHaveBeenLastCalledWith(0);
+  });
+
+  it('turns both buttons off with a single street, where there is nowhere to go', () => {
+    const one = groupsNamed(['A', 'A', 'A']);
+    expect(one).toHaveLength(1);
+    render(<RouteSteps groups={one} selected={0} onSelect={vi.fn()} />);
+
+    expect(previous().disabled).toBe(true);
+    expect(next().disabled).toBe(true);
+  });
+
+  it('ArrowDown on the last street goes to the first', () => {
+    const onSelect = renderSteps(1);
+    fireEvent.keyDown(screen.getByRole('region', { name: 'Recorrido de la ruta' }), {
+      key: 'ArrowDown',
+    });
+    expect(onSelect).toHaveBeenCalledWith(0);
+  });
+});
+
 describe('RouteSteps scrolling into view', () => {
   const original = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollIntoView');
 
