@@ -615,6 +615,8 @@
 
 .route-points__badge--origin {
   background: #13201e;
+  /* A thin ring keeps the dark circle visible on the dark panel. */
+  box-shadow: 0 0 0 1px var(--line);
 }
 
 .route-points__badge--destination {
