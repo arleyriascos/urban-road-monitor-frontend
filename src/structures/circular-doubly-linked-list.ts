@@ -86,7 +86,7 @@ export class CircularDoublyLinkedList<T> {
     }
     let node = this.first;
     for (let step = 0; step < this.count; step++) {
-      if (node.next.prev !== node || node.prev.next !== node) {
+      if (node.next.prev !== node) {
         return false;
       }
       node = node.next;
