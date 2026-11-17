@@ -13,7 +13,10 @@
   height: 36px;
   border-radius: 50%;
   object-fit: cover;
-  background: var(--line);
+  background: var(--brand-soft);
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 0 0 3px var(--line);
 }
 
 .account__avatar--initials {
@@ -21,7 +24,7 @@
   place-items: center;
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--asphalt);
+  color: var(--brand-ink);
 }
 
 .account__who {
@@ -38,7 +41,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .account__role {
@@ -48,8 +51,20 @@
 
 .account__button {
   flex: none;
-  min-height: 36px;
+  min-height: 38px;
   white-space: nowrap;
+}
+
+@media (max-width: 860px) {
+  /* The photo says who it is; the name and the role stay for screen readers. */
+  .account__who {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
 }
 
 @media (max-width: 640px) {
@@ -63,5 +78,6 @@
 
   .account__button {
     min-height: 44px;
+    padding: 6px 12px;
   }
 }

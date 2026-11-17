@@ -1,3 +1,5 @@
+import { Icon } from './Icon';
+
 /** Brings the map back to the center of Pasto. */
 export function RecenterButton({ onClick }: { onClick: () => void }) {
   return (
@@ -7,7 +9,8 @@ export function RecenterButton({ onClick }: { onClick: () => void }) {
       onClick={onClick}
       aria-label="Centrar el mapa en el centro de Pasto"
     >
-      Centrar
+      <Icon name="locate" />
+      <span className="recenter__text">Centrar</span>
     </button>
   );
 }

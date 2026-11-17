@@ -21,7 +21,12 @@ export function createMap(container: HTMLElement): L.Map {
     // The city has about 10,000 segments: canvas draws them far faster than SVG,
     // and the tolerance makes thin streets easy to tap on a phone.
     renderer: L.canvas({ tolerance: 8 }),
+    // The zoom buttons go to the bottom right, next to "Centrar", away from the search box.
+    zoomControl: false,
   });
+  L.control
+    .zoom({ position: 'bottomright', zoomInTitle: 'Acercar', zoomOutTitle: 'Alejar' })
+    .addTo(map);
   for (const pane of Object.values(PANES)) {
     map.createPane(pane.name).style.zIndex = String(pane.zIndex);
   }

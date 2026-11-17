@@ -2,6 +2,7 @@ import { useId, useState, type KeyboardEvent } from 'react';
 import { useStreetSearch, type StreetSearchDependencies } from '../hooks/useStreetSearch';
 import { pluralize } from '../lib/format';
 import { describeSearchError } from '../search/query';
+import { Icon } from './Icon';
 import type { StreetMatch } from '../types/roads';
 
 interface StreetSearchProps {
@@ -68,6 +69,7 @@ export function StreetSearch({ onSelect, onClear, dependencies }: StreetSearchPr
   return (
     <div className="street-search">
       <div className="street-search__box">
+        <Icon name="search" />
         <input
           className="street-search__input"
           type="text"

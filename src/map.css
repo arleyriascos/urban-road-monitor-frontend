@@ -1,42 +1,69 @@
-/* Map screen: top bar, full-height map and floating panels.
-   The 10px road strip above comes from body::before in styles.css. */
+/* Map screen: top bar, full-height map and floating panels. */
 .map-app {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 10px);
-  height: calc(100dvh - 10px);
+  height: 100vh;
+  height: 100dvh;
 }
 
 .topbar {
+  position: relative;
+  z-index: 1100;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 4px 20px;
-  padding: 10px 18px;
+  gap: 8px 16px;
+  min-height: 66px;
+  padding: 10px 20px;
   background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
 
-.topbar__brand {
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
+.topbar .brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
 }
 
 .topbar__title {
-  margin: 0;
-  font-size: 1.2rem;
-  line-height: 1.25;
+  font-weight: 500;
 }
 
 .topbar__summary {
-  margin: 0;
-  font-size: 0.92rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.topbar__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0 12px;
+  font-size: 0.85rem;
+  white-space: nowrap;
   color: var(--muted);
+  background: var(--concrete);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.topbar__chip b {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--asphalt);
+}
+
+.topbar__chip:last-child::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  margin-right: 4px;
+  border-radius: 50%;
+  background: var(--severity-grave);
 }
 
 .map-app__body {
@@ -54,30 +81,64 @@
 /* Legend: floats over the map, above Leaflet's own controls (z-index 1000). */
 .legend {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 16px;
+  right: 16px;
   z-index: 1001;
-  width: min(300px, calc(100% - 24px));
-  max-height: calc(100% - 24px);
+  width: min(300px, calc(100% - 32px));
+  max-height: calc(100% - 32px);
   overflow-y: auto;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  box-shadow: 0 6px 24px rgb(0 0 0 / 18%);
+  box-shadow: var(--shadow);
 }
 
 .legend__toggle {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 10px;
   width: 100%;
-  padding: 10px 14px;
+  min-height: 48px;
+  padding: 10px 16px;
   font: inherit;
   font-weight: 700;
   color: var(--asphalt);
   background: none;
   border: 0;
   cursor: pointer;
+}
+
+.legend__title {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+}
+
+/* The colors of the streets, shown only while the legend is folded. */
+.legend__dots {
+  display: none;
+  gap: 4px;
+}
+
+.legend__dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legend__toggle[aria-expanded='false'] .legend__dots {
+  display: inline-flex;
+}
+
+.legend__chevron {
+  display: inline-flex;
+  color: var(--muted);
+  transition: transform 0.2s;
+}
+
+.legend__chevron--open {
+  transform: rotate(180deg);
 }
 
 .legend__toggle:focus-visible {
@@ -87,16 +148,31 @@
 }
 
 .legend__body {
-  padding: 2px 14px 14px;
+  padding: 2px 16px 16px;
   border-top: 1px solid var(--line);
 }
 
 .legend__heading {
-  margin: 12px 0 6px;
-  font-size: 0.78rem;
+  margin: 14px 0 8px;
+  font-size: 0.74rem;
+  font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
+}
+
+/* How the segments split by state, as one bar. */
+.legend__bar {
+  display: flex;
+  gap: 2px;
+  height: 8px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.legend__bar span {
+  min-width: 3px;
 }
 
 .legend__list {
@@ -108,8 +184,8 @@
 .legend__item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 2px 0;
+  gap: 10px;
+  padding: 3px 0;
   font-size: 0.92rem;
 }
 
@@ -120,33 +196,52 @@
   border-radius: 3px;
 }
 
+.legend__circle {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--severity-grave);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--severity-grave) 35%, transparent);
+}
+
+.legend__circle--unconfirmed {
+  border-style: dashed;
+}
+
+.legend__circle--repaired {
+  opacity: 0.4;
+}
+
 .legend__label {
   flex: 1;
 }
 
 .legend__count {
+  font-family: var(--mono);
+  font-size: 0.86rem;
   font-variant-numeric: tabular-nums;
   color: var(--muted);
 }
 
 .legend__note {
   margin: 8px 0 0;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: var(--muted);
 }
 
 /* Layer switches */
 .toggles {
   margin: 14px 0 0;
-  padding: 10px 0 0;
+  padding: 6px 0 0;
   border: 0;
   border-top: 1px solid var(--line);
 }
 
 .toggles__legend {
-  padding: 0;
-  font-size: 0.78rem;
-  font-weight: 400;
+  padding: 8px 0 0;
+  font-size: 0.74rem;
+  font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
@@ -154,42 +249,92 @@
 
 .toggle {
   display: flex;
+  flex-direction: row-reverse;
   align-items: center;
-  gap: 8px;
-  padding: 4px 0;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 40px;
   font-size: 0.92rem;
   cursor: pointer;
 }
 
+/* The checkbox is drawn as a switch; it is still a checkbox for the keyboard and readers. */
 .toggle input {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--asphalt);
+  appearance: none;
+  position: relative;
+  flex: none;
+  width: 38px;
+  height: 22px;
+  margin: 0;
+  background: var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.15s;
 }
 
-.toggle input:disabled + span {
-  opacity: 0.55;
+.toggle input::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
+  transition: transform 0.15s;
 }
 
+.toggle input:checked {
+  background: var(--brand);
+}
+
+.toggle input:checked::after {
+  transform: translateX(16px);
+}
+
+.toggle input:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.toggle input:disabled,
+.toggle input:disabled ~ span {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* "Centrar", over the zoom buttons at the bottom right. */
 .recenter {
   position: absolute;
-  left: 12px;
-  bottom: 28px;
+  right: 16px;
+  bottom: 124px;
   z-index: 1001;
-  padding: 8px 14px;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
   font: inherit;
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: 1.15rem;
   color: var(--asphalt);
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgb(0 0 0 / 20%);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
   cursor: pointer;
 }
 
+.recenter__text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
 .recenter:hover {
-  filter: brightness(0.96);
+  background: var(--concrete);
 }
 
 .recenter:focus-visible {
@@ -197,51 +342,98 @@
   outline-offset: 2px;
 }
 
+/* Leaflet's zoom buttons, in the style of the app. */
+.leaflet-bottom.leaflet-right .leaflet-control-zoom {
+  margin: 0 16px 12px 0;
+}
+
+.leaflet-touch .leaflet-bar.leaflet-control-zoom,
+.leaflet-bar.leaflet-control-zoom {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.leaflet-control-zoom a,
+.leaflet-touch .leaflet-control-zoom a {
+  width: 40px;
+  height: 40px;
+  font: 400 1.35rem / 40px var(--font);
+  color: var(--asphalt);
+  background: var(--surface);
+  border-bottom-color: var(--line);
+}
+
+.leaflet-control-zoom a:hover {
+  background: var(--concrete);
+}
+
+.leaflet-control-zoom a.leaflet-disabled {
+  color: var(--muted);
+  background: var(--surface);
+}
+
 /* Loading and error screens */
 .splash {
   display: grid;
   place-items: center;
-  min-height: calc(100vh - 10px);
-  min-height: calc(100dvh - 10px);
+  min-height: 100vh;
+  min-height: 100dvh;
   padding: 24px;
+  background:
+    radial-gradient(circle at 15% 0%, var(--brand-soft), transparent 45%), var(--concrete);
 }
 
 .splash__card {
-  width: min(560px, 100%);
+  width: min(580px, 100%);
   margin: 0;
 }
 
 .splash__brand {
-  margin: 0 0 20px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
+  margin: 0 0 28px;
 }
 
-/* Phones: the legend becomes a bar at the bottom (above Leaflet's attribution, which must
-   stay visible) and the recenter button moves to the top, away from the sheet. */
+/* Phones: a smaller bar, and the legend folds into a chip under the search box. */
 @media (max-width: 640px) {
   .topbar {
-    padding: 8px 14px;
-  }
-
-  .topbar__title {
-    font-size: 1.05rem;
+    min-height: 60px;
+    padding: 8px 12px;
   }
 
   .topbar__summary {
-    font-size: 0.85rem;
+    display: none;
+  }
+
+  /* The title stays for screen readers; the logo says enough on a small screen. */
+  .topbar__title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .topbar .brand-mark {
+    width: 36px;
+    height: 36px;
+  }
+
+  .topbar .brand__name {
+    font-size: 1rem;
   }
 
   .legend {
-    top: auto;
-    right: 8px;
-    bottom: 26px;
-    left: 8px;
+    top: 70px;
+    right: 12px;
     width: auto;
-    max-height: 62%;
+    max-width: calc(100% - 24px);
+    max-height: calc(100% - 170px);
+  }
+
+  .legend:has(.legend__body) {
+    left: 12px;
   }
 
   .legend__toggle,
@@ -250,15 +442,25 @@
   }
 
   .recenter {
-    top: 12px;
     right: 12px;
-    bottom: auto;
-    left: auto;
-    min-height: 40px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .leaflet-bottom.leaflet-right .leaflet-control-zoom {
+    margin-right: 12px;
   }
 
   .splash {
     padding: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .legend__chevron,
+  .toggle input,
+  .toggle input::after {
+    transition: none;
   }
 }
 
@@ -283,19 +485,27 @@
 
 .route-toggle {
   position: absolute;
-  top: 12px;
-  left: 58px;
+  top: 78px;
+  left: 16px;
   z-index: 1001;
-  padding: 9px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 18px;
   font: inherit;
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: #ffffff;
-  background: var(--route);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--on-brand);
+  background: var(--brand);
   border: 0;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgb(0 0 0 / 20%);
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgb(19 121 95 / 30%);
   cursor: pointer;
+}
+
+.route-toggle:hover {
+  background: var(--brand-strong);
 }
 
 .route-toggle:focus-visible,
@@ -760,13 +970,13 @@
   display: none;
 }
 
-/* Street search: a box over the map, below "Cómo llegar". It hides while the route panel is open. */
+/* Street search: a box over the map, above "Cómo llegar". It hides while the route panel is open. */
 .street-search {
   position: absolute;
-  top: 56px;
-  left: 58px;
-  z-index: 1001;
-  width: min(320px, calc(100% - 70px));
+  top: 16px;
+  left: 16px;
+  z-index: 1002;
+  width: min(380px, calc(100% - 32px));
 }
 
 .map-app--routing .street-search {
@@ -777,20 +987,38 @@
   position: relative;
 }
 
+.street-search__box > .icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  font-size: 1.1rem;
+  color: var(--muted);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
 .street-search__input {
   width: 100%;
-  min-height: 40px;
-  padding: 8px 40px 8px 12px;
+  min-height: 50px;
+  padding: 10px 44px 10px 44px;
   font: inherit;
   font-size: 1rem;
   color: var(--asphalt);
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgb(0 0 0 / 14%);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
 }
 
-.street-search__input:focus-visible,
+.street-search__input::placeholder {
+  color: var(--muted);
+}
+
+.street-search__input:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 0;
+}
+
 .street-search__clear:focus-visible,
 .street-search__retry:focus-visible {
   outline: 3px solid var(--focus);
@@ -801,7 +1029,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  width: 40px;
+  width: 44px;
   height: 100%;
   font: inherit;
   font-size: 1.4rem;
@@ -809,22 +1037,23 @@
   color: var(--muted);
   background: transparent;
   border: 0;
+  border-radius: 0 12px 12px 0;
   cursor: pointer;
 }
 
 .street-search__panel {
-  margin-top: 4px;
+  margin-top: 6px;
   max-height: 40vh;
   overflow-y: auto;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 8px;
-  box-shadow: 0 6px 24px rgb(0 0 0 / 18%);
+  border-radius: 12px;
+  box-shadow: var(--shadow-strong);
 }
 
 .street-search__list {
   margin: 0;
-  padding: 0;
+  padding: 4px;
   list-style: none;
 }
 
@@ -835,32 +1064,29 @@
   align-items: baseline;
   min-height: 44px;
   padding: 10px 12px;
-  border-top: 1px solid var(--line);
+  border-radius: 8px;
   cursor: pointer;
-}
-
-.street-search__option:first-child {
-  border-top: 0;
 }
 
 .street-search__option--active,
 .street-search__option:hover {
-  background: var(--concrete);
+  background: var(--brand-soft);
 }
 
 .street-search__name {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .street-search__meta {
   flex: none;
-  font-size: 0.8rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
   color: var(--muted);
 }
 
 .street-search__note {
   margin: 0;
-  padding: 10px 12px;
+  padding: 12px 14px;
   font-size: 0.9rem;
   color: var(--muted);
 }
@@ -873,7 +1099,7 @@
   min-height: 40px;
   padding: 6px 14px;
   font: inherit;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--asphalt);
   background: var(--concrete);
   border: 1px solid var(--line);
@@ -882,11 +1108,24 @@
 }
 
 @media (max-width: 640px) {
-  /* Below the zoom buttons (they end about 80 px down), so none of them is hidden. */
   .street-search {
-    top: 92px;
-    right: 8px;
-    left: 8px;
+    top: 12px;
+    right: 12px;
+    left: 12px;
     width: auto;
+  }
+
+  .street-search__input {
+    min-height: 48px;
+  }
+
+  /* On a phone "Cómo llegar" waits at the bottom, under the thumb. */
+  .route-toggle {
+    top: auto;
+    bottom: 28px;
+    left: 12px;
+    min-height: 52px;
+    padding: 0 22px;
+    border-radius: 999px;
   }
 }

@@ -11,7 +11,12 @@ describe('TopBar', () => {
 
   it('summarizes the roads, the length and the active potholes', () => {
     render(<TopBar stats={statsFixture} />);
-    expect(screen.getByText('4.610 vías · 774,1 km · 54 baches activos')).toBeTruthy();
+    const summary = screen.getByRole('list', { name: 'Resumen de la ciudad' });
+    expect([...summary.querySelectorAll('li')].map((item) => item.textContent)).toEqual([
+      '4.610 vías',
+      '774,1 km',
+      '54 baches activos',
+    ]);
   });
 
   it('links to the camera that detects potholes', () => {

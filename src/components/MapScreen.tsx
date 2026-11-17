@@ -9,6 +9,7 @@ import { isPhoneViewport } from '../lib/viewport';
 import type { MapData } from '../hooks/useMapData';
 import type { StreetMatch } from '../types/roads';
 import type { LatLng, RouteAnswer, RouteCriterion } from '../types/route';
+import { Icon } from './Icon';
 import { LayerToggles } from './LayerToggles';
 import { LegendPanel } from './LegendPanel';
 import { MapView, type MapRouting } from './MapView';
@@ -122,6 +123,7 @@ export function MapScreen({ data, account }: { data: MapData; account?: AccountA
             onClick={() => setRouteOpen(true)}
             aria-expanded={false}
           >
+            <Icon name="route" />
             Cómo llegar
           </button>
         )}

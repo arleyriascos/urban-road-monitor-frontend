@@ -86,7 +86,9 @@ beforeEach(() => {
 describe('MapScreen', () => {
   it('shows the top bar, the map and the legend', () => {
     render(<MapScreen data={data} />);
-    expect(screen.getByText('4.610 vías · 774,1 km · 54 baches activos')).toBeTruthy();
+    expect(screen.getByRole('list', { name: 'Resumen de la ciudad' }).textContent).toBe(
+      '4.610 vías774,1 km54 baches activos',
+    );
     expect(map()).toBeTruthy();
     expect(screen.getByRole('complementary', { name: 'Leyenda del mapa' })).toBeTruthy();
   });
