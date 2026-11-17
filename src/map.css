@@ -422,6 +422,17 @@
 
   .topbar .brand__name {
     font-size: 1rem;
+    white-space: nowrap;
+  }
+
+  /* With a signed-in account the bar holds the photo and "Cerrar sesión": the logo alone
+     names the app, and the name stays for screen readers. */
+  .topbar:has(.account__avatar) .brand__name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
   }
 
   .legend {
