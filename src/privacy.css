@@ -46,7 +46,7 @@
 }
 
 .privacy a:focus-visible {
-  outline: 3px solid var(--marking);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 

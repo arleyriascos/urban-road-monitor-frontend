@@ -81,7 +81,7 @@
 }
 
 .legend__toggle:focus-visible {
-  outline: 3px solid var(--marking);
+  outline: 3px solid var(--focus);
   outline-offset: -3px;
   border-radius: var(--radius);
 }
@@ -193,7 +193,7 @@
 }
 
 .recenter:focus-visible {
-  outline: 3px solid var(--marking);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 
@@ -301,7 +301,7 @@
 .route-toggle:focus-visible,
 .route-panel button:focus-visible,
 .route-link:focus-visible {
-  outline: 3px solid var(--marking);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 
@@ -673,7 +673,7 @@
 }
 
 .route-steps__item:focus-visible {
-  outline: 3px solid var(--marking);
+  outline: 3px solid var(--focus);
   outline-offset: 1px;
 }
 
@@ -793,7 +793,7 @@
 .street-search__input:focus-visible,
 .street-search__clear:focus-visible,
 .street-search__retry:focus-visible {
-  outline: 3px solid var(--marking);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 

@@ -1,3 +1,4 @@
+import { Brand } from './BrandMark';
 import { ConnectionRoute } from './ConnectionRoute';
 
 /** Shown while the map data is on its way. The road shows where the request is. */
@@ -5,7 +6,9 @@ export function LoadingScreen({ slow }: { slow: boolean }) {
   return (
     <main className="splash">
       <section className="panel splash__card" aria-live="polite" aria-busy="true">
-        <p className="splash__brand">Urban Road Monitor</p>
+        <div className="splash__brand">
+          <Brand subtitle="Estado de las calles de Pasto" />
+        </div>
         <ConnectionRoute state={{ status: 'loading' }} />
         <div className="status status--loading">
           <p className="status__title">Cargando el mapa…</p>

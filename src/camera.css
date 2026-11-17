@@ -109,7 +109,7 @@
 .camera__button:focus-visible,
 .camera__back:focus-visible,
 .topbar__camera:focus-visible {
-  outline: 3px solid var(--marking);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 

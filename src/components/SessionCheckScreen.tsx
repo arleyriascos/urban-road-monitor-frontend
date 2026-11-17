@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { ApiError } from '../api/http';
 import { describeError } from '../lib/api-errors';
 import { SLOW_REQUEST_MS } from '../hooks/useMapData';
+import { Brand } from './BrandMark';
 import { ConnectionRoute } from './ConnectionRoute';
 
 interface SessionCheckScreenProps {
@@ -29,7 +30,9 @@ export function SessionCheckScreen({ unreachable, onRetry, onSkip }: SessionChec
   return (
     <main className="splash">
       <section className="panel splash__card" aria-live="polite" aria-busy={problem === null}>
-        <p className="splash__brand">Urban Road Monitor</p>
+        <div className="splash__brand">
+          <Brand subtitle="Estado de las calles de Pasto" />
+        </div>
         <ConnectionRoute
           state={unreachable ? { status: 'error', error: unreachable } : { status: 'loading' }}
         />

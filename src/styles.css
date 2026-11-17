@@ -1,48 +1,67 @@
-/* Design tokens: asphalt, road markings and severity colors. */
+/* Design tokens: ink, surfaces, the brand green and the severity colors. */
 
 :root {
-  --asphalt: #2b2f33;
-  --concrete: #ecedea;
+  --asphalt: #13201e;
+  --concrete: #f2f5f4;
   --surface: #ffffff;
-  --line: #d4d7d9;
-  --muted: #5d646b;
-  --marking: #f2c230;
+  --line: #dfe6e4;
+  --muted: #566663;
+  --marking: #e2b007;
   --ok: #1f8a5b;
   --fail: #c2412d;
   --severity-leve: #e8b800;
   --severity-moderado: #ea7a1a;
   --severity-grave: #c62828;
-  --radius: 10px;
 
-  /* The panel with the map on the entry screen. It stays dark in both themes, because the
-     streets read best light on dark; the dark theme only makes it a little deeper. */
-  --hero-bg: #1b2024;
-  --hero-side: #333b42;
-  --hero-main: #4f5861;
-  --hero-text: #f4f5f6;
-  --hero-muted: #cbd2d8;
-  --hero-card: #252b30;
-  --hero-card-line: #3d454c;
-  --hero-accent: #f2c230;
+  /* The brand green: main buttons, focus rings and active states. */
+  --brand: #13795f;
+  --brand-strong: #0e604b;
+  --brand-soft: #e1f1eb;
+  --brand-ink: #0b5040;
+  --on-brand: #ffffff;
+  --focus: #13795f;
+
+  --radius: 14px;
+  --radius-small: 10px;
+  --shadow: 0 1px 2px rgb(15 29 27 / 6%), 0 8px 28px rgb(15 29 27 / 12%);
+  --shadow-strong: 0 2px 6px rgb(15 29 27 / 8%), 0 18px 48px rgb(15 29 27 / 18%);
+
+  /* The dark panels: the map of the entry screen and the camera. They stay dark in both
+     themes, because the streets and the video read best on dark; the dark theme only makes
+     them a little deeper. */
+  --hero-bg: #0e1d20;
+  --hero-side: #22373a;
+  --hero-main: #34504f;
+  --hero-text: #f2f6f5;
+  --hero-muted: #b4c4c1;
+  --hero-card: #132629;
+  --hero-card-line: #2a4044;
+  --hero-accent: #4fd1a5;
 
   --font: 'Archivo', 'Segoe UI', Roboto, Arial, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 
   color-scheme: light dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --asphalt: #e9ebec;
-    --concrete: #1c1f22;
-    --surface: #25292d;
-    --line: #3b4146;
-    --muted: #a7aeb4;
+    --asphalt: #e6eeec;
+    --concrete: #0f1a1b;
+    --surface: #172426;
+    --line: #2b3b3d;
+    --muted: #a0b3af;
     --ok: #3fb47f;
     --fail: #e5674f;
-    --hero-bg: #121619;
-    --hero-side: #2a3238;
-    --hero-card: #1c2125;
-    --hero-card-line: #343b42;
+    --brand-soft: #173a32;
+    --brand-ink: #86dcbf;
+    --focus: #4fd1a5;
+    --shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 8px 28px rgb(0 0 0 / 40%);
+    --shadow-strong: 0 2px 6px rgb(0 0 0 / 35%), 0 18px 48px rgb(0 0 0 / 50%);
+    --hero-bg: #0a1517;
+    --hero-side: #1d3134;
+    --hero-card: #0f2023;
+    --hero-card-line: #253a3e;
   }
 }
 
@@ -62,25 +81,64 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Road strip across the top of the page. */
+/* The logo: a road in a green tile. */
 
-body::before {
-  content: '';
-  display: block;
-  height: 10px;
-  background:
-    repeating-linear-gradient(90deg, var(--marking) 0 46px, transparent 46px 78px) center / 100% 2px
-      no-repeat,
-    #2b2f33;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  color: var(--on-brand);
+  background: linear-gradient(145deg, #1a9474, var(--brand-strong));
+  border-radius: 12px;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 18%),
+    0 4px 14px rgb(19 121 95 / 30%);
+}
+
+.brand-mark svg {
+  width: 60%;
+  height: 60%;
+}
+
+.brand__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.brand__name {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.brand__sub {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--muted);
 }
 
 /* Panel */
 
 .panel {
-  margin-top: 40px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
+  box-shadow: var(--shadow);
   padding: 32px clamp(20px, 4vw, 40px) 36px;
 }
 
@@ -107,7 +165,7 @@ body::before {
   background:
     repeating-linear-gradient(90deg, var(--marking) 0 18px, transparent 18px 32px) center / 100% 2px
       no-repeat,
-    #2b2f33;
+    #1f2d2f;
 }
 
 .route--loading::before {
@@ -118,7 +176,7 @@ body::before {
   background:
     repeating-linear-gradient(90deg, var(--fail) 0 18px, transparent 18px 32px) center / 100% 2px
       no-repeat,
-    #2b2f33;
+    #1f2d2f;
 }
 
 @keyframes drive {
@@ -179,6 +237,7 @@ body::before {
   margin: 0 0 6px;
   font-size: 1.35rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .status--error .status__title {
@@ -194,22 +253,33 @@ body::before {
 /* Buttons */
 
 .button {
-  font: inherit;
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
   padding: 10px 20px;
-  border-radius: 8px;
-  border: 2px solid var(--asphalt);
-  background: var(--asphalt);
-  color: var(--concrete);
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  border-radius: var(--radius-small);
+  border: 1px solid var(--brand);
+  background: var(--brand);
+  color: var(--on-brand);
+  text-decoration: none;
   cursor: pointer;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    filter 0.15s;
 }
 
 .button:hover {
-  filter: brightness(1.15);
+  filter: brightness(1.08);
 }
 
 .button:focus-visible {
-  outline: 3px solid var(--marking);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -228,7 +298,7 @@ body::before {
     right: auto;
     width: var(--road-height);
     height: auto;
-    background: #2b2f33;
+    background: #1f2d2f;
   }
 
   .route__stop {
@@ -249,4 +319,28 @@ body::before {
   .route--loading::before {
     animation: none;
   }
+
+  .button {
+    transition: none;
+  }
+}
+
+/* Icons take the size of the text around them unless a component says otherwise. */
+.icon {
+  flex: none;
+  width: 1.15em;
+  height: 1.15em;
+}
+
+/* Read by screen readers, not shown. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
