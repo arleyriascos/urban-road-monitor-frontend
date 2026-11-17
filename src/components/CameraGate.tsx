@@ -1,3 +1,6 @@
+import { CameraHeader } from './CameraHeader';
+import { Icon } from './Icon';
+
 /**
  * What a guest sees in place of the camera. Detecting potholes only makes sense with an
  * account, because what the camera finds is saved under the name of whoever is signed in; so
@@ -6,14 +9,12 @@
 export function CameraGate({ onSignIn }: { onSignIn: () => void }) {
   return (
     <main className="camera">
-      <header className="camera__header">
-        <a className="camera__back" href="/">
-          Volver al mapa
-        </a>
-        <h1 className="camera__title">Detector de baches</h1>
-      </header>
+      <CameraHeader />
 
       <section className="camera__gate" aria-label="Ingreso necesario">
+        <span className="camera__gate-icon" aria-hidden="true">
+          <Icon name="shield" />
+        </span>
         <p className="camera__gate-lead">
           Para detectar baches y guardarlos necesitas ingresar con tu cuenta de Google.
         </p>

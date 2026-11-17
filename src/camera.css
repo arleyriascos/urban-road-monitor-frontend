@@ -1,47 +1,88 @@
 /* Camera screen: the video with the boxes over it, the controls and the two meters.
-   Colors come from the design tokens, so both themes work. */
+   Colors come from the design tokens. Like the map of the entry screen, it uses the dark
+   --hero-* tokens in both themes: the video and the colored boxes read best on dark. */
 .camera {
-  display: grid;
-  gap: 14px;
-  width: min(960px, 100%);
-  margin: 0 auto;
-  padding: 16px clamp(12px, 3vw, 24px) 32px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  color: var(--hero-text);
+  background: var(--hero-bg);
 }
 
 .camera__header {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 16px;
+  align-items: center;
+  gap: 16px;
+  min-height: 66px;
+  padding: 10px 20px;
+  background: var(--hero-card);
+  border-bottom: 1px solid var(--hero-card-line);
 }
 
 .camera__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px 0 10px;
+  font-size: 0.92rem;
   font-weight: 600;
-  color: var(--asphalt);
-  text-decoration: underline;
+  color: var(--hero-text);
+  text-decoration: none;
+  border: 1px solid var(--hero-card-line);
+  border-radius: var(--radius-small);
+}
+
+.camera__back:hover {
+  background: var(--hero-bg);
+}
+
+.camera__heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.camera__heading .brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  font-size: 1.1rem;
 }
 
 .camera__title {
   margin: 0;
-  font-size: 1.3rem;
-  line-height: 1.25;
+  font-size: 1.12rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
-.camera__privacy {
+.camera__subtitle {
   margin: 0;
-  font-size: 0.9rem;
-  color: var(--muted);
+  font-size: 0.8rem;
+  color: var(--hero-muted);
+}
+
+.camera__layout {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  min-height: 0;
 }
 
 /* The video keeps its proportion and is shown whole, so the boxes line up with the road. */
 .camera__stage {
   position: relative;
+  align-self: start;
   aspect-ratio: 16 / 9;
-  max-height: 70vh;
-  background: var(--asphalt);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  max-height: calc(100dvh - 104px);
+  margin: 18px;
   overflow: hidden;
+  background: var(--hero-card);
+  border: 1px solid var(--hero-card-line);
+  border-radius: 18px;
 }
 
 .camera__video,
@@ -63,20 +104,95 @@
 .camera__placeholder {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   margin: 0;
   padding: 16px;
   text-align: center;
-  color: var(--surface);
+  color: var(--hero-muted);
+}
+
+.camera__placeholder-icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  font-size: 1.8rem;
+  color: var(--hero-text);
+  background: var(--hero-bg);
+  border: 1px solid var(--hero-card-line);
+  border-radius: 50%;
+}
+
+/* What runs over the video: that it is detecting, and how fast. */
+.camera__badges {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.camera__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--hero-text);
+  background: color-mix(in srgb, var(--hero-bg) 75%, transparent);
+  border: 1px solid var(--hero-card-line);
+  border-radius: 999px;
+  backdrop-filter: blur(6px);
+}
+
+.camera__badge--live {
+  font-family: var(--font);
+  background: color-mix(in srgb, var(--severity-grave) 88%, transparent);
+  border-color: transparent;
+}
+
+.camera__badge--live::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--hero-text);
+  animation: camera-live 1.4s ease-in-out infinite;
+}
+
+@keyframes camera-live {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.camera__side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 20px 24px;
+  overflow-y: auto;
+  background: var(--hero-card);
+  border-left: 1px solid var(--hero-card-line);
 }
 
 .camera__message {
   margin: 0;
   padding: 10px 14px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  font-size: 0.92rem;
+  background: var(--hero-bg);
+  border: 1px solid var(--hero-card-line);
+  border-radius: 12px;
 }
 
 .camera__message--error {
@@ -90,20 +206,26 @@
 }
 
 .camera__button {
+  flex: 1;
   min-height: 44px;
-  padding: 10px 20px;
+  padding: 12px 20px;
   font: inherit;
-  font-weight: 700;
-  color: var(--surface);
-  background: var(--asphalt);
-  border: 2px solid var(--asphalt);
-  border-radius: var(--radius);
+  font-weight: 600;
+  color: var(--on-brand);
+  background: var(--brand);
+  border: 1px solid var(--brand);
+  border-radius: 12px;
   cursor: pointer;
 }
 
+.camera__button:hover {
+  filter: brightness(1.08);
+}
+
 .camera__button--stop {
-  color: var(--asphalt);
-  background: var(--surface);
+  color: var(--hero-text);
+  background: color-mix(in srgb, var(--fail) 22%, var(--hero-card));
+  border-color: color-mix(in srgb, var(--fail) 55%, var(--hero-card));
 }
 
 .camera__button:focus-visible,
@@ -113,36 +235,80 @@
   outline-offset: 2px;
 }
 
+.camera__privacy {
+  display: flex;
+  gap: 10px;
+  margin: 4px 0 0;
+  font-size: 0.84rem;
+  color: var(--hero-muted);
+}
+
+.camera__privacy > .icon {
+  margin-top: 2px;
+  color: var(--hero-accent);
+}
+
 /* What a guest sees instead of the camera: a short explanation and the way in. */
 .camera__gate {
   display: grid;
-  gap: 12px;
-  max-width: 46ch;
+  justify-items: start;
+  gap: 14px;
+  width: min(520px, calc(100% - 32px));
+  margin: clamp(24px, 10vh, 96px) auto;
+  padding: 28px;
+  background: var(--hero-card);
+  border: 1px solid var(--hero-card-line);
+  border-radius: 18px;
+}
+
+.camera__gate-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  font-size: 1.5rem;
+  color: var(--hero-accent);
+  background: var(--hero-bg);
+  border-radius: 14px;
 }
 
 .camera__gate-lead {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 600;
+  line-height: 1.4;
+}
+
+.camera__gate .camera__privacy {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.camera__gate .camera__actions {
+  width: 100%;
 }
 
 .camera__meters {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
   align-items: start;
 }
 
 .meter {
   padding: 14px 16px;
-  background: var(--surface);
-  border: 1px solid var(--line);
+  background: var(--hero-bg);
+  border: 1px solid var(--hero-card-line);
   border-radius: var(--radius);
 }
 
 .meter__title {
-  margin: 0 0 8px;
-  font-size: 1rem;
+  margin: 0 0 10px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hero-muted);
 }
 
 .meter__list {
@@ -155,20 +321,22 @@
   display: flex;
   justify-content: space-between;
   gap: 12px;
+  font-size: 0.9rem;
 }
 
 .meter__row dt {
-  color: var(--muted);
+  color: var(--hero-muted);
 }
 
 .meter__row dd {
   margin: 0;
-  font-weight: 700;
+  font-family: var(--mono);
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
 .meter__headline {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   font-weight: 700;
 }
 
@@ -193,7 +361,10 @@
   align-items: baseline;
   gap: 2px 10px;
   padding: 6px 10px;
-  border-left: 6px solid var(--line);
+  font-size: 0.9rem;
+  background: var(--hero-card);
+  border-left: 4px solid var(--hero-card-line);
+  border-radius: 4px 8px 8px 4px;
 }
 
 .meter__count--leve,
@@ -212,8 +383,9 @@
 }
 
 .meter__count-number {
+  font-family: var(--mono);
   font-size: 1.1rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .meter__count-label,
@@ -224,10 +396,11 @@
 
 .meter__count-rule {
   flex-basis: 100%;
-  font-size: 0.85rem;
-  color: var(--muted);
+  font-size: 0.82rem;
+  color: var(--hero-muted);
 }
 
+/* The link to the camera in the top bar of the map. */
 .topbar__camera {
   display: inline-flex;
   flex: none;
@@ -271,16 +444,91 @@
     clip: rect(0 0 0 0);
     white-space: nowrap;
   }
+
+  /* The video on top, edge to edge, and everything else under it. */
+  .camera__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .camera__stage {
+    max-height: none;
+    margin: 0;
+    border-width: 0 0 1px;
+    border-radius: 0;
+  }
+
+  .camera__side {
+    border-left: 0;
+    background: var(--hero-bg);
+  }
+
+  .camera__meters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* Phones: the meters go one under the other and the buttons are easy to press. */
 @media (max-width: 640px) {
+  .camera__header {
+    gap: 10px;
+    min-height: 60px;
+    padding: 8px 12px;
+  }
+
+  .camera__back {
+    width: 44px;
+    min-height: 44px;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .camera__back span,
+  .camera__subtitle {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .camera__heading .brand-mark {
+    width: 36px;
+    height: 36px;
+  }
+
+  .camera__side {
+    padding: 14px 12px 24px;
+  }
+
+  .camera__badges {
+    top: 10px;
+    left: 10px;
+    gap: 6px;
+  }
+
+  .camera__badge {
+    height: 28px;
+    padding: 0 10px;
+    font-size: 0.72rem;
+  }
+
   .camera__meters {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .camera__actions .camera__button {
     flex: 1;
+  }
+
+  .camera__gate {
+    padding: 22px 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .camera__badge--live::before {
+    animation: none;
   }
 }
 
@@ -293,10 +541,10 @@
 .sending__message {
   margin: 0;
   padding: 10px 14px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
+  background: var(--hero-bg);
+  border: 1px solid var(--hero-card-line);
+  border-radius: 12px;
 }
 
 .sending__message--warning {
@@ -311,19 +559,24 @@
 
 .sending__count {
   flex: 1;
-  padding: 8px 14px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  padding: 10px 14px;
+  background: var(--hero-bg);
+  border: 1px solid var(--hero-card-line);
+  border-radius: 12px;
 }
 
 .sending__count dt {
-  font-size: 0.85rem;
-  color: var(--muted);
+  font-size: 0.82rem;
+  color: var(--hero-muted);
 }
 
 .sending__count dd {
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-family: var(--mono);
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.sending__count:first-child dd {
+  color: var(--hero-accent);
 }

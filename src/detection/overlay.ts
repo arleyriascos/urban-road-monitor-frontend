@@ -67,7 +67,7 @@ export function drawOverlay(
   if (detections.length === 0) return;
   const { scale, offsetX, offsetY } = fitPlacement(frame, view);
   context.lineWidth = 3;
-  context.font = '600 13px sans-serif';
+  context.font = "600 13px 'JetBrains Mono', ui-monospace, monospace";
   context.textBaseline = 'middle';
 
   for (const found of detections) {

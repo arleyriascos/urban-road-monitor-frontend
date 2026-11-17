@@ -2,8 +2,12 @@ import type { CameraState } from '../hooks/useCamera';
 import type { DetectionState } from '../hooks/useDetection';
 import type { ModelState } from '../hooks/useDetectorModel';
 import { progressFraction } from '../detection/model-download';
-import { formatPercent } from '../lib/format';
+import type { PerformanceReading } from '../detection/meters';
+import { formatDuration } from '../lib/duration';
+import { formatDecimal, formatPercent } from '../lib/format';
 import type { SendingSummary } from '../sending/status';
+import { CameraHeader } from './CameraHeader';
+import { Icon } from './Icon';
 import { OverlayCanvas } from './OverlayCanvas';
 import { PerformanceMeter } from './PerformanceMeter';
 import { SendingStatus } from './SendingStatus';
@@ -32,6 +36,21 @@ function modelStatus(model: ModelState): string | null {
   return null;
 }
 
+/** The speed of the detection over the video, while it runs. The meters below have the detail. */
+function LiveBadges({ reading }: { reading: PerformanceReading | null }) {
+  return (
+    <div className="camera__badges" aria-hidden="true">
+      <span className="camera__badge camera__badge--live">Detectando</span>
+      {reading?.fps != null && (
+        <span className="camera__badge">{`${formatDecimal(reading.fps, 1)} det/s`}</span>
+      )}
+      {reading?.totalMs != null && (
+        <span className="camera__badge">{`${formatDuration(reading.totalMs)} por cuadro`}</span>
+      )}
+    </div>
+  );
+}
+
 /** The screen of the camera: the video with the boxes over it, the two meters and the controls. */
 export function CameraView({
   camera,
@@ -49,79 +68,89 @@ export function CameraView({
 
   return (
     <main className="camera">
-      <header className="camera__header">
-        <a className="camera__back" href="/">
-          Volver al mapa
-        </a>
-        <h1 className="camera__title">Detector de baches</h1>
-      </header>
+      <CameraHeader />
 
-      <p className="camera__privacy">
-        Las imágenes de la cámara se analizan en tu dispositivo y no salen de él. Solo se envía, con
-        tu cuenta, dónde está cada bache y qué tan grande se ve.
-      </p>
+      <div className="camera__layout">
+        <div className="camera__stage">
+          <video
+            ref={videoRef}
+            className="camera__video"
+            autoPlay
+            muted
+            playsInline
+            aria-label="Vista de la cámara"
+          />
+          <OverlayCanvas
+            detections={detection.latest?.detections ?? []}
+            frame={detection.latest?.frame ?? null}
+          />
+          {!on && (
+            <p className="camera__placeholder">
+              <span className="camera__placeholder-icon" aria-hidden="true">
+                <Icon name="camera" />
+              </span>
+              {opening ? 'Abriendo la cámara…' : 'La cámara está apagada.'}
+            </p>
+          )}
+          {on && ready && <LiveBadges reading={detection.reading?.performance ?? null} />}
+        </div>
 
-      <div className="camera__stage">
-        <video
-          ref={videoRef}
-          className="camera__video"
-          autoPlay
-          muted
-          playsInline
-          aria-label="Vista de la cámara"
-        />
-        <OverlayCanvas
-          detections={detection.latest?.detections ?? []}
-          frame={detection.latest?.frame ?? null}
-        />
-        {!on && (
-          <p className="camera__placeholder">
-            {opening ? 'Abriendo la cámara…' : 'La cámara está apagada.'}
+        <aside className="camera__side">
+          <div className="camera__actions">
+            {on || opening ? (
+              <button
+                type="button"
+                className="camera__button camera__button--stop"
+                onClick={onStop}
+              >
+                Apagar la cámara
+              </button>
+            ) : (
+              <button type="button" className="camera__button" onClick={onStart}>
+                {camera.status === 'error' || model.status === 'error'
+                  ? 'Intentar de nuevo'
+                  : 'Activar la cámara'}
+              </button>
+            )}
+          </div>
+
+          {camera.status === 'error' && (
+            <p className="camera__message camera__message--error" role="alert">
+              {camera.error.message}
+            </p>
+          )}
+          {status && (
+            <p
+              className={`camera__message${model.status === 'error' ? ' camera__message--error' : ''}`}
+              role={model.status === 'error' ? 'alert' : 'status'}
+            >
+              {status}
+            </p>
+          )}
+          {on && ready && !detection.latest && (
+            <p className="camera__message" role="status">
+              Buscando baches…
+            </p>
+          )}
+
+          <SendingStatus summary={sending} />
+
+          <div className="camera__meters">
+            <PerformanceMeter
+              reading={detection.reading?.performance ?? null}
+              load={ready ? { downloadMs: model.downloadMs, startMs: model.startMs } : null}
+            />
+            <SizeMeter summary={detection.reading?.size ?? null} />
+          </div>
+
+          <p className="camera__privacy">
+            <Icon name="shield" />
+            <span>
+              Las imágenes de la cámara se analizan en tu dispositivo y no salen de él. Solo se
+              envía, con tu cuenta, dónde está cada bache y qué tan grande se ve.
+            </span>
           </p>
-        )}
-      </div>
-
-      {camera.status === 'error' && (
-        <p className="camera__message camera__message--error" role="alert">
-          {camera.error.message}
-        </p>
-      )}
-      {status && (
-        <p
-          className={`camera__message${model.status === 'error' ? ' camera__message--error' : ''}`}
-          role={model.status === 'error' ? 'alert' : 'status'}
-        >
-          {status}
-        </p>
-      )}
-      {on && ready && !detection.latest && (
-        <p className="camera__message" role="status">
-          Buscando baches…
-        </p>
-      )}
-
-      <SendingStatus summary={sending} />
-
-      <div className="camera__actions">
-        {on || opening ? (
-          <button type="button" className="camera__button camera__button--stop" onClick={onStop}>
-            Apagar la cámara
-          </button>
-        ) : (
-          <button type="button" className="camera__button" onClick={onStart}>
-            {camera.status === 'error' || model.status === 'error'
-              ? 'Intentar de nuevo'
-              : 'Activar la cámara'}
-          </button>
-        )}
-      </div>
-
-      <div className="camera__meters">
-        <PerformanceMeter
-          reading={detection.reading?.performance ?? null}
-          load={ready ? { downloadMs: model.downloadMs, startMs: model.startMs } : null}
-        />
-        <SizeMeter summary={detection.reading?.size ?? null} />
+        </aside>
       </div>
     </main>
   );

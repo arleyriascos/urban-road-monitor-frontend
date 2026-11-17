@@ -137,4 +137,27 @@ describe('CameraView', () => {
     expect(screen.getByText('1 bache a la vista')).toBeTruthy();
     expect(screen.queryByText('Buscando baches…')).toBeNull();
   });
+
+  it('shows over the video that it is detecting and how fast, only while it runs', () => {
+    renderView({
+      camera: { status: 'on', stream: {} as MediaStream },
+      model: { status: 'ready', detector: { detect: vi.fn() }, downloadMs: 2400, startMs: 600 },
+      detection: {
+        latest: null,
+        reading: {
+          performance: { fps: 3, inferenceMs: 150, totalMs: 170 },
+          size: { boxes: [], counts: { leve: 0, moderado: 0, grave: 0 }, averageRatio: 0 },
+        },
+        error: null,
+      },
+    });
+    expect(screen.getByText('Detectando')).toBeTruthy();
+    expect(screen.getByText('3,0 det/s')).toBeTruthy();
+    expect(screen.getByText('170 ms por cuadro')).toBeTruthy();
+  });
+
+  it('shows nothing over the video while the camera is off', () => {
+    renderView();
+    expect(screen.queryByText('Detectando')).toBeNull();
+  });
 });
