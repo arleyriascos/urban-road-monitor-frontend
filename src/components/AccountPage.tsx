@@ -4,6 +4,7 @@ import { ACCOUNT_PATHS, ACCOUNT_SECTIONS, type AccountSection } from '../lib/acc
 import type { AuthUser } from '../types/auth';
 import { AccountMenu } from './AccountMenu';
 import { AccountProfile } from './AccountProfile';
+import { SettingsSection } from './SettingsSection';
 import { TripsSection } from './TripsSection';
 import { Brand } from './BrandMark';
 import { Icon } from './Icon';
@@ -18,10 +19,9 @@ function Section({
   user: AuthUser;
   token: string;
 }) {
-  const { t } = useLanguage();
   if (section === 'profile') return <AccountProfile user={user} />;
   if (section === 'trips') return <TripsSection token={token} />;
-  return <p className="account-page__section">{t('account.page.soon')}</p>;
+  return <SettingsSection />;
 }
 
 /**

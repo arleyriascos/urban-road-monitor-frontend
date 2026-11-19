@@ -1,5 +1,8 @@
 import { Brand } from './BrandMark';
 
+/** The address of the privacy page. The host rewrites every path to the app, so no router is needed. */
+export const PRIVACY_PATH = '/privacidad';
+
 /** Where to ask about the data: the contact of the academic project. */
 export const PRIVACY_CONTACT_EMAIL = 'arley.riascos@campusucc.edu.co';
 

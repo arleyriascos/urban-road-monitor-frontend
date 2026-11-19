@@ -295,3 +295,84 @@
 .trip__note--error {
   color: var(--fail);
 }
+
+/* "Configuraciones": groups of settings, one under another. */
+.settings__group {
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+}
+
+.settings__group:first-of-type {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.settings__group .account-page__subtitle {
+  margin-top: 0;
+}
+
+.settings__help {
+  margin: 0 0 12px;
+  color: var(--muted);
+}
+
+.settings__choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.settings__legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.settings__option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  font-weight: 600;
+  background: var(--concrete);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.settings__option:has(input:checked) {
+  color: var(--brand-ink);
+  background: var(--brand-soft);
+  border-color: var(--brand-ink);
+}
+
+.settings__option:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.settings__option input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--brand);
+}
+
+.settings__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 600;
+  color: var(--brand-ink);
+}
+
+.settings__danger {
+  color: var(--fail);
+  border-color: var(--fail);
+}

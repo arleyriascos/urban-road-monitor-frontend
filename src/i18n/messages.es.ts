@@ -106,7 +106,6 @@ export const es = {
   'account.page.title': 'Mi cuenta',
   'account.page.back': 'Volver al mapa',
   'account.page.nav': 'Partes de tu cuenta',
-  'account.page.soon': 'Esta parte llega en la siguiente entrega.',
   'account.gate.title': 'Ingresa para ver tu cuenta',
   'account.gate.help': 'Tu perfil, tus viajes y tus configuraciones están en tu cuenta.',
   'account.gate.home': 'Ir al inicio',
@@ -154,6 +153,24 @@ export const es = {
   'trips.details.loading': 'Cargando el detalle…',
   'trips.details.error': 'No pudimos cargar el detalle de este viaje.',
   'trips.details.bySeverity': 'Baches por severidad',
+  'settings.heading': 'Configuraciones',
+  'settings.appearance.title': 'Apariencia',
+  'settings.appearance.help':
+    'Elige cómo se ve la app. Automático sigue el tema de tu teléfono o computador.',
+  'settings.theme.label': 'Tema',
+  'settings.theme.auto': 'Automático',
+  'settings.theme.light': 'Claro',
+  'settings.theme.dark': 'Oscuro',
+  'settings.language.title': 'Idioma',
+  'settings.language.help': 'El idioma se guarda en este navegador.',
+  'settings.privacy.title': 'Privacidad',
+  'settings.privacy.help': 'Qué datos guardamos de tu cuenta y para qué los usamos.',
+  'settings.privacy.link': 'Leer la política de privacidad',
+  'settings.delete.title': 'Eliminar mi cuenta',
+  'settings.delete.help':
+    'Por ahora la cuenta se elimina a pedido: escribe al responsable del proyecto desde el correo de tu cuenta y la borramos junto con tus viajes.',
+  'settings.delete.button': 'Solicitar eliminar mi cuenta',
+  'settings.delete.subject': 'Solicitud para eliminar mi cuenta de Urban Road Monitor',
 } as const;
 
 export type MessageKey = keyof typeof es;

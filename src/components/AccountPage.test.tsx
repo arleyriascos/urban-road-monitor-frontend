@@ -55,6 +55,12 @@ describe('AccountPage', () => {
     expect(screen.queryByRole('heading', { name: 'Mi perfil' })).toBeNull();
   });
 
+  it('shows the settings in the settings part', () => {
+    renderPage('settings');
+    expect(screen.getByRole('heading', { level: 1, name: 'Configuraciones' })).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'Mi perfil' })).toBeNull();
+  });
+
   it('signs out from the menu of its header', () => {
     const onSignOut = renderPage('profile');
 

@@ -4,15 +4,12 @@ import { AccountApp } from './components/AccountApp';
 import { CAMERA_PATH, CameraPage } from './components/CameraPage';
 import { EntryScreen } from './components/EntryScreen';
 import { MapApp } from './components/MapApp';
-import { PrivacyPage } from './components/PrivacyPage';
+import { PRIVACY_PATH, PrivacyPage } from './components/PrivacyPage';
 import { SessionCheckScreen } from './components/SessionCheckScreen';
 import { googleClientId } from './config/env';
 import { useSession } from './hooks/useSession';
 import { useLanguage } from './i18n/useLanguage';
 import { sectionFromPath } from './lib/account-sections';
-
-/** The address of the privacy page. The host rewrites every path to the app, so no router is needed. */
-export const PRIVACY_PATH = '/privacidad';
 
 function isPath(pathname: string, path: string): boolean {
   return pathname.replace(/\/+$/, '') === path;

@@ -65,3 +65,25 @@ describe('the trips of the account page', () => {
     expect(css).toMatch(/\.trip__note--error\s*{[^}]*color:\s*var\(--fail\)/);
   });
 });
+
+describe('the settings of the account page', () => {
+  it('makes each choice of the theme and each link at least 44px tall', () => {
+    expect(css).toMatch(/\.settings__option\s*{[^}]*min-height:\s*44px/);
+    expect(css).toMatch(/\.settings__link\s*{[^}]*min-height:\s*44px/);
+  });
+
+  it('marks the chosen theme with more than color: ink, background and border', () => {
+    const rule = css.match(/\.settings__option:has\(input:checked\)\s*{([^}]*)}/)?.[1] ?? '';
+    expect(rule).toContain('color: var(--brand-ink)');
+    expect(rule).toContain('background: var(--brand-soft)');
+    expect(rule).toContain('border-color: var(--brand-ink)');
+  });
+
+  it('shows the keyboard on the radio button with an outline around its option', () => {
+    expect(css).toMatch(/\.settings__option:has\(input:focus-visible\)\s*{[^}]*outline:/);
+  });
+
+  it('hides the legend of the group of themes only for the eyes', () => {
+    expect(css).toMatch(/\.settings__legend\s*{[^}]*position:\s*absolute/);
+  });
+});
