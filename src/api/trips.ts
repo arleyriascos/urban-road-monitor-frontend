@@ -3,9 +3,11 @@ import type {
   DeviceInfo,
   DetectionPayload,
   TripClosing,
+  TripPage,
   TripStarted,
+  TripView,
 } from '../types/trips';
-import { patchJson, postJson } from './http';
+import { getJson, patchJson, postJson } from './http';
 
 /** Opens a trip. `modelVersion` must be the one the server has active. */
 export function startTrip(
@@ -38,4 +40,24 @@ export async function closeTrip(
   signal?: AbortSignal,
 ): Promise<void> {
   await patchJson<unknown>(`/api/trips/${encodeURIComponent(tripId)}`, closing, { token, signal });
+}
+
+/** The trips of the person, newest first. Pass the `nextCursor` of a page to read the next one. */
+export function listTrips(
+  token: string,
+  options: { limit?: number; cursor?: string; signal?: AbortSignal } = {},
+): Promise<TripPage> {
+  const query = new URLSearchParams();
+  if (options.limit !== undefined) query.set('limit', String(options.limit));
+  if (options.cursor !== undefined) query.set('cursor', options.cursor);
+  const text = query.toString();
+  return getJson<TripPage>(`/api/trips${text ? `?${text}` : ''}`, {
+    token,
+    signal: options.signal,
+  });
+}
+
+/** One trip of the person with its detections counted by severity. */
+export function getTrip(token: string, tripId: string, signal?: AbortSignal): Promise<TripView> {
+  return getJson<TripView>(`/api/trips/${encodeURIComponent(tripId)}`, { token, signal });
 }

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { apiUrl } from '../config/env';
 import type { DetectionPayload } from '../types/trips';
-import { closeTrip, sendDetections, startTrip } from './trips';
+import { closeTrip, getTrip, listTrips, sendDetections, startTrip } from './trips';
 
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
@@ -115,5 +115,86 @@ describe('closeTrip', () => {
     expect(url).toBe(`${apiUrl}/api/trips/trip-1`);
     expect(init?.method).toBe('PATCH');
     expect(JSON.parse(String(init?.body))).toEqual({ framesAnalyzed: 3600, distanceM: 1250.5 });
+  });
+});
+
+const SUMMARY = {
+  id: 'trip-1',
+  startedAt: '2026-11-16T13:30:00.000Z',
+  endedAt: '2026-11-16T14:05:00.000Z',
+  framesAnalyzed: 3600,
+  distanceM: 1250.5,
+  detectionCount: 3,
+  platform: 'android' as const,
+  deviceLabel: 'Pixel 7',
+  modelVersion: '1.0.0',
+};
+
+const TRIP = {
+  id: 'trip-1',
+  startedAt: '2026-11-16T13:30:00.000Z',
+  endedAt: '2026-11-16T14:05:00.000Z',
+  framesAnalyzed: 3600,
+  distanceM: 1250.5,
+  detections: {
+    total: 3,
+    bySeverity: [
+      { severity: 'leve', count: 1 },
+      { severity: 'moderado', count: 2 },
+      { severity: 'grave', count: 0 },
+    ],
+  },
+};
+
+describe('listTrips', () => {
+  it('asks for the first page with no query, signed with the session', async () => {
+    const fetchMock = stubFetch(jsonResponse({ trips: [SUMMARY], nextCursor: 'next' }));
+
+    expect(await listTrips(TOKEN)).toEqual({ trips: [SUMMARY], nextCursor: 'next' });
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe(`${apiUrl}/api/trips`);
+    expect(init?.method).toBe('GET');
+    expect(new Headers(init?.headers).get('Authorization')).toBe(`Bearer ${TOKEN}`);
+  });
+
+  it('passes the size and the cursor of the next page, written for a URL', async () => {
+    const fetchMock = stubFetch(jsonResponse({ trips: [], nextCursor: null }));
+
+    await listTrips(TOKEN, { limit: 10, cursor: 'a+b/c=&d' });
+
+    const url = new URL(String(fetchMock.mock.calls[0][0]));
+    expect(url.pathname).toBe('/api/trips');
+    expect(url.searchParams.get('limit')).toBe('10');
+    expect(url.searchParams.get('cursor')).toBe('a+b/c=&d');
+  });
+
+  it('keeps the error of the server, such as a cursor it did not give', async () => {
+    stubFetch(jsonResponse({ error: { code: 'INVALID_CURSOR', message: 'x' } }, 400));
+
+    await expect(listTrips(TOKEN, { cursor: 'made-up' })).rejects.toMatchObject({
+      kind: 'http',
+      status: 400,
+      code: 'INVALID_CURSOR',
+    });
+  });
+});
+
+describe('getTrip', () => {
+  it('asks for one trip by its identifier', async () => {
+    const fetchMock = stubFetch(jsonResponse(TRIP));
+
+    expect(await getTrip(TOKEN, 'trip/1')).toEqual(TRIP);
+
+    expect(fetchMock.mock.calls[0][0]).toBe(`${apiUrl}/api/trips/trip%2F1`);
+  });
+
+  it('says the trip is not found the same way for a trip of another person', async () => {
+    stubFetch(jsonResponse({ error: { code: 'TRIP_NOT_FOUND', message: 'x' } }, 404));
+
+    await expect(getTrip(TOKEN, 'x')).rejects.toMatchObject({
+      status: 404,
+      code: 'TRIP_NOT_FOUND',
+    });
   });
 });

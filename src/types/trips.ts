@@ -57,3 +57,45 @@ export interface TripClosing {
   distanceM: number;
   endedAt?: string;
 }
+
+export type Severity = 'leve' | 'moderado' | 'grave';
+
+/** How many detections a trip has, in all and by severity (the three appear, even with 0). */
+export interface TripDetectionCount {
+  total: number;
+  bySeverity: { severity: Severity; count: number }[];
+}
+
+/** A trip of the person as the list answers it: with how many detections it has in all. */
+export interface TripSummary {
+  id: string;
+  /** ISO 8601 date. */
+  startedAt: string;
+  /** Null while the trip is still open. */
+  endedAt: string | null;
+  framesAnalyzed: number;
+  distanceM: number;
+  detectionCount: number;
+  platform: DevicePlatform;
+  /** The name of the phone, when the person gave one. */
+  deviceLabel: string | null;
+  /** The version of the model that judged the trip. */
+  modelVersion: string;
+}
+
+/** One trip as GET /api/trips/:id answers it: its detections counted by severity. */
+export interface TripView {
+  id: string;
+  startedAt: string;
+  endedAt: string | null;
+  framesAnalyzed: number;
+  distanceM: number;
+  detections: TripDetectionCount;
+}
+
+/** One page of the trips of the person, the newest first. */
+export interface TripPage {
+  trips: TripSummary[];
+  /** Pass it back to read the next page; null on the last one. */
+  nextCursor: string | null;
+}
