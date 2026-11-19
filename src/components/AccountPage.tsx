@@ -4,13 +4,23 @@ import { ACCOUNT_PATHS, ACCOUNT_SECTIONS, type AccountSection } from '../lib/acc
 import type { AuthUser } from '../types/auth';
 import { AccountMenu } from './AccountMenu';
 import { AccountProfile } from './AccountProfile';
+import { TripsSection } from './TripsSection';
 import { Brand } from './BrandMark';
 import { Icon } from './Icon';
 
 /** The part of the account that is shown. */
-function Section({ section, user }: { section: AccountSection; user: AuthUser }) {
+function Section({
+  section,
+  user,
+  token,
+}: {
+  section: AccountSection;
+  user: AuthUser;
+  token: string;
+}) {
   const { t } = useLanguage();
   if (section === 'profile') return <AccountProfile user={user} />;
+  if (section === 'trips') return <TripsSection token={token} />;
   return <p className="account-page__section">{t('account.page.soon')}</p>;
 }
 
@@ -21,11 +31,14 @@ function Section({ section, user }: { section: AccountSection; user: AuthUser })
 export function AccountPage({
   section,
   user,
+  token,
   onSignOut,
   children,
 }: {
   section: AccountSection;
   user: AuthUser;
+  /** The session identifier, for what the page asks the server. */
+  token: string;
   onSignOut: () => void;
   /** What replaces the part, such as the message after signing out. */
   children?: ReactNode;
@@ -55,7 +68,7 @@ export function AccountPage({
         ))}
       </nav>
       <main className="account-page__main">
-        {children ?? <Section section={section} user={user} />}
+        {children ?? <Section section={section} user={user} token={token} />}
       </main>
     </div>
   );

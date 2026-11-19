@@ -9,15 +9,16 @@ export function formatNumber(value: number, locale: Locale = 'es'): string {
   return String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, separator);
 }
 
-/** 612.4 -> "612,4" */
-export function formatDecimal(value: number, digits = 1): string {
-  return value.toFixed(digits).replace('.', ',');
+/** 612.4 -> "612,4" in Spanish and "612.4" in English. */
+export function formatDecimal(value: number, digits = 1, locale: Locale = 'es'): string {
+  const text = value.toFixed(digits);
+  return locale === 'en' ? text : text.replace('.', ',');
 }
 
-/** 111.17 -> "111 m", 1234 -> "1,2 km" */
-export function formatLength(meters: number): string {
+/** 111.17 -> "111 m", 1234 -> "1,2 km" ("1.2 km" in English) */
+export function formatLength(meters: number, locale: Locale = 'es'): string {
   if (meters < 1000) return `${Math.round(meters)} m`;
-  return `${formatDecimal(meters / 1000, 1)} km`;
+  return `${formatDecimal(meters / 1000, 1, locale)} km`;
 }
 
 /**

@@ -116,3 +116,16 @@ describe('pluralize', () => {
     expect(pluralize(1200, 'vía', 'vías')).toBe('1.200 vías');
   });
 });
+
+describe('formatDecimal and formatLength in English', () => {
+  it('write the decimal with a point', () => {
+    expect(formatDecimal(612.4, 1, 'en')).toBe('612.4');
+    expect(formatDecimal(612.4)).toBe('612,4');
+  });
+
+  it('write the kilometers with a point and the meters as they are', () => {
+    expect(formatLength(1234, 'en')).toBe('1.2 km');
+    expect(formatLength(1234, 'es')).toBe('1,2 km');
+    expect(formatLength(111.17, 'en')).toBe('111 m');
+  });
+});

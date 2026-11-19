@@ -157,3 +157,141 @@
     align-items: flex-start;
   }
 }
+
+/* "Mis viajes": the list of trips, each one a card with its facts and details that open apart. */
+.trips__lead {
+  margin: 0 0 16px;
+  color: var(--muted);
+}
+
+.trips__list {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.trips__more {
+  margin-top: 16px;
+}
+
+.trips__problem,
+.trips__empty {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  padding: 16px;
+  background: var(--concrete);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+}
+
+.trips__problem-title {
+  margin: 0;
+  font-weight: 700;
+}
+
+.trip {
+  padding: 16px;
+  background: var(--concrete);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+}
+
+.trip__top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.trip__date {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.trip__badge {
+  padding: 2px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--brand-ink);
+  background: var(--brand-soft);
+  border-radius: 999px;
+}
+
+.trip__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.trip__facts dt {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.trip__facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.trip__toggle {
+  min-height: 44px;
+}
+
+.trip__detail {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.trip__subtitle {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
+.trip__severities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.trip__severity {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trip__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.trip__severity--leve .trip__dot {
+  background: var(--severity-leve);
+}
+
+.trip__severity--moderado .trip__dot {
+  background: var(--severity-moderado);
+}
+
+.trip__severity--grave .trip__dot {
+  background: var(--severity-grave);
+}
+
+.trip__note {
+  margin: 8px 0;
+  color: var(--muted);
+}
+
+.trip__note--error {
+  color: var(--fail);
+}

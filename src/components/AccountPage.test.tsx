@@ -4,6 +4,10 @@ import type { AccountSection } from '../lib/account-sections';
 import type { AuthUser } from '../types/auth';
 import { AccountPage } from './AccountPage';
 
+vi.mock('./TripsSection', () => ({
+  TripsSection: ({ token }: { token: string }) => <div data-testid="trips">{token}</div>,
+}));
+
 const ana: AuthUser = {
   id: 'u1',
   email: 'ana@example.com',
@@ -12,8 +16,10 @@ const ana: AuthUser = {
   roles: ['usuario'],
 };
 
+const TOKEN = 'a'.repeat(43);
+
 function renderPage(section: AccountSection, onSignOut = vi.fn()) {
-  render(<AccountPage section={section} user={ana} onSignOut={onSignOut} />);
+  render(<AccountPage section={section} user={ana} token={TOKEN} onSignOut={onSignOut} />);
   return onSignOut;
 }
 
@@ -43,6 +49,12 @@ describe('AccountPage', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Mi perfil' })).toBeTruthy();
   });
 
+  it('shows the trips in the trips part, with the session to ask for them', () => {
+    renderPage('trips');
+    expect(screen.getByTestId('trips').textContent).toBe(TOKEN);
+    expect(screen.queryByRole('heading', { name: 'Mi perfil' })).toBeNull();
+  });
+
   it('signs out from the menu of its header', () => {
     const onSignOut = renderPage('profile');
 
@@ -54,7 +66,7 @@ describe('AccountPage', () => {
 
   it('shows what it is given instead of a part, such as a message', () => {
     render(
-      <AccountPage section="profile" user={ana} onSignOut={vi.fn()}>
+      <AccountPage section="profile" user={ana} token={TOKEN} onSignOut={vi.fn()}>
         <p>Otra cosa</p>
       </AccountPage>,
     );

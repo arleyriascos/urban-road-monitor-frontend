@@ -41,3 +41,27 @@ describe('the account page stylesheet', () => {
     expect(Number(z?.[1])).toBeGreaterThan(0);
   });
 });
+
+describe('the trips of the account page', () => {
+  it('makes the button of the details at least 44px tall', () => {
+    expect(css).toMatch(/\.trip__toggle\s*{[^}]*min-height:\s*44px/);
+  });
+
+  it('colors each severity with the token of the map, and also writes its name', () => {
+    for (const severity of ['leve', 'moderado', 'grave']) {
+      expect(css).toMatch(
+        new RegExp(
+          `\\.trip__severity--${severity} \\.trip__dot\\s*{[^}]*var\\(--severity-${severity}\\)`,
+        ),
+      );
+    }
+  });
+
+  it('lets the facts of a trip wrap on a narrow screen', () => {
+    expect(css).toMatch(/\.trip__facts\s*{[^}]*repeat\(auto-fit,\s*minmax\(/);
+  });
+
+  it('writes the errors with the color of errors of the theme', () => {
+    expect(css).toMatch(/\.trip__note--error\s*{[^}]*color:\s*var\(--fail\)/);
+  });
+});

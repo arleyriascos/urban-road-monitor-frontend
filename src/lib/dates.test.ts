@@ -23,4 +23,10 @@ describe('formatDateTime', () => {
     expect(text).toContain('24');
     expect(text).not.toContain('25');
   });
+
+  it('writes the month in the language of the app, with the same hour', () => {
+    expect(formatDateTime('2026-10-25T17:21:00.000Z', 'es')).toContain('25/10/2026');
+    expect(formatDateTime('2026-10-25T17:21:00.000Z', 'en')).toContain('Oct');
+    expect(formatDateTime('2026-10-25T17:21:00.000Z', 'en')).toMatch(/12:21/);
+  });
 });

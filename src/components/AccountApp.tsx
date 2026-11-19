@@ -41,5 +41,12 @@ export function AccountApp({ section }: { section: AccountSection }) {
     );
   }
 
-  return <AccountPage section={section} user={state.user} onSignOut={session.signOut} />;
+  return (
+    <AccountPage
+      section={section}
+      user={state.user}
+      token={state.token}
+      onSignOut={session.signOut}
+    />
+  );
 }
