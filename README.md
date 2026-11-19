@@ -93,6 +93,7 @@ src/
 ├── api/              Cliente HTTP, funciones que llaman al backend (mapa, rutas y cuenta) y despertar del servicio de IA
 ├── components/       Pantallas y piezas de la interfaz (entrada, botón de Google, cuenta, privacidad, mapa, leyenda, Cómo llegar, carga, error, logo e íconos)
 ├── config/           URL del backend y del servicio de IA
+├── i18n/             Idiomas (español e inglés): diccionarios, función `translate`, proveedor, guardado de la elección y selector
 ├── hooks/            Carga de los datos del mapa, petición de la ruta (con reintentos) y sesión de la persona
 ├── lib/              Lógica pura: estados y almacenamiento de la sesión, carga del script de Google, formatos, estilos del mapa, leyenda, criterios, errores, agrupación por calle y geometría de las flechas
 ├── map/              Código de Leaflet: mapa base, capas de calles y baches, marcadores, línea, flechas y resaltado de la ruta
@@ -103,11 +104,22 @@ src/
 ├── main.tsx          Punto de entrada
 ├── map.css           Estilos del mapa y sus paneles
 ├── account.css       Estilos de la cuenta en la barra superior
+├── language.css      Estilos del selector de idioma
 ├── entry.css         Estilos de la pantalla de entrada y del botón de Google
 ├── privacy.css       Estilos de la página de privacidad
 ├── popups.css        Estilos de los cuadros de información
 └── styles.css        Colores del tema (claro y oscuro), logo y estilos base y de las pantallas de carga y error
 ```
+
+## Idiomas
+
+La app tiene dos idiomas, español (el original y el que se ve la primera vez) e inglés. La elección se guarda en el navegador y se ve en el atributo `lang` de la página.
+
+- Los textos viven en `src/i18n/messages.es.ts` y `src/i18n/messages.en.ts`, con claves `area.nombre` (por ejemplo `language.label`). El inglés debe tener exactamente las mismas claves: el compilador lo comprueba, y una prueba revisa además que ningún texto quede vacío y que los dos idiomas usen las mismas variables.
+- Un texto con una parte variable la escribe como `{nombre}` y se llena con `t('clave', { nombre: valor })`. Un valor que parezca una variable (una calle llamada `{nombre}`) se muestra tal cual, nunca se expande.
+- En un componente: `const { t } = useLanguage();` y luego `t('clave')`. Sin proveedor arriba, `useLanguage` da español y un idioma que no se puede cambiar, así que una pieza se puede mostrar o probar sola.
+- Para agregar un texto: se escribe primero en español, se copia la clave al inglés y se usa con `t`. Los nombres de las calles y los datos que llegan del servidor no se traducen.
+- `LanguageSwitch` es el selector de dos botones; cada uno lleva su nombre en su propio idioma ("Español", "English").
 
 ## Dependencias y seguridad
 
