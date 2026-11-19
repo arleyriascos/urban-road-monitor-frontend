@@ -434,4 +434,9 @@ export const en: Record<MessageKey, string> = {
   'meter.size.boxes': 'Potholes, from the biggest to the smallest',
   'meter.size.coverage': '{value} of the frame',
   'meter.size.score': 'confidence {value}',
+  'privacy.title': 'Privacy policy',
+  'privacy.updated': 'Last updated: {date}',
+  'privacy.updatedAt': 'November 16, 2026',
+  'privacy.back': 'Back to the app',
+  'error.retry': 'Try again',
 };

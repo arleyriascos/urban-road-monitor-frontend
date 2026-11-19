@@ -444,6 +444,11 @@ export const es = {
   'meter.size.boxes': 'Baches, del más grande al más pequeño',
   'meter.size.coverage': '{value} del cuadro',
   'meter.size.score': 'seguridad {value}',
+  'privacy.title': 'Política de privacidad',
+  'privacy.updated': 'Última actualización: {date}',
+  'privacy.updatedAt': '16 de noviembre de 2026',
+  'privacy.back': 'Volver a la app',
+  'error.retry': 'Intentar de nuevo',
 } as const;
 
 export type MessageKey = keyof typeof es;

@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+import { renderInEnglish } from '../test/english';
 import { PRIVACY_CONTACT_EMAIL, PrivacyPage } from './PrivacyPage';
+import { PrivacyContentEn, PrivacyContentEs } from './privacy-content';
 
 describe('PrivacyPage', () => {
   it('has one title and says who is responsible, and that it is not commercial', () => {
@@ -104,5 +106,76 @@ describe('PrivacyPage', () => {
       'Servicios que intervienen',
       'Tus derechos',
     ]);
+  });
+});
+
+describe('PrivacyPage in English', () => {
+  it('has one title, the date of the last update and a way back, in English', () => {
+    renderInEnglish(<PrivacyPage />);
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Privacy policy' })).toBeTruthy();
+    expect(screen.getByText('Last updated: November 16, 2026')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Back to the app' }).getAttribute('href')).toBe('/');
+  });
+
+  it('has a heading for every topic, in the same order as in Spanish', () => {
+    renderInEnglish(<PrivacyPage />);
+    const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
+    expect(headings).toEqual([
+      'Who is responsible',
+      'What data we keep if you sign in with Google',
+      'What your browser keeps',
+      'The potholes the camera detects',
+      'If you enter as a guest',
+      'What we use the data for',
+      'Services involved',
+      'Your rights',
+    ]);
+  });
+
+  it('keeps the promises of the Spanish text: no pictures, no sale, no tracking, no tokens', () => {
+    renderInEnglish(<PrivacyPage />);
+    const text = document.body.textContent ?? '';
+    for (const part of [
+      'no photo or video is saved or sent',
+      'We do not sell or share your data',
+      'We do not use tracking or advertising cookies',
+      'Google tokens and session identifiers are not kept',
+      '7 days',
+      '30 days',
+      'up to 500',
+      'Vercel',
+      'Render',
+      'Neon',
+    ]) {
+      expect(text).toContain(part);
+    }
+  });
+
+  it('gives the same mail link to ask for the data as the Spanish text', () => {
+    renderInEnglish(<PrivacyPage />);
+    const link = screen.getByRole('link', { name: PRIVACY_CONTACT_EMAIL });
+    expect(link.getAttribute('href')).toBe(`mailto:${PRIVACY_CONTACT_EMAIL}`);
+  });
+});
+
+describe('the two languages of the privacy policy', () => {
+  function shapeOf(locale: 'es' | 'en') {
+    const { container, unmount } = render(
+      locale === 'en' ? <PrivacyContentEn email="a@b.co" /> : <PrivacyContentEs email="a@b.co" />,
+    );
+    const shape = {
+      headings: container.querySelectorAll('h2').length,
+      paragraphs: container.querySelectorAll('p').length,
+      items: container.querySelectorAll('li').length,
+      strong: container.querySelectorAll('strong').length,
+      links: [...container.querySelectorAll('a')].map((link) => link.getAttribute('href')),
+    };
+    unmount();
+    return shape;
+  }
+
+  it('have the same shape, so one cannot say more than the other', () => {
+    expect(shapeOf('en')).toEqual(shapeOf('es'));
   });
 });

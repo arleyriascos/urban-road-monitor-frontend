@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../api/http';
+import { renderInEnglish } from '../test/english';
 import { ErrorScreen } from './ErrorScreen';
 
 describe('ErrorScreen', () => {
@@ -32,5 +33,17 @@ describe('ErrorScreen', () => {
     );
     expect(container.querySelector('.route__stop--failed')?.textContent).toContain('Base de datos');
     expect(screen.getByText(/la base de datos no está disponible/)).toBeTruthy();
+  });
+});
+
+describe('ErrorScreen in English', () => {
+  it('explains what happened and offers to try again, in English', () => {
+    const onRetry = vi.fn();
+    renderInEnglish(<ErrorScreen error={new ApiError('network', 'x')} onRetry={onRetry} />);
+
+    expect(screen.getByText('Could not connect to the server')).toBeTruthy();
+    expect(screen.getByText('Street condition in Pasto')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(onRetry).toHaveBeenCalledTimes(1);
   });
 });
