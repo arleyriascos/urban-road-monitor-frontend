@@ -45,7 +45,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --asphalt: #e6eeec;
     --concrete: #0f1a1b;
     --surface: #172426;
@@ -63,6 +63,32 @@
     --hero-card: #0f2023;
     --hero-card-line: #253a3e;
   }
+}
+
+/* The person can choose the theme in the settings: the choice goes in `data-theme` of the page.
+   Without a choice ("auto") the theme of the device decides, as above. */
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --asphalt: #e6eeec;
+  --concrete: #0f1a1b;
+  --surface: #172426;
+  --line: #2b3b3d;
+  --muted: #a0b3af;
+  --ok: #3fb47f;
+  --fail: #e5674f;
+  --brand-soft: #173a32;
+  --brand-ink: #86dcbf;
+  --focus: #4fd1a5;
+  --shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 8px 28px rgb(0 0 0 / 40%);
+  --shadow-strong: 0 2px 6px rgb(0 0 0 / 35%), 0 18px 48px rgb(0 0 0 / 50%);
+  --hero-bg: #0a1517;
+  --hero-side: #1d3134;
+  --hero-card: #0f2023;
+  --hero-card-line: #253a3e;
 }
 
 *,

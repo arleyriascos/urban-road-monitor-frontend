@@ -12,7 +12,8 @@ const stylesCss = read('styles.css');
 
 type Tokens = Record<string, string>;
 
-const DARK_MARKER = '@media (prefers-color-scheme: dark)';
+// The dark theme comes from the device (the media query) or from the choice of the person.
+const DARK_MARKERS = ['@media (prefers-color-scheme: dark)', ":root[data-theme='dark']"];
 
 /** The CSS that applies in the dark theme, and the rest of it. */
 function splitByTheme(css: string): { light: string; dark: string } {
@@ -20,7 +21,11 @@ function splitByTheme(css: string): { light: string; dark: string } {
   const dark: string[] = [];
   let index = 0;
   for (;;) {
-    const start = css.indexOf(DARK_MARKER, index);
+    let start = -1;
+    for (const marker of DARK_MARKERS) {
+      const at = css.indexOf(marker, index);
+      if (at !== -1 && (start === -1 || at < start)) start = at;
+    }
     if (start === -1) {
       light += css.slice(index);
       break;

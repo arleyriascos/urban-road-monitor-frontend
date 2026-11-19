@@ -487,11 +487,18 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .map-app {
+  :root:not([data-theme='light']) .map-app {
     --route-text: #8ab4ff;
     --route-fail: #f28b77;
     --pick-bg: #3b2a73;
   }
+}
+
+/* The theme chosen in the settings (see styles.css). */
+:root[data-theme='dark'] .map-app {
+  --route-text: #8ab4ff;
+  --route-fail: #f28b77;
+  --pick-bg: #3b2a73;
 }
 
 .route-toggle {
