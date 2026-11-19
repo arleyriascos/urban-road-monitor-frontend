@@ -21,6 +21,25 @@ describe('formatNumber', () => {
   it('rounds to a whole number', () => {
     expect(formatNumber(10_084.6)).toBe('10.085');
   });
+
+  it('uses commas as thousands separators in English', () => {
+    expect(formatNumber(999, 'en')).toBe('999');
+    expect(formatNumber(1000, 'en')).toBe('1,000');
+    expect(formatNumber(10_134, 'en')).toBe('10,134');
+    expect(formatNumber(1_234_567, 'en')).toBe('1,234,567');
+    expect(formatNumber(10_084.6, 'en')).toBe('10,085');
+  });
+
+  it('is the Spanish way when the language is Spanish or not given', () => {
+    expect(formatNumber(4610, 'es')).toBe('4.610');
+    expect(formatNumber(4610)).toBe('4.610');
+  });
+
+  it('writes a negative number with its sign and no separator after it', () => {
+    expect(formatNumber(-1234)).toBe('-1.234');
+    expect(formatNumber(-1234, 'en')).toBe('-1,234');
+    expect(formatNumber(-12)).toBe('-12');
+  });
 });
 
 describe('formatDecimal', () => {

@@ -1,6 +1,12 @@
-/** 18432 -> "18.432" (Spanish thousands separator, independent of the browser locale). */
-export function formatNumber(value: number): string {
-  return String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+import type { Locale } from '../i18n/locale';
+
+/**
+ * 18432 -> "18.432" in Spanish and "18,432" in English. The separator comes from the language of
+ * the app, not from the browser, so the same number reads the same wherever it is opened.
+ */
+export function formatNumber(value: number, locale: Locale = 'es'): string {
+  const separator = locale === 'en' ? ',' : '.';
+  return String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, separator);
 }
 
 /** 612.4 -> "612,4" */
