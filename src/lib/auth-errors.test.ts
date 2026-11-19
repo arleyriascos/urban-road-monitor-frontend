@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { translate } from '../i18n/translate';
 import { describeSignInError, isSessionGone } from './auth-errors';
 
 describe('isSessionGone', () => {
@@ -72,5 +73,41 @@ describe('describeSignInError', () => {
       const { help } = describeSignInError({ kind: 'http', status });
       expect(help).toMatch(/intenta|espera|invitado/i);
     }
+  });
+});
+
+describe('describeSignInError in English', () => {
+  const inEnglish = (
+    key: Parameters<typeof translate>[1],
+    params?: Parameters<typeof translate>[2],
+  ) => translate('en', key, params);
+  const describeIn = (error: Parameters<typeof describeSignInError>[0]) =>
+    describeSignInError(error, inEnglish);
+
+  it('writes each kind of failure in English', () => {
+    expect(describeIn({ kind: 'timeout' }).title).toBe('The server did not answer in time');
+    expect(describeIn({ kind: 'network' }).title).toBe('Could not connect to the server');
+    expect(describeIn({ kind: 'http', status: 401 }).title).toBe(
+      'We could not verify your Google account',
+    );
+    expect(describeIn({ kind: 'http', status: 403 }).title).toBe('This account is disabled');
+    expect(describeIn({ kind: 'http', status: 503 }).title).toBe(
+      'Signing in is not available right now',
+    );
+    expect(describeIn({ kind: 'http', status: 500 }).title).toBe('Could not sign in');
+  });
+
+  it('says how long to wait, in English', () => {
+    const wait = (retryAfterS: unknown) =>
+      describeIn({ kind: 'http', status: 429, details: { retryAfterS } }).help;
+    expect(wait(41.2)).toBe('Wait 42 seconds and try again.');
+    expect(wait(1)).toBe('Wait 1 second and try again.');
+    expect(wait(undefined)).toBe('Wait a minute and try again.');
+  });
+
+  it('writes the one second in Spanish too', () => {
+    expect(
+      describeSignInError({ kind: 'http', status: 429, details: { retryAfterS: 0.4 } }).help,
+    ).toBe('Espera 1 segundo e intenta de nuevo.');
   });
 });

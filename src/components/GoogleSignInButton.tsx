@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useLanguage } from '../i18n/useLanguage';
 import { loadGoogleIdentity, type GoogleIdApi } from '../lib/google-identity';
 
 interface GoogleSignInButtonProps {
@@ -14,15 +15,17 @@ const prefersDark = () =>
   window.matchMedia('(prefers-color-scheme: dark)').matches;
 
 /**
- * "Ingresar con Google": the button is drawn by Google itself (its script is loaded when this
- * appears), so it follows Google's rules for the brand. If the script does not load, the
- * person is told and can try again; the guest mode does not depend on it.
+ * "Continuar con Google": the button is drawn by Google itself (its script is loaded when this
+ * appears), so it follows Google's rules for the brand, and in the language of the app. If the
+ * script does not load, the person is told and can try again; the guest mode does not depend
+ * on it.
  */
 export function GoogleSignInButton({
   clientId,
   onCredential,
   load = loadGoogleIdentity,
 }: GoogleSignInButtonProps) {
+  const { t, locale } = useLanguage();
   const container = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'failed'>('loading');
   const [attempt, setAttempt] = useState(0);
@@ -49,9 +52,9 @@ export function GoogleSignInButton({
           type: 'standard',
           theme: prefersDark() ? 'filled_black' : 'outline',
           size: 'large',
-          text: 'signin_with',
+          text: 'continue_with',
           shape: 'rectangular',
-          locale: 'es',
+          locale,
           // As wide as the column it sits in; Google accepts from 200 to 400 pixels.
           width: Math.round(Math.min(400, Math.max(200, parent.clientWidth || 280))),
         });
@@ -63,7 +66,7 @@ export function GoogleSignInButton({
     return () => {
       cancelled = true;
     };
-  }, [clientId, load, attempt]);
+  }, [clientId, load, attempt, locale]);
 
   const retry = () => {
     setStatus('loading');
@@ -75,14 +78,14 @@ export function GoogleSignInButton({
       <div ref={container} className="google-button__slot" hidden={status !== 'ready'} />
       {status === 'loading' && (
         <p className="google-button__note" role="status">
-          Cargando el botón de Google…
+          {t('google.loading')}
         </p>
       )}
       {status === 'failed' && (
         <div className="google-button__note" role="alert">
-          <p>No se pudo cargar el ingreso con Google.</p>
+          <p>{t('google.failed')}</p>
           <button type="button" className="button button--quiet" onClick={retry}>
-            Intentar de nuevo
+            {t('google.retry')}
           </button>
         </div>
       )}

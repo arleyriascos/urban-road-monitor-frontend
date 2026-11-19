@@ -68,7 +68,7 @@ export function EntryScreen({
   const { t, locale } = useLanguage();
   const [view, setView] = useState<AccessView>('login');
   const working = signIn.phase === 'working';
-  const failure = signIn.phase === 'failed' ? describeSignInError(signIn.error) : null;
+  const failure = signIn.phase === 'failed' ? describeSignInError(signIn.error, t) : null;
   const chosenTab = view === 'register' ? 'register' : 'login';
 
   return (

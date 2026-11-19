@@ -74,6 +74,29 @@ export const es = {
   'entry.ability.routes': 'Buscar calles y trazar rutas',
   'entry.ability.camera': 'Detectar baches con la cámara',
   'entry.ability.send': 'Guardar y enviar lo que detecta',
+  'google.loading': 'Cargando el botón de Google…',
+  'google.failed': 'No se pudo cargar el ingreso con Google.',
+  'google.retry': 'Intentar de nuevo',
+  'authError.timeout.title': 'El servidor no respondió a tiempo',
+  'authError.timeout.help':
+    'Puede estar despertando después de un rato sin uso. Intenta de nuevo en unos segundos.',
+  'authError.network.title': 'No se pudo conectar con el servidor',
+  'authError.network.help':
+    'Revisa tu conexión a internet e intenta de nuevo, o sigue como invitado.',
+  'authError.unverified.title': 'No pudimos verificar tu cuenta de Google',
+  'authError.unverified.help':
+    'Intenta de nuevo. Si sigue igual, revisa que el correo de tu cuenta de Google esté verificado, o sigue como invitado.',
+  'authError.disabled.title': 'Esta cuenta está desactivada',
+  'authError.disabled.help': 'No puedes ingresar con ella. Puedes seguir como invitado.',
+  'authError.tooMany.title': 'Demasiados intentos de ingreso',
+  'authError.tooMany.helpSeconds': 'Espera {seconds} segundos e intenta de nuevo.',
+  'authError.tooMany.helpOneSecond': 'Espera 1 segundo e intenta de nuevo.',
+  'authError.tooMany.helpMinute': 'Espera un minuto e intenta de nuevo.',
+  'authError.unavailable.title': 'El ingreso no está disponible por ahora',
+  'authError.unavailable.help':
+    'El servidor puede estar despertando o Google no respondió. Intenta de nuevo en unos segundos.',
+  'authError.other.title': 'No se pudo ingresar',
+  'authError.other.help': 'Intenta de nuevo, o sigue como invitado.',
 } as const;
 
 export type MessageKey = keyof typeof es;

@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { GoogleCredentialResponse, GoogleIdApi } from '../lib/google-identity';
+import { LanguageProvider } from '../i18n/LanguageProvider';
 import { GoogleSignInButton } from './GoogleSignInButton';
 
 function fakeGoogle() {
@@ -32,7 +33,7 @@ describe('GoogleSignInButton', () => {
     );
     const [parent, options] = vi.mocked(api.renderButton).mock.calls[0]!;
     expect(parent).toBeInstanceOf(HTMLElement);
-    expect(options).toMatchObject({ locale: 'es', text: 'signin_with', size: 'large' });
+    expect(options).toMatchObject({ locale: 'es', text: 'continue_with', size: 'large' });
   });
 
   it('says it is loading until Google answers, then hides the note', async () => {
@@ -105,5 +106,39 @@ describe('GoogleSignInButton', () => {
     await act(async () => finish(api));
 
     expect(api.renderButton).not.toHaveBeenCalled();
+  });
+});
+
+describe('GoogleSignInButton in English', () => {
+  afterEach(() => window.localStorage.clear());
+
+  it('asks Google to draw its button in English and says the loading in English', async () => {
+    window.localStorage.setItem('urban-road-monitor.language', 'en');
+    const { api } = fakeGoogle();
+    render(
+      <LanguageProvider>
+        <GoogleSignInButton clientId="c" onCredential={vi.fn()} load={() => Promise.resolve(api)} />
+      </LanguageProvider>,
+    );
+    expect(screen.getByRole('status').textContent).toContain('Loading the Google button');
+
+    await waitFor(() => expect(api.renderButton).toHaveBeenCalledOnce());
+    expect(vi.mocked(api.renderButton).mock.calls[0]![1]).toMatchObject({ locale: 'en' });
+  });
+
+  it('says in English that it could not load, and offers to try again', async () => {
+    window.localStorage.setItem('urban-road-monitor.language', 'en');
+    render(
+      <LanguageProvider>
+        <GoogleSignInButton
+          clientId="c"
+          onCredential={vi.fn()}
+          load={() => Promise.reject(new Error('blocked'))}
+        />
+      </LanguageProvider>,
+    );
+
+    expect(await screen.findByText('Signing in with Google could not be loaded.')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Try again' })).toBeTruthy();
   });
 });

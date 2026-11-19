@@ -1,4 +1,6 @@
 import type { ApiError } from '../api/http';
+import { DEFAULT_LOCALE } from '../i18n/locale';
+import { translate, type MessageKey, type MessageParams } from '../i18n/translate';
 
 export interface SignInErrorDescription {
   title: string;
@@ -10,50 +12,40 @@ export function isSessionGone(error: Pick<ApiError, 'kind' | 'status'>): boolean
   return error.kind === 'http' && error.status === 401;
 }
 
-/** Plain-Spanish explanation of why signing in with Google failed and what to do. */
+/** How a text is written: `t` of the language of the app. Spanish when none is given. */
+type Translator = (key: MessageKey, params?: MessageParams) => string;
+
+const inDefaultLanguage: Translator = (key, params) => translate(DEFAULT_LOCALE, key, params);
+
+/** Plain explanation of why signing in with Google failed and what to do, in the person's language. */
 export function describeSignInError(
   error: Pick<ApiError, 'kind' | 'status' | 'code' | 'details'>,
+  t: Translator = inDefaultLanguage,
 ): SignInErrorDescription {
   if (error.kind === 'timeout') {
-    return {
-      title: 'El servidor no respondió a tiempo',
-      help: 'Puede estar despertando después de un rato sin uso. Intenta de nuevo en unos segundos.',
-    };
+    return { title: t('authError.timeout.title'), help: t('authError.timeout.help') };
   }
   if (error.kind === 'network') {
-    return {
-      title: 'No se pudo conectar con el servidor',
-      help: 'Revisa tu conexión a internet e intenta de nuevo, o sigue como invitado.',
-    };
+    return { title: t('authError.network.title'), help: t('authError.network.help') };
   }
   if (error.status === 401) {
-    return {
-      title: 'No pudimos verificar tu cuenta de Google',
-      help: 'Intenta de nuevo. Si sigue igual, revisa que el correo de tu cuenta de Google esté verificado, o sigue como invitado.',
-    };
+    return { title: t('authError.unverified.title'), help: t('authError.unverified.help') };
   }
   if (error.status === 403) {
-    return {
-      title: 'Esta cuenta está desactivada',
-      help: 'No puedes ingresar con ella. Puedes seguir como invitado.',
-    };
+    return { title: t('authError.disabled.title'), help: t('authError.disabled.help') };
   }
   if (error.status === 429) {
     const seconds = error.details?.retryAfterS;
     const wait =
       typeof seconds === 'number' && seconds > 0
-        ? `Espera ${Math.ceil(seconds)} segundos e intenta de nuevo.`
-        : 'Espera un minuto e intenta de nuevo.';
-    return { title: 'Demasiados intentos de ingreso', help: wait };
+        ? Math.ceil(seconds) === 1
+          ? t('authError.tooMany.helpOneSecond')
+          : t('authError.tooMany.helpSeconds', { seconds: Math.ceil(seconds) })
+        : t('authError.tooMany.helpMinute');
+    return { title: t('authError.tooMany.title'), help: wait };
   }
   if (error.status === 503) {
-    return {
-      title: 'El ingreso no está disponible por ahora',
-      help: 'El servidor puede estar despertando o Google no respondió. Intenta de nuevo en unos segundos.',
-    };
+    return { title: t('authError.unavailable.title'), help: t('authError.unavailable.help') };
   }
-  return {
-    title: 'No se pudo ingresar',
-    help: 'Intenta de nuevo, o sigue como invitado.',
-  };
+  return { title: t('authError.other.title'), help: t('authError.other.help') };
 }

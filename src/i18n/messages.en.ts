@@ -69,4 +69,26 @@ export const en: Record<MessageKey, string> = {
   'entry.ability.routes': 'Search streets and plan routes',
   'entry.ability.camera': 'Detect potholes with the camera',
   'entry.ability.send': 'Save and send what it detects',
+  'google.loading': 'Loading the Google button…',
+  'google.failed': 'Signing in with Google could not be loaded.',
+  'google.retry': 'Try again',
+  'authError.timeout.title': 'The server did not answer in time',
+  'authError.timeout.help':
+    'It may be waking up after a while without use. Try again in a few seconds.',
+  'authError.network.title': 'Could not connect to the server',
+  'authError.network.help': 'Check your internet connection and try again, or continue as a guest.',
+  'authError.unverified.title': 'We could not verify your Google account',
+  'authError.unverified.help':
+    'Try again. If it stays the same, check that the email of your Google account is verified, or continue as a guest.',
+  'authError.disabled.title': 'This account is disabled',
+  'authError.disabled.help': 'You cannot sign in with it. You can continue as a guest.',
+  'authError.tooMany.title': 'Too many sign-in attempts',
+  'authError.tooMany.helpSeconds': 'Wait {seconds} seconds and try again.',
+  'authError.tooMany.helpOneSecond': 'Wait 1 second and try again.',
+  'authError.tooMany.helpMinute': 'Wait a minute and try again.',
+  'authError.unavailable.title': 'Signing in is not available right now',
+  'authError.unavailable.help':
+    'The server may be waking up or Google did not answer. Try again in a few seconds.',
+  'authError.other.title': 'Could not sign in',
+  'authError.other.help': 'Try again, or continue as a guest.',
 };
