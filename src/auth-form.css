@@ -128,7 +128,7 @@
   padding: 4px 0;
   border: 0;
   background: transparent;
-  color: var(--route-text, var(--brand));
+  color: var(--brand-ink);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -174,5 +174,46 @@
 
   .auth-form__switch .auth-form__link {
     min-height: 0;
+  }
+}
+
+/* "Iniciar sesión | Crear cuenta": the chosen tab has the brand color and a line under it. */
+.entry-tabs {
+  display: flex;
+  gap: 24px;
+  margin: 0 0 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.entry-tabs__tab {
+  margin-bottom: -1px;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.entry-tabs__tab:hover {
+  color: var(--asphalt);
+}
+
+.entry-tabs__tab[aria-selected='true'] {
+  border-bottom-color: var(--brand-ink);
+  color: var(--brand-ink);
+}
+
+.entry-tabs__tab:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (max-width: 640px) {
+  .entry-tabs__tab {
+    min-height: 44px;
   }
 }

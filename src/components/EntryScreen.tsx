@@ -1,9 +1,14 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
+import { useLanguage } from '../i18n/useLanguage';
+import { ACCESS_PANEL_ID, accessTabId } from '../lib/access-ids';
 import { describeSignInError } from '../lib/auth-errors';
+import type { AccessView } from '../lib/email-auth';
 import { formatNumber } from '../lib/format';
 import type { SignInProgress } from '../lib/session-state';
 import { PASTO_NETWORK } from '../lib/pasto-map-art';
+import { AccessTabs } from './AccessTabs';
 import { Brand } from './BrandMark';
+import { EmailAuthForm } from './EmailAuthForm';
 import { GoogleSignInButton } from './GoogleSignInButton';
 import { Icon } from './Icon';
 import { PastoMapArt } from './PastoMapArt';
@@ -14,45 +19,57 @@ interface EntryScreenProps {
   googleClientId: string | null;
   onCredential: (credential: string) => void;
   onGuest: () => void;
+  /**
+   * What to do with an email and a password that passed the checks. Without it the forms say the
+   * way in is not ready yet and send nothing.
+   */
+  onEmailAccess?: Parameters<typeof EmailAuthForm>[0]['onSubmit'];
   /** Extra content under the buttons, such as the link to the privacy page. */
   footer?: ReactNode;
 }
 
 /** What each way in allows: a guest sees the map, an account also uses the camera. */
-const ABILITIES: { label: string; guest: boolean }[] = [
-  { label: 'Ver el mapa de baches', guest: true },
-  { label: 'Buscar calles y trazar rutas', guest: true },
-  { label: 'Detectar baches con la cámara', guest: false },
-  { label: 'Guardar y enviar lo que detecta', guest: false },
-];
+const ABILITIES = [
+  { key: 'entry.ability.map', guest: true },
+  { key: 'entry.ability.routes', guest: true },
+  { key: 'entry.ability.camera', guest: false },
+  { key: 'entry.ability.send', guest: false },
+] as const;
 
 function Mark({ yes }: { yes: boolean }) {
+  const { t } = useLanguage();
   return yes ? (
     <span className="entry-compare__yes">
       <Icon name="check" />
-      <span className="visually-hidden">Sí</span>
+      <span className="visually-hidden">{t('common.yes')}</span>
     </span>
   ) : (
     <span className="entry-compare__no">
       <Icon name="minus" />
-      <span className="visually-hidden">No</span>
+      <span className="visually-hidden">{t('common.no')}</span>
     </span>
   );
 }
 
 /**
- * The first thing a person without a session sees: sign in with Google or go on as a guest.
- * In both cases they see the same map, so the choice is only about having an account.
+ * The first thing a person without a session sees: the map and the numbers on one side and, on
+ * the other, three ways in: an email and a password (to sign in or to create an account), Google,
+ * or going on as a guest. In every case they see the same map, so the choice is only about having
+ * an account.
  */
 export function EntryScreen({
   signIn,
   googleClientId,
   onCredential,
   onGuest,
+  onEmailAccess,
   footer,
 }: EntryScreenProps) {
+  const { t, locale } = useLanguage();
+  const [view, setView] = useState<AccessView>('login');
   const working = signIn.phase === 'working';
   const failure = signIn.phase === 'failed' ? describeSignInError(signIn.error) : null;
+  const chosenTab = view === 'register' ? 'register' : 'login';
 
   return (
     <main className="entry-page">
@@ -63,52 +80,62 @@ export function EntryScreen({
         </div>
         <div className="entry-hero__content">
           <h1 id="entry-title" className="entry-hero__title">
-            Las calles de Pasto, sin sorpresas
+            {t('entry.hero.title')}
           </h1>
-          <p className="entry-hero__lead">
-            Mira qué calles tienen baches, pide una ruta que los evite y, con tu cuenta, detecta
-            baches nuevos con la cámara.
-          </p>
+          <p className="entry-hero__lead">{t('entry.hero.lead')}</p>
           <div className="entry-hero__meta">
-            <dl className="entry-hero__card" aria-label="La red vial cargada en la app">
+            <dl className="entry-hero__card" aria-label={t('entry.hero.cardLabel')}>
               <div>
-                <dt>Vías</dt>
-                <dd>{formatNumber(PASTO_NETWORK.roads)}</dd>
+                <dt>{t('entry.hero.roads')}</dt>
+                <dd>{formatNumber(PASTO_NETWORK.roads, locale)}</dd>
               </div>
               <div>
-                <dt>Tramos</dt>
-                <dd>{formatNumber(PASTO_NETWORK.segments)}</dd>
+                <dt>{t('entry.hero.segments')}</dt>
+                <dd>{formatNumber(PASTO_NETWORK.segments, locale)}</dd>
               </div>
               <div>
-                <dt>Kilómetros</dt>
-                <dd>{formatNumber(PASTO_NETWORK.kilometers)}</dd>
+                <dt>{t('entry.hero.kilometers')}</dt>
+                <dd>{formatNumber(PASTO_NETWORK.kilometers, locale)}</dd>
               </div>
             </dl>
-            <p className="entry-hero__source">Calles de OpenStreetMap</p>
+            <p className="entry-hero__source">{t('entry.hero.source')}</p>
           </div>
         </div>
       </section>
 
       <section className="entry" aria-busy={working}>
         <div className="entry__inner">
-          <p className="entry__eyebrow">Proyecto final de Estructuras de Datos</p>
-          <h2 className="entry__heading">Entra a la app</h2>
-          <p className="entry__lead">Elige cómo quieres entrar. Puedes cambiarlo cuando quieras.</p>
+          <p className="entry__eyebrow">{t('entry.eyebrow')}</p>
+
+          <AccessTabs view={view} onChange={setView} />
+
+          <div role="tabpanel" id={ACCESS_PANEL_ID} aria-labelledby={accessTabId(chosenTab)}>
+            <h2 className="entry__heading">{t(`entry.heading.${view}`)}</h2>
+            <p className="entry__lead">{t(`entry.lead.${view}`)}</p>
+            <EmailAuthForm
+              view={view}
+              onChangeView={setView}
+              onSubmit={onEmailAccess}
+              disabled={working}
+            />
+          </div>
 
           <div className="entry__actions">
+            <p className="entry__or" aria-hidden="true">
+              {t('entry.otherWays')}
+            </p>
+
             {googleClientId ? (
               <div className="entry__google" hidden={working}>
                 <GoogleSignInButton clientId={googleClientId} onCredential={onCredential} />
               </div>
             ) : (
-              <p className="entry__note">
-                El ingreso con Google no está disponible en esta versión.
-              </p>
+              <p className="entry__note">{t('entry.noGoogle')}</p>
             )}
 
             {working && (
               <p className="entry__working" role="status">
-                Ingresando…
+                {t('entry.working')}
               </p>
             )}
 
@@ -119,37 +146,29 @@ export function EntryScreen({
               </div>
             )}
 
-            {googleClientId && (
-              <p className="entry__or" aria-hidden="true">
-                o
-              </p>
-            )}
-
             <button
               type="button"
               className="button entry__guest"
               disabled={working}
               onClick={onGuest}
             >
-              Continuar como invitado
+              {t('entry.guest')}
             </button>
           </div>
 
           <table className="entry-compare">
-            <caption className="visually-hidden">
-              Qué puedes hacer como invitado y con tu cuenta de Google
-            </caption>
+            <caption className="visually-hidden">{t('entry.table.caption')}</caption>
             <thead>
               <tr>
-                <th scope="col">Qué puedes hacer</th>
-                <th scope="col">Invitado</th>
-                <th scope="col">Google</th>
+                <th scope="col">{t('entry.table.what')}</th>
+                <th scope="col">{t('entry.table.guest')}</th>
+                <th scope="col">{t('entry.table.account')}</th>
               </tr>
             </thead>
             <tbody>
               {ABILITIES.map((ability) => (
-                <tr key={ability.label}>
-                  <th scope="row">{ability.label}</th>
+                <tr key={ability.key}>
+                  <th scope="row">{t(ability.key)}</th>
                   <td>
                     <Mark yes={ability.guest} />
                   </td>
@@ -164,11 +183,7 @@ export function EntryScreen({
           <div className="entry__secure">
             <Icon name="shield" />
             <div>
-              {googleClientId && (
-                <p className="entry__note">
-                  Solo usamos el correo, el nombre y la foto de tu cuenta de Google.
-                </p>
-              )}
+              {googleClientId && <p className="entry__note">{t('entry.googleNote')}</p>}
               {footer}
             </div>
           </div>

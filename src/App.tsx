@@ -7,6 +7,7 @@ import { PrivacyPage } from './components/PrivacyPage';
 import { SessionCheckScreen } from './components/SessionCheckScreen';
 import { googleClientId } from './config/env';
 import { useSession } from './hooks/useSession';
+import { useLanguage } from './i18n/useLanguage';
 
 /** The address of the privacy page. The host rewrites every path to the app, so no router is needed. */
 export const PRIVACY_PATH = '/privacidad';
@@ -28,6 +29,7 @@ export function App() {
 }
 
 function SessionApp() {
+  const { t } = useLanguage();
   // The AI service sleeps on Render and only a browser can wake it: start now, while the
   // person chooses how to enter and the map loads, so it is usually awake by then.
   useEffect(() => {
@@ -56,7 +58,7 @@ function SessionApp() {
         onGuest={session.continueAsGuest}
         footer={
           <p className="entry__note">
-            <a href={PRIVACY_PATH}>Política de privacidad</a>
+            <a href={PRIVACY_PATH}>{t('entry.privacyLink')}</a>
           </p>
         }
       />

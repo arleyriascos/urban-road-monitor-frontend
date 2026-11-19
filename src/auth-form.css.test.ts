@@ -48,6 +48,26 @@ describe('the access form stylesheet', () => {
     expect(css).toMatch(/\.auth-field__error\s*{[^}]*color:\s*var\(--fail\)/);
   });
 
+  it('shows the chosen tab with the brand color and a line, and the keyboard with an outline', () => {
+    expect(css).toMatch(
+      /\.entry-tabs__tab\[aria-selected='true'\]\s*{[^}]*border-bottom-color:\s*var\(--brand-ink\)/,
+    );
+    expect(css).toMatch(/\.entry-tabs__tab:focus-visible\s*{[^}]*outline:/);
+  });
+
+  it('makes the tabs and the links of the form at least 44px tall on phones', () => {
+    const phone = css.slice(css.lastIndexOf('@media (max-width: 640px)'));
+    expect(phone).toMatch(/\.entry-tabs__tab\s*{[^}]*min-height:\s*44px/);
+    const forms = css.slice(css.indexOf('.auth-form {'));
+    expect(forms).toMatch(
+      /@media \(max-width: 640px\)[^]*\.auth-form__link\s*{[^}]*min-height:\s*44px/,
+    );
+  });
+
+  it('writes the links of the form with the ink of the brand, which reads on both themes', () => {
+    expect(css).toMatch(/\.auth-form__link\s*{[^}]*color:\s*var\(--brand-ink\)/);
+  });
+
   it('does not hide the outline of the input without drawing another one on the box', () => {
     expect(css).toMatch(/\.auth-field__input\s*{[^}]*outline:\s*0/);
     expect(css).toMatch(/\.auth-field__box:focus-within/);
@@ -64,6 +84,7 @@ describe.each([
     ['muted', 'surface'],
     ['fail', 'surface'],
     ['brand-ink', 'brand-soft'],
+    ['brand-ink', 'surface'],
   ];
 
   it.each(PAIRS)('%s on %s reaches 4.5', (text, background) => {
