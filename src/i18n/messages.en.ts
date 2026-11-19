@@ -12,4 +12,6 @@ export const en: Record<MessageKey, string> = {
   'form.error.passwordLong': 'Use at most {max} characters.',
   'form.error.nameRequired': 'Enter your name.',
   'form.error.nameLong': 'Use at most {max} characters.',
+  'form.password.show': 'Show password',
+  'form.password.hide': 'Hide password',
 };

@@ -10,6 +10,7 @@ import './account.css';
 import './privacy.css';
 import './camera.css';
 import './language.css';
+import './auth-form.css';
 
 const rootElement = document.getElementById('root');
 

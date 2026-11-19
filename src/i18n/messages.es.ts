@@ -16,6 +16,8 @@ export const es = {
   'form.error.passwordLong': 'Usa como máximo {max} caracteres.',
   'form.error.nameRequired': 'Escribe tu nombre.',
   'form.error.nameLong': 'Usa como máximo {max} caracteres.',
+  'form.password.show': 'Mostrar contraseña',
+  'form.password.hide': 'Ocultar contraseña',
 } as const;
 
 export type MessageKey = keyof typeof es;

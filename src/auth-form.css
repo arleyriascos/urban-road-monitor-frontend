@@ -1,0 +1,101 @@
+/* The fields of the access forms: a box with an icon, the input and, under it, hint and error. */
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-field__label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.auth-field__box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 6px 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.auth-field__box:focus-within {
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+.auth-field__box--error,
+.auth-field__box--error:focus-within {
+  border-color: var(--fail);
+}
+
+.auth-field__input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--asphalt);
+  font: inherit;
+}
+
+.auth-field__input::placeholder {
+  color: var(--muted);
+}
+
+/* The eye that shows or hides a password. */
+.auth-field__toggle {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: calc(var(--radius-small) - 2px);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.auth-field__toggle:hover {
+  background: var(--brand-soft);
+  color: var(--brand-ink);
+}
+
+.auth-field__toggle:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+.auth-field__hint,
+.auth-field__error {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.auth-field__hint {
+  color: var(--muted);
+}
+
+.auth-field__error {
+  color: var(--fail);
+  font-weight: 600;
+}
+
+/* On a phone the finger needs a bigger target. */
+@media (max-width: 640px) {
+  .auth-field__box {
+    min-height: 52px;
+  }
+
+  .auth-field__toggle {
+    width: 44px;
+    height: 44px;
+  }
+}
