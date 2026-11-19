@@ -9,6 +9,13 @@ export const es = {
   // The name of each language is written in that language, so a person can find theirs.
   'language.name.es': 'Español',
   'language.name.en': 'English',
+  'form.error.emailRequired': 'Escribe tu correo.',
+  'form.error.emailInvalid': 'Revisa el correo: debe verse como nombre@correo.com.',
+  'form.error.passwordRequired': 'Escribe tu contraseña.',
+  'form.error.passwordShort': 'Usa al menos {min} caracteres.',
+  'form.error.passwordLong': 'Usa como máximo {max} caracteres.',
+  'form.error.nameRequired': 'Escribe tu nombre.',
+  'form.error.nameLong': 'Usa como máximo {max} caracteres.',
 } as const;
 
 export type MessageKey = keyof typeof es;
