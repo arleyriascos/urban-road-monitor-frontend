@@ -25,6 +25,10 @@ El mapa de Pasto con todas las calles (unos 10.000 tramos) coloreadas según su 
 - **Detalles técnicos y comparación de algoritmos:** un bloque plegable muestra el algoritmo, los nodos explorados, el tiempo de cálculo, el costo y si salió de la caché. El botón **Comparar con Dijkstra** pide la misma ruta con el otro algoritmo y los pone lado a lado: dan el mismo costo, pero A* explora menos nodos. Cuesta una petición más.
 - **Diseño:** una paleta verde con tema claro y oscuro (la pantalla de entrada y la cámara son oscuras en los dos), la fuente Archivo para los textos y JetBrains Mono para las cifras. Los botones de zoom y **Centrar** van abajo a la derecha; en el teléfono la leyenda se pliega bajo el buscador y **Cómo llegar** queda abajo, al alcance del pulgar.
 - **Pantalla de entrada:** dos pestañas, **Iniciar sesión** y **Crear cuenta**, con correo y contraseña (con íconos, un ojo para ver la contraseña y mensajes de error bajo cada campo), el enlace **¿Olvidaste tu contraseña?** que cambia a la vista de recuperar, el botón oficial de Google y el modo invitado. Las pestañas se manejan con flechas, Inicio y Fin. Por ahora el formulario solo valida: al enviarlo bien avisa que ese ingreso estará disponible pronto, sin llamar al servidor; el ingreso con cuenta propia llega en una fase posterior. El correo se acepta solo con letras ASCII y sin espacios, y la contraseña de una cuenta nueva debe tener entre 8 y 128 caracteres.
+- **Menú de la cuenta:** con la sesión iniciada, la foto y el nombre de la barra superior abren un menú con **Mi perfil**, **Mis viajes**, **Configuraciones** y **Cerrar sesión** (flechas, Inicio, Fin y Escape lo manejan; un clic o un Tab fuera lo cierra). Cada parte es una página con su dirección (`/cuenta`, `/cuenta/viajes`, `/cuenta/configuraciones`) que comprueba la sesión por su cuenta, sin cargar el mapa; quien no ha ingresado ve un aviso con un enlace al inicio.
+- **Mi perfil:** foto, nombre, correo y rol, y qué permite hacer el rol.
+- **Mis viajes:** los recorridos con la cámara de la persona, del más reciente al más antiguo, de 10 en 10 con **Ver más viajes** (`GET /api/trips` con cursor). Cada viaje muestra fecha, distancia, duración y baches; **Ver detalle** pide `GET /api/trips/:id` y muestra las imágenes analizadas, el teléfono, el modelo y los baches por severidad.
+- **Configuraciones:** el **tema** (Automático, Claro u Oscuro; se aplica al instante y se guarda en el navegador), el **idioma**, la política de privacidad y **Solicitar eliminar mi cuenta**, que por ahora abre un correo al responsable del proyecto.
 - **Pantallas de carga y de error:** mientras llegan los datos se ve la carretera de la petición (navegador, servidor y base de datos); si algo falla, marca dónde se cortó y ofrece reintentar. El servidor gratuito de Render se duerme, así que la primera carga puede tardar hasta un minuto.
 
 Los datos vienen del backend (ver `docs/API-MAPA.md` y `docs/API-RUTAS.md`). La versión desplegada en Vercel usa la base `production`, que no tiene baches de prueba, así que se ve toda verde. Para ver los colores, corre el backend en tu computador contra la base `development` y apunta `VITE_API_URL` a `http://localhost:3000`.
@@ -92,10 +96,11 @@ public/               Archivos estáticos (ícono)
 docs/                 Contratos del API del mapa (API-MAPA.md) y de las rutas (API-RUTAS.md) y el flujo de cuenta (AUTENTICACION.md) y la cámara (CAMARA.md), el envío (ENVIO.md) y las calles (CALLES.md)
 src/
 ├── api/              Cliente HTTP, funciones que llaman al backend (mapa, rutas y cuenta) y despertar del servicio de IA
-├── components/       Pantallas y piezas de la interfaz (entrada con pestañas y formulario de correo, botón de Google, cuenta, privacidad, mapa, leyenda, Cómo llegar, carga, error, logo e íconos)
+├── components/       Pantallas y piezas de la interfaz (entrada con pestañas y formulario de correo, botón de Google, menú de la cuenta y su página (perfil, viajes y configuraciones), privacidad, mapa, leyenda, Cómo llegar, carga, error, logo e íconos)
 ├── config/           URL del backend y del servicio de IA
+├── theme/            Tema elegido (automático, claro u oscuro): tipos, guardado en el navegador y gancho que lo aplica a la página
 ├── i18n/             Idiomas (español e inglés): diccionarios, función `translate`, proveedor, guardado de la elección y selector
-├── hooks/            Carga de los datos del mapa, petición de la ruta (con reintentos) y sesión de la persona
+├── hooks/            Carga de los datos del mapa, los viajes de la persona (por páginas) y el detalle de uno, petición de la ruta (con reintentos) y sesión de la persona
 ├── lib/              Lógica pura: validación del correo y la contraseña, estados y almacenamiento de la sesión, carga del script de Google, formatos, estilos del mapa, leyenda, criterios, errores, agrupación por calle y geometría de las flechas
 ├── map/              Código de Leaflet: mapa base, capas de calles y baches, marcadores, línea, flechas y resaltado de la ruta
 ├── structures/       Estructuras de datos hechas a mano: lista circular doble (recorrido de las calles de la ruta)
@@ -104,7 +109,8 @@ src/
 ├── App.tsx           Elige entre la página de privacidad, la entrada, la comprobación de la sesión y el mapa
 ├── main.tsx          Punto de entrada
 ├── map.css           Estilos del mapa y sus paneles
-├── account.css       Estilos de la cuenta en la barra superior
+├── account.css       Estilos de la cuenta en la barra superior y de su menú
+├── account-page.css  Estilos de la página de la cuenta: perfil, viajes y configuraciones
 ├── language.css      Estilos del selector de idioma
 ├── auth-form.css     Estilos del formulario de correo y contraseña y de las pestañas de entrada
 ├── entry.css         Estilos de la pantalla de entrada y del botón de Google
@@ -121,6 +127,7 @@ La app tiene dos idiomas, español (el original y el que se ve la primera vez) e
 - Un texto con una parte variable la escribe como `{nombre}` y se llena con `t('clave', { nombre: valor })`. Un valor que parezca una variable (una calle llamada `{nombre}`) se muestra tal cual, nunca se expande.
 - En un componente: `const { t } = useLanguage();` y luego `t('clave')`. Sin proveedor arriba, `useLanguage` da español y un idioma que no se puede cambiar, así que una pieza se puede mostrar o probar sola.
 - Para agregar un texto: se escribe primero en español, se copia la clave al inglés y se usa con `t`. Los nombres de las calles y los datos que llegan del servidor no se traducen.
+- El idioma se cambia desde la pantalla de entrada (también para un invitado) y desde **Configuraciones**. Los roles, las fechas y los números también siguen el idioma (`1.234` en español, `1,234` en inglés).
 - `LanguageSwitch` es el selector de dos botones; cada uno lleva su nombre en su propio idioma ("Español", "English").
 
 ## Dependencias y seguridad
