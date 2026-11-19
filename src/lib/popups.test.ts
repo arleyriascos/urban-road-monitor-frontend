@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { englishTexts } from '../test/english';
 import { potholesFixture, segmentsFixture } from '../test/fixtures';
 import type { SegmentSummaryAnswer } from '../types/roads';
 import {
@@ -160,5 +161,46 @@ describe('the states of the summary', () => {
   it('tells it failed and how to try again', () => {
     expect(summaryErrorHtml()).toContain('No se pudo cargar');
     expect(summaryErrorHtml()).toContain('otra vez');
+  });
+});
+
+describe('the popups in English', () => {
+  it('writes the facts of a street in English, with the numbers the English way', () => {
+    const html = segmentPopupHtml(severe, '', englishTexts);
+    expect(html).toContain('Unnamed street');
+    expect(html).toContain('Tertiary road');
+    expect(html).toContain('Severe');
+    expect(html).toContain('One way');
+    expect(html).toContain('Route cost');
+    expect(html).toContain('×6.9');
+    expect(segmentPopupHtml(clean, '', englishTexts)).toContain('Two-way');
+    expect(segmentPopupHtml(longStreet, '', englishTexts)).toContain('1.3 km');
+  });
+
+  it('shows a road type it does not know as the server sent it', () => {
+    const html = segmentPopupHtml({ ...clean, roadType: 'Vía nueva' }, '', englishTexts);
+    expect(html).toContain('Vía nueva');
+  });
+
+  it('writes the popup of a pothole in English', () => {
+    const html = potholePopupHtml(confirmed, englishTexts);
+    expect(html).toContain('Pothole: ');
+    expect(html).toContain('Confidence');
+    expect(html).toContain('Detections');
+    expect(html).toContain('First seen');
+    expect(html).toContain('Last seen');
+    expect(html).toContain('Confirmed');
+    expect(html).toContain('Seen at least twice');
+  });
+
+  it('writes the summary of the street and its loading and error notes in English', () => {
+    const html = segmentSummaryHtml(ANSWER, englishTexts);
+    expect(html).toContain('Segment 4 of 12 of Calle 18');
+    expect(html).toContain('<th scope="col">Around it</th>');
+    expect(html).toContain('<th scope="col">Whole street</th>');
+    expect(html).toContain('<th scope="row">Visible potholes</th><td>3</td><td>0</td>');
+    expect(html).toContain('<th scope="row">Damage</th><td>3.3</td><td>0.0</td>');
+    expect(summaryLoadingHtml(englishTexts)).toContain('Loading the street summary…');
+    expect(summaryErrorHtml(englishTexts)).toContain('Tap the segment again to retry.');
   });
 });

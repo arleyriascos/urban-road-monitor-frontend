@@ -9,6 +9,7 @@ import {
   summaryLoadingHtml,
 } from '../lib/popups';
 import type { SummaryLoader } from '../lib/summary-cache';
+import { defaultTexts, type Texts } from '../lib/translator';
 import { isPhoneViewport } from '../lib/viewport';
 import type {
   PotholeCollection,
@@ -20,7 +21,7 @@ import type {
 const POPUP_OPTIONS: L.PopupOptions = { maxWidth: 280 };
 
 /**
- * The street popup is tall, and the search box, "Cómo llegar" and the legend float over the map.
+ * The street popup is tall, and the search box, "Directions" and the legend float over the map.
  * When a popup opens the map moves so it stays clear of them, and on a phone the popup scrolls
  * instead of growing past the screen.
  */
@@ -36,6 +37,8 @@ export function segmentPopupOptions(phone: boolean): L.PopupOptions {
 export interface LayerOptions {
   /** False while the person picks route points: a tap must place a point, not open a popup. */
   popups?: boolean;
+  /** The language of the popups. Spanish when none is given. */
+  texts?: Texts;
 }
 
 export interface SegmentLayerOptions extends LayerOptions {
@@ -49,7 +52,7 @@ export interface SegmentLayerOptions extends LayerOptions {
 /** The streets, colored by state. The worst ones are added last so they are drawn on top. */
 export function createSegmentLayer(
   collection: SegmentCollection,
-  { popups = true, loadSummary }: SegmentLayerOptions = {},
+  { popups = true, loadSummary, texts = defaultTexts }: SegmentLayerOptions = {},
 ): L.GeoJSON<SegmentProperties> {
   const sorted: SegmentCollection = {
     ...collection,
@@ -61,12 +64,12 @@ export function createSegmentLayer(
     onEachFeature: (feature, layer) => {
       if (!popups) return;
       const segmentId = Number(feature.id);
-      const popupWith = (extra = '') => segmentPopupHtml(feature.properties, extra);
+      const popupWith = (extra = '') => segmentPopupHtml(feature.properties, extra, texts);
       if (!loadSummary || !Number.isFinite(segmentId)) {
         layer.bindPopup(popupWith(), POPUP_OPTIONS);
         return;
       }
-      layer.bindPopup(popupWith(summaryLoadingHtml()), segmentPopupOptions(isPhoneViewport()));
+      layer.bindPopup(popupWith(summaryLoadingHtml(texts)), segmentPopupOptions(isPhoneViewport()));
 
       // Each time the popup opens it asks for the summary; closing it cancels the request.
       let pending: AbortController | null = null;
@@ -74,21 +77,21 @@ export function createSegmentLayer(
         pending?.abort();
         const mine = new AbortController();
         pending = mine;
-        event.popup.setContent(popupWith(summaryLoadingHtml()));
+        event.popup.setContent(popupWith(summaryLoadingHtml(texts)));
         loadSummary(segmentId, mine.signal).then(
           (answer) => {
             if (mine.signal.aborted) return;
             let html: string;
             try {
-              html = segmentSummaryHtml(answer);
+              html = segmentSummaryHtml(answer, texts);
             } catch {
-              // An answer that does not have the expected shape must not leave "Cargando…" forever.
-              html = summaryErrorHtml();
+              // An answer that does not have the expected shape must not leave "Loading…" forever.
+              html = summaryErrorHtml(texts);
             }
             event.popup.setContent(popupWith(html));
           },
           () => {
-            if (!mine.signal.aborted) event.popup.setContent(popupWith(summaryErrorHtml()));
+            if (!mine.signal.aborted) event.popup.setContent(popupWith(summaryErrorHtml(texts)));
           },
         );
       });
@@ -103,7 +106,7 @@ export function createSegmentLayer(
 /** One circle per pothole: its size shows the severity and its border the status. */
 export function createPotholeLayer(
   collection: PotholeCollection,
-  { popups = true }: LayerOptions = {},
+  { popups = true, texts = defaultTexts }: LayerOptions = {},
 ): L.GeoJSON<PotholeProperties> {
   return L.geoJSON<PotholeProperties>(collection, {
     pointToLayer: (feature, latlng) =>
@@ -112,7 +115,7 @@ export function createPotholeLayer(
         pane: PANES.potholes.name,
       }),
     onEachFeature: (feature, layer) => {
-      if (popups) layer.bindPopup(potholePopupHtml(feature.properties), POPUP_OPTIONS);
+      if (popups) layer.bindPopup(potholePopupHtml(feature.properties, texts), POPUP_OPTIONS);
     },
   });
 }

@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { renderInEnglish } from '../test/english';
 import { LayerToggles } from './LayerToggles';
 
 function renderToggles(overrides: Partial<Parameters<typeof LayerToggles>[0]> = {}) {
@@ -42,5 +43,22 @@ describe('LayerToggles', () => {
   it('cannot include repaired potholes while the potholes are hidden', () => {
     renderToggles({ showPotholes: false });
     expect((screen.getByLabelText(/Incluir reparados/) as HTMLInputElement).disabled).toBe(true);
+  });
+});
+
+describe('LayerToggles in English', () => {
+  it('writes the switches in English', () => {
+    renderInEnglish(
+      <LayerToggles
+        showPotholes
+        includeRepaired={false}
+        repairedCount={6}
+        onShowPotholesChange={vi.fn()}
+        onIncludeRepairedChange={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole('group', { name: 'Layers' })).toBeTruthy();
+    expect(screen.getByLabelText('Show potholes')).toBeTruthy();
+    expect(screen.getByLabelText('Include repaired (6)')).toBeTruthy();
   });
 });

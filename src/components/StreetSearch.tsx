@@ -1,4 +1,5 @@
 import { useId, useState, type KeyboardEvent } from 'react';
+import { useLanguage } from '../i18n/useLanguage';
 import { useStreetSearch, type StreetSearchDependencies } from '../hooks/useStreetSearch';
 import { pluralize } from '../lib/format';
 import { describeSearchError } from '../search/query';
@@ -19,6 +20,7 @@ interface StreetSearchProps {
  * the arrows move through the suggestions, Enter picks, and Escape closes the list.
  */
 export function StreetSearch({ onSelect, onClear, dependencies }: StreetSearchProps) {
+  const { t, locale } = useLanguage();
   const search = useStreetSearch(dependencies);
   const { text, state } = search;
   const listId = useId();
@@ -74,12 +76,12 @@ export function StreetSearch({ onSelect, onClear, dependencies }: StreetSearchPr
           className="street-search__input"
           type="text"
           role="combobox"
-          aria-label="Buscar una calle"
+          aria-label={t('search.label')}
           aria-expanded={shown}
           aria-controls={listId}
           aria-autocomplete="list"
           aria-activedescendant={activeId}
-          placeholder="Buscar una calle"
+          placeholder={t('search.label')}
           autoComplete="off"
           autoCorrect="off"
           spellCheck={false}
@@ -99,7 +101,7 @@ export function StreetSearch({ onSelect, onClear, dependencies }: StreetSearchPr
           <button
             type="button"
             className="street-search__clear"
-            aria-label="Borrar búsqueda"
+            aria-label={t('search.clear')}
             onClick={clear}
           >
             ×
@@ -111,24 +113,24 @@ export function StreetSearch({ onSelect, onClear, dependencies }: StreetSearchPr
         <div className="street-search__panel" id={listId}>
           {state.status === 'loading' && (
             <p className="street-search__note" role="status">
-              Buscando…
+              {t('search.loading')}
             </p>
           )}
           {state.status === 'empty' && (
             <p className="street-search__note" role="status">
-              No hay calles con ese nombre.
+              {t('search.empty')}
             </p>
           )}
           {state.status === 'error' && (
             <div className="street-search__note" role="alert">
-              <p>{describeSearchError(state.error).text}</p>
+              <p>{describeSearchError(state.error, t).text}</p>
               <button type="button" className="street-search__retry" onClick={search.retry}>
-                Reintentar
+                {t('search.retry')}
               </button>
             </div>
           )}
           {state.status === 'results' && (
-            <ul className="street-search__list" role="listbox" aria-label="Calles encontradas">
+            <ul className="street-search__list" role="listbox" aria-label={t('search.found')}>
               {state.streets.map((street, index) => (
                 <li
                   key={`${street.name}-${street.roadIds[0]}`}
@@ -141,7 +143,7 @@ export function StreetSearch({ onSelect, onClear, dependencies }: StreetSearchPr
                 >
                   <span className="street-search__name">{street.name}</span>
                   <span className="street-search__meta">
-                    {pluralize(street.segments, 'tramo', 'tramos')}
+                    {pluralize(street.segments, t('segment.one'), t('segment.other'), locale)}
                   </span>
                 </li>
               ))}

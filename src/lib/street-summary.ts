@@ -1,5 +1,7 @@
 import type { StretchSummary } from '../types/roads';
-import { capitalize, pluralize } from './format';
+import { pluralize } from './format';
+import { severityLabel } from './labels';
+import { defaultTexts, type Texts } from './translator';
 
 /** Adds up the summaries of several parts of a street (for example, two ways of the same name). */
 export function combineSummaries(summaries: readonly StretchSummary[]): StretchSummary {
@@ -30,13 +32,29 @@ export function combineSummaries(summaries: readonly StretchSummary[]): StretchS
  * One line about the potholes of a part of the route, in words:
  * "2 baches a la vista · 1 confirmado · peor: Grave", or "Sin baches a la vista".
  */
-export function describeStreetSummary(summary: StretchSummary): string {
-  if (summary.visiblePotholes === 0) return 'Sin baches a la vista';
-  const seen = `${pluralize(summary.visiblePotholes, 'bache a la vista', 'baches a la vista')}`;
+export function describeStreetSummary(
+  summary: StretchSummary,
+  texts: Texts = defaultTexts,
+): string {
+  const { t, locale } = texts;
+  if (summary.visiblePotholes === 0) return t('streetSummary.none');
+  const seen = pluralize(
+    summary.visiblePotholes,
+    t('streetSummary.seen.one'),
+    t('streetSummary.seen.other'),
+    locale,
+  );
   const confirmed =
     summary.confirmedPotholes === 0
-      ? 'ninguno confirmado'
-      : `${pluralize(summary.confirmedPotholes, 'confirmado', 'confirmados')}`;
-  const worst = summary.worstSeverity ? ` · peor: ${capitalize(summary.worstSeverity.name)}` : '';
+      ? t('streetSummary.noneConfirmed')
+      : pluralize(
+          summary.confirmedPotholes,
+          t('streetSummary.confirmed.one'),
+          t('streetSummary.confirmed.other'),
+          locale,
+        );
+  const worst = summary.worstSeverity
+    ? ` · ${t('streetSummary.worst', { severity: severityLabel(summary.worstSeverity.name, texts) })}`
+    : '';
   return `${seen} · ${confirmed}${worst}`;
 }

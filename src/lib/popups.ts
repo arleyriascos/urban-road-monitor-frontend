@@ -1,8 +1,8 @@
 import type { PotholeProperties, SegmentProperties } from '../types/map';
 import type { SegmentSummaryAnswer, StretchSummary } from '../types/roads';
+import type { MessageKey } from '../i18n/translate';
 import { formatDateTime } from './dates';
 import {
-  capitalize,
   formatCostMultiplier,
   formatDecimal,
   formatLength,
@@ -10,8 +10,8 @@ import {
   formatPercent,
 } from './format';
 import { escapeHtml, safeColor } from './html';
-
-const UNNAMED_STREET = 'Calle sin nombre';
+import { roadTypeLabel, severityLabel, statusLabel } from './labels';
+import { defaultTexts, type Texts } from './translator';
 
 function fact(label: string, value: string): string {
   return `<div class="popup__fact"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`;
@@ -20,74 +20,85 @@ function fact(label: string, value: string): string {
 function badge(color: string, text: string): string {
   return (
     `<p class="popup__badge"><span class="popup__dot" style="background:${safeColor(color)}">` +
-    `</span>${escapeHtml(capitalize(text))}</p>`
+    `</span>${escapeHtml(text)}</p>`
   );
 }
 
 /** Content of the popup that opens when a street is tapped. `extra` goes at the end, inside it. */
-export function segmentPopupHtml(segment: SegmentProperties, extra = ''): string {
+export function segmentPopupHtml(
+  segment: SegmentProperties,
+  extra = '',
+  texts: Texts = defaultTexts,
+): string {
+  const { t, locale } = texts;
   return (
     '<div class="popup">' +
-    `<p class="popup__title">${escapeHtml(segment.name ?? UNNAMED_STREET)}</p>` +
-    `<p class="popup__subtitle">${escapeHtml(segment.roadType)}</p>` +
-    badge(segment.color, segment.severity) +
+    `<p class="popup__title">${escapeHtml(segment.name ?? t('street.unnamed'))}</p>` +
+    `<p class="popup__subtitle">${escapeHtml(roadTypeLabel(segment.roadType, texts))}</p>` +
+    badge(segment.color, severityLabel(segment.severity, texts)) +
     '<dl class="popup__facts">' +
-    fact('Longitud', formatLength(segment.lengthM)) +
-    fact('Sentido', segment.isOneway ? 'Un solo sentido' : 'Doble sentido') +
-    fact('Baches activos', formatNumber(segment.activePotholes)) +
-    fact('Costo de ruta', formatCostMultiplier(segment.damageScore)) +
+    fact(t('popup.length'), formatLength(segment.lengthM, locale)) +
+    fact(t('popup.direction'), segment.isOneway ? t('popup.oneway') : t('popup.twoway')) +
+    fact(t('popup.activePotholes'), formatNumber(segment.activePotholes, locale)) +
+    fact(t('popup.routeCost'), formatCostMultiplier(segment.damageScore, locale)) +
     '</dl>' +
     extra +
     '</div>'
   );
 }
 
-const STATUS_NOTES: Record<PotholeProperties['status'], string> = {
-  'sin confirmar':
-    'Aún se vio una sola vez: no cambia el daño de la calle ni las rutas hasta que otra persona lo confirme.',
-  confirmado:
-    'Lo vieron al menos dos veces: cuenta para el daño de la calle y las rutas lo evitan.',
-  reparado: 'Ya fue reparado: no cuenta para el daño ni para las rutas.',
+const STATUS_NOTES: Record<PotholeProperties['status'], MessageKey> = {
+  'sin confirmar': 'popup.note.unconfirmed',
+  confirmado: 'popup.note.confirmed',
+  reparado: 'popup.note.repaired',
 };
 
 /** Content of the popup that opens when a pothole is tapped. */
-export function potholePopupHtml(pothole: PotholeProperties): string {
+export function potholePopupHtml(pothole: PotholeProperties, texts: Texts = defaultTexts): string {
+  const { t, locale } = texts;
+  const note = STATUS_NOTES[pothole.status];
   return (
     '<div class="popup">' +
-    `<p class="popup__title">Bache ${escapeHtml(pothole.severity)}</p>` +
-    badge(pothole.color, pothole.status) +
-    `<p class="popup__note">${escapeHtml(STATUS_NOTES[pothole.status] ?? '')}</p>` +
+    `<p class="popup__title">${escapeHtml(t('popup.pothole.title', { severity: severityLabel(pothole.severity, texts).toLowerCase() }))}</p>` +
+    badge(pothole.color, statusLabel(pothole.status, texts)) +
+    `<p class="popup__note">${escapeHtml(note ? t(note) : '')}</p>` +
     '<dl class="popup__facts">' +
-    fact('Calle', pothole.roadName ?? UNNAMED_STREET) +
-    fact('Confianza', formatPercent(pothole.confidence)) +
-    fact('Detecciones', formatNumber(pothole.detectionCount)) +
-    fact('Primera vez', formatDateTime(pothole.firstDetectedAt)) +
-    fact('Última vez', formatDateTime(pothole.lastDetectedAt)) +
+    fact(t('popup.pothole.street'), pothole.roadName ?? t('street.unnamed')) +
+    fact(t('popup.pothole.confidence'), formatPercent(pothole.confidence, locale)) +
+    fact(t('popup.pothole.detections'), formatNumber(pothole.detectionCount, locale)) +
+    fact(t('popup.pothole.first'), formatDateTime(pothole.firstDetectedAt, locale)) +
+    fact(t('popup.pothole.last'), formatDateTime(pothole.lastDetectedAt, locale)) +
     '</dl></div>'
   );
 }
 
 /** Shown in the popup of a segment while its summary is on the way. */
-export function summaryLoadingHtml(): string {
-  return '<p class="popup__note" role="status">Cargando el resumen de la calle…</p>';
+export function summaryLoadingHtml({ t }: Texts = defaultTexts): string {
+  return `<p class="popup__note" role="status">${escapeHtml(t('popup.summary.loading'))}</p>`;
 }
 
 /** Shown when the summary could not be loaded: the facts of the segment above still hold. */
-export function summaryErrorHtml(): string {
-  return '<p class="popup__note">No se pudo cargar el resumen de la calle. Toca el tramo otra vez para reintentar.</p>';
+export function summaryErrorHtml({ t }: Texts = defaultTexts): string {
+  return `<p class="popup__note">${escapeHtml(t('popup.summary.error'))}</p>`;
 }
 
-type SummaryRow = [label: string, pick: (summary: StretchSummary) => string];
+type SummaryRow = [label: MessageKey, pick: (summary: StretchSummary, texts: Texts) => string];
 
 const SUMMARY_ROWS: SummaryRow[] = [
-  ['Tramos', (summary) => formatNumber(summary.segments)],
-  ['Longitud', (summary) => formatLength(summary.lengthM)],
-  ['Baches a la vista', (summary) => formatNumber(summary.visiblePotholes)],
-  ['Confirmados', (summary) => formatNumber(summary.confirmedPotholes)],
-  ['Daño', (summary) => formatDecimal(summary.damageScore, 1)],
+  ['popup.summary.segments', (summary, { locale }) => formatNumber(summary.segments, locale)],
+  ['popup.summary.length', (summary, { locale }) => formatLength(summary.lengthM, locale)],
+  ['popup.summary.visible', (summary, { locale }) => formatNumber(summary.visiblePotholes, locale)],
   [
-    'Peor gravedad',
-    (summary) => (summary.worstSeverity ? capitalize(summary.worstSeverity.name) : 'Ninguna'),
+    'popup.summary.confirmed',
+    (summary, { locale }) => formatNumber(summary.confirmedPotholes, locale),
+  ],
+  ['popup.summary.damage', (summary, { locale }) => formatDecimal(summary.damageScore, 1, locale)],
+  [
+    'popup.summary.worst',
+    (summary, texts) =>
+      summary.worstSeverity
+        ? severityLabel(summary.worstSeverity.name, texts)
+        : texts.t('popup.summary.noWorst'),
   ],
 ];
 
@@ -96,18 +107,27 @@ const SUMMARY_ROWS: SummaryRow[] = [
  * street, and a small table that compares what the stretch around it adds up to with the
  * whole street. Only confirmed potholes count for the damage and the worst severity.
  */
-export function segmentSummaryHtml(answer: SegmentSummaryAnswer): string {
+export function segmentSummaryHtml(
+  answer: SegmentSummaryAnswer,
+  texts: Texts = defaultTexts,
+): string {
+  const { t, locale } = texts;
   const { segment, window, road } = answer;
   const rows = SUMMARY_ROWS.map(
     ([label, pick]) =>
-      `<tr><th scope="row">${escapeHtml(label)}</th><td>${escapeHtml(pick(window.summary))}</td>` +
-      `<td>${escapeHtml(pick(road.summary))}</td></tr>`,
+      `<tr><th scope="row">${escapeHtml(t(label))}</th><td>${escapeHtml(pick(window.summary, texts))}</td>` +
+      `<td>${escapeHtml(pick(road.summary, texts))}</td></tr>`,
   ).join('');
+  const section = t('popup.summary.section', {
+    position: formatNumber(segment.position, locale),
+    total: formatNumber(segment.segmentsInRoad, locale),
+    street: road.roadName ?? t('street.unnamed'),
+  });
   return (
     '<div class="popup__summary">' +
-    `<p class="popup__section">Tramo ${formatNumber(segment.position)} de ${formatNumber(segment.segmentsInRoad)} de ${escapeHtml(road.roadName ?? UNNAMED_STREET)}</p>` +
+    `<p class="popup__section">${escapeHtml(section)}</p>` +
     '<table class="popup__table">' +
-    `<thead><tr><td></td><th scope="col">Alrededor</th><th scope="col">Toda la calle</th></tr></thead>` +
+    `<thead><tr><td></td><th scope="col">${escapeHtml(t('popup.summary.around'))}</th><th scope="col">${escapeHtml(t('popup.summary.wholeStreet'))}</th></tr></thead>` +
     `<tbody>${rows}</tbody></table></div>`
   );
 }

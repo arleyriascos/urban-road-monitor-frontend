@@ -1,4 +1,5 @@
 import { useId, useState, type ReactNode } from 'react';
+import { useLanguage } from '../i18n/useLanguage';
 import { formatNumber } from '../lib/format';
 import type { LegendEntry, PotholeCounts } from '../lib/legend';
 import { Icon } from './Icon';
@@ -13,12 +14,13 @@ interface LegendPanelProps {
 
 /** Foldable panel with the colors of the map, the pothole numbers and the layer switches. */
 export function LegendPanel({ legend, potholes, defaultOpen = true, children }: LegendPanelProps) {
+  const { t, locale } = useLanguage();
   const [open, setOpen] = useState(defaultOpen);
   const bodyId = useId();
   const total = legend.reduce((sum, entry) => sum + entry.count, 0);
 
   return (
-    <aside className="legend" aria-label="Leyenda del mapa">
+    <aside className="legend" aria-label={t('legend.label')}>
       <button
         type="button"
         className="legend__toggle"
@@ -28,7 +30,7 @@ export function LegendPanel({ legend, potholes, defaultOpen = true, children }: 
       >
         <span className="legend__title">
           <Icon name="layers" />
-          Leyenda
+          {t('legend.title')}
         </span>
         <span className="legend__dots" aria-hidden="true">
           {legend.map((entry) => (
@@ -42,7 +44,7 @@ export function LegendPanel({ legend, potholes, defaultOpen = true, children }: 
 
       {open && (
         <div id={bodyId} className="legend__body">
-          <h2 className="legend__heading">Calles por estado</h2>
+          <h2 className="legend__heading">{t('legend.streets')}</h2>
           {total > 0 && (
             <div className="legend__bar" aria-hidden="true">
               {legend.map((entry) => (
@@ -67,29 +69,26 @@ export function LegendPanel({ legend, potholes, defaultOpen = true, children }: 
             ))}
           </ul>
 
-          <h2 className="legend__heading">Baches</h2>
+          <h2 className="legend__heading">{t('legend.potholes')}</h2>
           <ul className="legend__list">
             <li className="legend__item">
               <span className="legend__circle" aria-hidden="true" />
-              <span className="legend__label">Confirmados</span>
-              <span className="legend__count">{formatNumber(potholes.confirmed)}</span>
+              <span className="legend__label">{t('legend.confirmed')}</span>
+              <span className="legend__count">{formatNumber(potholes.confirmed, locale)}</span>
             </li>
             <li className="legend__item">
               <span className="legend__circle legend__circle--unconfirmed" aria-hidden="true" />
-              <span className="legend__label">Sin confirmar (borde punteado)</span>
-              <span className="legend__count">{formatNumber(potholes.unconfirmed)}</span>
+              <span className="legend__label">{t('legend.unconfirmed')}</span>
+              <span className="legend__count">{formatNumber(potholes.unconfirmed, locale)}</span>
             </li>
             <li className="legend__item">
               <span className="legend__circle legend__circle--repaired" aria-hidden="true" />
-              <span className="legend__label">Reparados (atenuados)</span>
-              <span className="legend__count">{formatNumber(potholes.repaired)}</span>
+              <span className="legend__label">{t('legend.repaired')}</span>
+              <span className="legend__count">{formatNumber(potholes.repaired, locale)}</span>
             </li>
           </ul>
-          <p className="legend__note">El tamaño del círculo indica la severidad del bache.</p>
-          <p className="legend__note">
-            Solo los confirmados (vistos al menos dos veces) cambian el daño de las calles y las
-            rutas.
-          </p>
+          <p className="legend__note">{t('legend.noteSize')}</p>
+          <p className="legend__note">{t('legend.noteConfirmed')}</p>
 
           {children}
         </div>

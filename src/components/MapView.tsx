@@ -2,6 +2,7 @@ import 'leaflet/dist/leaflet.css';
 import type { LatLngBounds, LeafletMouseEvent, Map as LeafletMap } from 'leaflet';
 import { useEffect, useRef } from 'react';
 import { getSegmentSummary } from '../api/roads';
+import { useLanguage } from '../i18n/useLanguage';
 import { createSummaryCache } from '../lib/summary-cache';
 import { createMap } from '../map/base-map';
 import { createStreetHighlight, streetBounds } from '../map/street-layers';
@@ -36,7 +37,7 @@ const loadSegmentSummary = createSummaryCache((segmentId, signal) =>
   getSegmentSummary(segmentId, { radius: 2 }, signal),
 );
 
-/** What the map needs while the "Cómo llegar" panel is open. */
+/** What the map needs while the "Directions" panel is open. */
 export interface MapRouting {
   origin: LatLng | null;
   destination: LatLng | null;
@@ -55,7 +56,7 @@ interface MapViewProps {
   showPotholes: boolean;
   /** Each time this number grows, the map goes back to the center of Pasto. */
   recenterKey: number;
-  /** Null when the "Cómo llegar" panel is closed. */
+  /** Null when the "Directions" panel is closed. */
   routing?: MapRouting | null;
   /** The street found by the search: the map highlights it and shows all of it. */
   street?: StreetMatch | null;
@@ -106,6 +107,7 @@ export function MapView({
   routing = null,
   street = null,
 }: MapViewProps) {
+  const language = useLanguage();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
   const picking = routing !== null;
@@ -144,21 +146,22 @@ export function MapView({
     const layer = createSegmentLayer(segments, {
       popups: !picking,
       loadSummary: loadSegmentSummary,
+      texts: language,
     }).addTo(map);
     return () => {
       layer.remove();
     };
-  }, [segments, picking]);
+  }, [segments, picking, language]);
 
   // The potholes go on top of the streets and the route, and can be hidden.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !showPotholes) return;
-    const layer = createPotholeLayer(potholes, { popups: !picking }).addTo(map);
+    const layer = createPotholeLayer(potholes, { popups: !picking, texts: language }).addTo(map);
     return () => {
       layer.remove();
     };
-  }, [potholes, showPotholes, picking]);
+  }, [potholes, showPotholes, picking, language]);
 
   // Picking route points: a tap on the map places the next point.
   useEffect(() => {
@@ -282,5 +285,7 @@ export function MapView({
     if (recenterKey > 0) mapRef.current?.setView(MAP_CENTER, MAP_ZOOM);
   }, [recenterKey]);
 
-  return <div ref={containerRef} className="map" role="region" aria-label="Mapa del estado vial" />;
+  return (
+    <div ref={containerRef} className="map" role="region" aria-label={language.t('map.region')} />
+  );
 }

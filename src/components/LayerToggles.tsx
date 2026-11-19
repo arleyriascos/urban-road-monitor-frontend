@@ -1,3 +1,5 @@
+import { useLanguage } from '../i18n/useLanguage';
+
 interface LayerTogglesProps {
   showPotholes: boolean;
   includeRepaired: boolean;
@@ -14,16 +16,17 @@ export function LayerToggles({
   onShowPotholesChange,
   onIncludeRepairedChange,
 }: LayerTogglesProps) {
+  const { t } = useLanguage();
   return (
     <fieldset className="toggles">
-      <legend className="toggles__legend">Capas</legend>
+      <legend className="toggles__legend">{t('layers.legend')}</legend>
       <label className="toggle">
         <input
           type="checkbox"
           checked={showPotholes}
           onChange={(event) => onShowPotholesChange(event.target.checked)}
         />
-        <span>Mostrar baches</span>
+        <span>{t('layers.showPotholes')}</span>
       </label>
       <label className="toggle">
         <input
@@ -32,7 +35,7 @@ export function LayerToggles({
           disabled={!showPotholes}
           onChange={(event) => onIncludeRepairedChange(event.target.checked)}
         />
-        <span>Incluir reparados ({repairedCount})</span>
+        <span>{t('layers.includeRepaired', { count: repairedCount })}</span>
       </label>
     </fieldset>
   );

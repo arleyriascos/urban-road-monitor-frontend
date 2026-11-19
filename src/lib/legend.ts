@@ -1,5 +1,6 @@
 import type { NetworkStats } from '../types/map';
-import { capitalize, formatDecimal, formatNumber, pluralize } from './format';
+import { formatDecimal, formatNumber, pluralize } from './format';
+import { severityLabel } from './labels';
 import { safeColor } from './html';
 import { defaultTexts, type Texts } from './translator';
 
@@ -26,13 +27,16 @@ export interface NetworkSummary {
 }
 
 /** One legend row per severity, from "sin baches" to the worst. */
-export function buildSeverityLegend(stats: NetworkStats): LegendEntry[] {
+export function buildSeverityLegend(
+  stats: NetworkStats,
+  texts: Texts = defaultTexts,
+): LegendEntry[] {
   return stats.segmentsBySeverity.map((entry) => ({
     severity: entry.severity,
-    label: capitalize(entry.severity),
+    label: severityLabel(entry.severity, texts),
     color: safeColor(entry.color),
     count: entry.count,
-    countLabel: formatNumber(entry.count),
+    countLabel: formatNumber(entry.count, texts.locale),
   }));
 }
 

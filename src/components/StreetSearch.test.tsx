@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../api/http';
 import type { StreetSearchDependencies } from '../hooks/useStreetSearch';
 import type { StreetMatch } from '../types/roads';
+import { renderInEnglish } from '../test/english';
 import { StreetSearch } from './StreetSearch';
 
 const street = (name: string, roadIds = [1], segments = 3): StreetMatch => ({
@@ -167,5 +168,53 @@ describe('StreetSearch', () => {
     fireEvent.click(screen.getAllByRole('option')[0]);
     await typeAndWait(input, 'Calle 1');
     expect(screen.getByRole('listbox')).toBeTruthy();
+  });
+});
+
+describe('StreetSearch in English', () => {
+  it('writes the box and the answers in English', async () => {
+    const search = vi.fn<Search>(async (q) => ({
+      query: q,
+      streets: [street('Calle 18', [1], 1)],
+    }));
+    renderInEnglish(
+      <StreetSearch
+        onSelect={vi.fn()}
+        onClear={vi.fn()}
+        dependencies={{ search, debounceMs: 300 }}
+      />,
+    );
+    const input = screen.getByRole('combobox', { name: 'Search for a street' });
+    await typeAndWait(input, 'calle');
+    const list = screen.getByRole('listbox', { name: 'Streets found' });
+    expect(within(list).getByText('1 segment')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Clear search' })).toBeTruthy();
+  });
+
+  it('says in English when no street has that name', async () => {
+    const search = vi.fn<Search>(async (q) => ({ query: q, streets: [] }));
+    renderInEnglish(
+      <StreetSearch
+        onSelect={vi.fn()}
+        onClear={vi.fn()}
+        dependencies={{ search, debounceMs: 300 }}
+      />,
+    );
+    await typeAndWait(screen.getByRole('combobox'), 'zzz');
+    expect(screen.getByText('No streets have that name.')).toBeTruthy();
+  });
+
+  it('offers to retry in English when the search fails', async () => {
+    const search = vi.fn<Search>().mockRejectedValue(new ApiError('network', 'down'));
+    renderInEnglish(
+      <StreetSearch
+        onSelect={vi.fn()}
+        onClear={vi.fn()}
+        dependencies={{ search, debounceMs: 300 }}
+      />,
+    );
+    await typeAndWait(screen.getByRole('combobox'), 'calle');
+    expect(screen.getByText('No connection. Check your internet and try again.')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeTruthy();
   });
 });

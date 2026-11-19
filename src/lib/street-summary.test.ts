@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { englishTexts } from '../test/english';
 import type { StretchSummary } from '../types/roads';
 import { combineSummaries, describeStreetSummary } from './street-summary';
 
@@ -72,6 +73,25 @@ describe('describeStreetSummary', () => {
   it('writes one confirmed pothole in the singular', () => {
     expect(describeStreetSummary(summary({ visiblePotholes: 1, confirmedPotholes: 1 }))).toBe(
       '1 bache a la vista · 1 confirmado',
+    );
+  });
+});
+
+describe('describeStreetSummary in English', () => {
+  it('describes the potholes of a part of the route in English', () => {
+    expect(describeStreetSummary(summary(), englishTexts)).toBe('No potholes in sight');
+    expect(
+      describeStreetSummary(
+        summary({
+          visiblePotholes: 2,
+          confirmedPotholes: 1,
+          worstSeverity: { name: 'grave', weight: 6 },
+        }),
+        englishTexts,
+      ),
+    ).toBe('2 potholes in sight · 1 confirmed · worst: Severe');
+    expect(describeStreetSummary(summary({ visiblePotholes: 1 }), englishTexts)).toBe(
+      '1 pothole in sight · none confirmed',
     );
   });
 });

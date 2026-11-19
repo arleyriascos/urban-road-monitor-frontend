@@ -6,6 +6,7 @@ import {
   MAX_QUERY_LENGTH,
   MIN_QUERY_LENGTH,
 } from './query';
+import { englishTexts } from '../test/english';
 
 describe('cleanQuery', () => {
   it('trims the ends and joins repeated spaces', () => {
@@ -59,6 +60,34 @@ describe('describeSearchError', () => {
   it('has a general message for anything else', () => {
     expect(describeSearchError({ kind: 'http', status: 500 }).text).toBe(
       'No se pudo buscar ahora. Intenta de nuevo.',
+    );
+  });
+});
+
+describe('describeSearchError in English', () => {
+  const t = englishTexts.t;
+
+  it('explains each failure in English', () => {
+    expect(describeSearchError({ kind: 'network' }, t).text).toBe(
+      'No connection. Check your internet and try again.',
+    );
+    expect(describeSearchError({ kind: 'timeout' }, t).text).toContain('took too long');
+    expect(describeSearchError({ kind: 'http', status: 500 }, t).text).toBe(
+      'The search could not be done now. Try again.',
+    );
+  });
+
+  it('says how long to wait when there are too many searches', () => {
+    const tooMany = (retryAfterS?: number) => ({
+      kind: 'http' as const,
+      status: 429,
+      details: retryAfterS === undefined ? undefined : { retryAfterS },
+    });
+    expect(describeSearchError(tooMany(4.2), t).text).toBe(
+      'Too many searches. Wait 5 seconds and try again.',
+    );
+    expect(describeSearchError(tooMany(), t).text).toBe(
+      'Too many searches. Wait a moment and try again.',
     );
   });
 });

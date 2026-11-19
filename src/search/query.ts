@@ -1,5 +1,6 @@
 import type { ApiError } from '../api/http';
 import { retryAfterSeconds } from '../lib/route-errors';
+import { inDefaultLanguage, type Translator } from '../lib/translator';
 
 /** Fewer letters than this match too many streets to be of use: the search waits for more. */
 export const MIN_QUERY_LENGTH = 2;
@@ -31,24 +32,21 @@ export interface SearchErrorDescription {
   text: string;
 }
 
-/** Plain-Spanish explanation of why the suggestions did not come. */
+/** Plain explanation of why the suggestions did not come, in the person's language. */
 export function describeSearchError(
   error: Pick<ApiError, 'kind' | 'status' | 'details'>,
+  t: Translator = inDefaultLanguage,
 ): SearchErrorDescription {
-  if (error.kind === 'network') {
-    return { text: 'Sin conexión. Revisa tu internet e intenta de nuevo.' };
-  }
-  if (error.kind === 'timeout') {
-    return { text: 'El servidor tardó demasiado. Intenta de nuevo en unos segundos.' };
-  }
+  if (error.kind === 'network') return { text: t('search.error.network') };
+  if (error.kind === 'timeout') return { text: t('search.error.timeout') };
   if (error.status === 429) {
     const seconds = retryAfterSeconds(error);
     return {
       text:
         seconds !== undefined && seconds > 0
-          ? `Demasiadas búsquedas. Espera ${Math.ceil(seconds)} segundos e intenta de nuevo.`
-          : 'Demasiadas búsquedas. Espera un momento e intenta de nuevo.',
+          ? t('search.error.tooManySeconds', { seconds: Math.ceil(seconds) })
+          : t('search.error.tooMany'),
     };
   }
-  return { text: 'No se pudo buscar ahora. Intenta de nuevo.' };
+  return { text: t('search.error.other') };
 }

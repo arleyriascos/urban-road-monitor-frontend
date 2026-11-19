@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { aiServiceUrl } from '../config/env';
+import { useLanguage } from '../i18n/useLanguage';
 import { useRoute } from '../hooks/useRoute';
 import { buildSeverityLegend, countPotholes } from '../lib/legend';
 import { filterPotholes } from '../lib/potholes';
@@ -19,8 +20,9 @@ import { StreetSearch } from './StreetSearch';
 import type { AccountActions } from './AccountBadge';
 import { TopBar } from './TopBar';
 
-/** The main screen: the map with its top bar, legend, layer switches and "Cómo llegar". */
+/** The main screen: the map with its top bar, legend, layer switches and "Directions". */
 export function MapScreen({ data, account }: { data: MapData; account?: AccountActions }) {
+  const language = useLanguage();
   const [showPotholes, setShowPotholes] = useState(true);
   const [includeRepaired, setIncludeRepaired] = useState(false);
   const [recenterKey, setRecenterKey] = useState(0);
@@ -46,7 +48,7 @@ export function MapScreen({ data, account }: { data: MapData; account?: AccountA
     () => filterPotholes(data.potholes, { includeRepaired }),
     [data.potholes, includeRepaired],
   );
-  const legend = useMemo(() => buildSeverityLegend(data.stats), [data.stats]);
+  const legend = useMemo(() => buildSeverityLegend(data.stats, language), [data.stats, language]);
   const potholeCounts = useMemo(() => countPotholes(data.stats), [data.stats]);
 
   // The first tap places A, the second B; a tap after that starts another route.
@@ -124,7 +126,7 @@ export function MapScreen({ data, account }: { data: MapData; account?: AccountA
             aria-expanded={false}
           >
             <Icon name="route" />
-            Cómo llegar
+            {language.t('map.route.open')}
           </button>
         )}
         <LegendPanel legend={legend} potholes={potholeCounts} defaultOpen={legendOpenAtStart}>
