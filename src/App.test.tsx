@@ -32,6 +32,9 @@ vi.mock('./components/CameraPage', async (importOriginal) => ({
 vi.mock('./components/GoogleSignInButton', () => ({
   GoogleSignInButton: () => <div data-testid="google-button" />,
 }));
+vi.mock('./components/AccountApp', () => ({
+  AccountApp: ({ section }: { section: string }) => <div data-testid={`account-${section}`} />,
+}));
 vi.mock('./config/env', () => ({ googleClientId: 'client-1' }));
 
 const TOKEN = 'a'.repeat(43);
@@ -60,6 +63,31 @@ function showSession(state: SessionState) {
 beforeEach(() => {
   vi.resetAllMocks();
   window.history.pushState({}, '', '/');
+});
+
+describe('App, the account page', () => {
+  it.each([
+    ['/cuenta', 'profile'],
+    ['/cuenta/', 'profile'],
+    ['/cuenta/viajes', 'trips'],
+    ['/cuenta/configuraciones', 'settings'],
+  ])('shows the part of %s, without starting the session of the map', (path, section) => {
+    window.history.pushState({}, '', path);
+    render(<App />);
+
+    expect(screen.getByTestId(`account-${section}`)).toBeTruthy();
+    expect(useSession).not.toHaveBeenCalled();
+    expect(wakeAiService).not.toHaveBeenCalled();
+  });
+
+  it('does not take other addresses for the account', () => {
+    showSession({ status: 'entry', signIn: { phase: 'idle' } });
+    window.history.pushState({}, '', '/cuenta/otra');
+    render(<App />);
+
+    expect(screen.queryByTestId('account-profile')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Continuar como invitado' })).toBeTruthy();
+  });
 });
 
 describe('App', () => {

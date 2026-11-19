@@ -1,0 +1,159 @@
+/* The account page: header, the three parts as links, and the part chosen. Colors come from the
+   design tokens, so both themes work. */
+.account-page {
+  min-height: 100vh;
+  background: var(--concrete);
+  color: var(--asphalt);
+}
+
+.account-page__header {
+  position: relative;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  gap: 8px 16px;
+  min-height: 66px;
+  padding: 10px 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.account-page__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  margin-left: auto;
+  padding: 0 8px;
+  font-weight: 600;
+  color: var(--brand-ink);
+  text-decoration: none;
+  border-radius: var(--radius-small);
+}
+
+.account-page__back:hover {
+  text-decoration: underline;
+}
+
+.account-page__back .icon {
+  width: 18px;
+  height: 18px;
+}
+
+.account-page__back:focus-visible,
+.account-page__tab:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.account-page__nav {
+  display: flex;
+  gap: 4px;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 16px 20px 0;
+  overflow-x: auto;
+}
+
+.account-page__tab {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+  border-bottom: 3px solid transparent;
+}
+
+.account-page__tab:hover {
+  color: var(--asphalt);
+}
+
+.account-page__tab[aria-current='page'] {
+  color: var(--brand-ink);
+  border-bottom-color: var(--brand-ink);
+}
+
+.account-page__main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 20px 20px 48px;
+}
+
+.account-page__section {
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.account-page__title {
+  margin: 0 0 16px;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.account-page__subtitle {
+  margin: 24px 0 8px;
+  font-size: 1.05rem;
+}
+
+.account-profile {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.account-profile__fields {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+}
+
+.account-profile__fields dt {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.account-profile__fields dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 640px) {
+  .account-page__header {
+    padding: 8px 12px;
+  }
+
+  /* The logo says enough; the way back keeps its icon and its name for screen readers. */
+  .account-page__header .brand__text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .account-page__nav {
+    padding: 12px 8px 0;
+  }
+
+  .account-page__main {
+    padding: 12px 12px 32px;
+  }
+
+  .account-page__section {
+    padding: 18px;
+  }
+
+  .account-profile {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

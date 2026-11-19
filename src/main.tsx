@@ -9,6 +9,7 @@ import './map.css';
 import './popups.css';
 import './entry.css';
 import './account.css';
+import './account-page.css';
 import './privacy.css';
 import './camera.css';
 import './language.css';

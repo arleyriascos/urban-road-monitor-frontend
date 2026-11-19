@@ -103,6 +103,25 @@ export const es = {
   'account.menu.trips': 'Mis viajes',
   'account.menu.settings': 'Configuraciones',
   'account.menu.signOut': 'Cerrar sesión',
+  'account.page.title': 'Mi cuenta',
+  'account.page.back': 'Volver al mapa',
+  'account.page.nav': 'Partes de tu cuenta',
+  'account.page.soon': 'Esta parte llega en la siguiente entrega.',
+  'account.gate.title': 'Ingresa para ver tu cuenta',
+  'account.gate.help': 'Tu perfil, tus viajes y tus configuraciones están en tu cuenta.',
+  'account.gate.home': 'Ir al inicio',
+  'account.profile.heading': 'Mi perfil',
+  'account.profile.name': 'Nombre',
+  'account.profile.email': 'Correo',
+  'account.profile.role': 'Rol',
+  'account.profile.canDo': 'Qué puedes hacer con tu rol',
+  'account.profile.role.usuario':
+    'Ver el mapa, trazar rutas, detectar baches con la cámara y ver tus viajes.',
+  'account.profile.role.colaborador':
+    'Lo del usuario, y además marcar baches como reparados y ver el historial de rutas.',
+  'account.profile.role.administrador':
+    'Todo lo anterior, y además administrar las cuentas y los roles.',
+  'account.profile.role.other': 'Tu rol tiene permisos propios que define el administrador.',
 } as const;
 
 export type MessageKey = keyof typeof es;

@@ -97,4 +97,23 @@ export const en: Record<MessageKey, string> = {
   'account.menu.trips': 'My trips',
   'account.menu.settings': 'Settings',
   'account.menu.signOut': 'Sign out',
+  'account.page.title': 'My account',
+  'account.page.back': 'Back to the map',
+  'account.page.nav': 'Parts of your account',
+  'account.page.soon': 'This part arrives in the next delivery.',
+  'account.gate.title': 'Sign in to see your account',
+  'account.gate.help': 'Your profile, your trips and your settings are in your account.',
+  'account.gate.home': 'Go to the start',
+  'account.profile.heading': 'My profile',
+  'account.profile.name': 'Name',
+  'account.profile.email': 'Email',
+  'account.profile.role': 'Role',
+  'account.profile.canDo': 'What you can do with your role',
+  'account.profile.role.usuario':
+    'See the map, plan routes, detect potholes with the camera and see your trips.',
+  'account.profile.role.colaborador':
+    'What a user can do, plus mark potholes as repaired and see the history of routes.',
+  'account.profile.role.administrador': 'All of the above, plus manage the accounts and the roles.',
+  'account.profile.role.other':
+    'Your role has its own permissions, which the administrator defines.',
 };

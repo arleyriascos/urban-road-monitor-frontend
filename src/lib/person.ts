@@ -8,6 +8,11 @@ const ROLE_LABELS: Record<Locale, Record<(typeof ROLE_ORDER)[number], string>> =
   en: { administrador: 'Administrator', colaborador: 'Collaborator', usuario: 'User' },
 };
 
+/** The most powerful role of the ones this version of the page knows, or null when there is none. */
+export function topRole(roles: readonly string[]): (typeof ROLE_ORDER)[number] | null {
+  return ROLE_ORDER.find((role) => roles.includes(role)) ?? null;
+}
+
 /** The role to show for a person: the most powerful one they have, in the language of the app. */
 export function describeRole(roles: readonly string[], locale: Locale = 'es'): string {
   const labels = ROLE_LABELS[locale];

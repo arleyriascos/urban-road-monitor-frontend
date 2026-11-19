@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { wakeAiService } from './api/ai-service';
+import { AccountApp } from './components/AccountApp';
 import { CAMERA_PATH, CameraPage } from './components/CameraPage';
 import { EntryScreen } from './components/EntryScreen';
 import { MapApp } from './components/MapApp';
@@ -8,6 +9,7 @@ import { SessionCheckScreen } from './components/SessionCheckScreen';
 import { googleClientId } from './config/env';
 import { useSession } from './hooks/useSession';
 import { useLanguage } from './i18n/useLanguage';
+import { sectionFromPath } from './lib/account-sections';
 
 /** The address of the privacy page. The host rewrites every path to the app, so no router is needed. */
 export const PRIVACY_PATH = '/privacidad';
@@ -17,14 +19,17 @@ function isPath(pathname: string, path: string): boolean {
 }
 
 /**
- * The whole app: the privacy page, the camera, or else the entry, the check of a saved session,
- * or the map.
+ * The whole app: the privacy page, the camera, the account page, or else the entry, the check of
+ * a saved session, or the map.
  */
 export function App() {
   // The privacy page is public and needs no session, so it does not even start one.
   if (isPath(window.location.pathname, PRIVACY_PATH)) return <PrivacyPage />;
   // The camera only shows the boxes on the device for now: it needs no session either.
   if (isPath(window.location.pathname, CAMERA_PATH)) return <CameraPage />;
+  // The account page has its own session check: it does not need the map.
+  const section = sectionFromPath(window.location.pathname);
+  if (section) return <AccountApp section={section} />;
   return <SessionApp />;
 }
 
