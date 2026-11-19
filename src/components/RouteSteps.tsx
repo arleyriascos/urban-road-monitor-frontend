@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, type KeyboardEvent } from 'react';
+import { useLanguage } from '../i18n/useLanguage';
 import { formatDecimal, formatLength, pluralize } from '../lib/format';
+import type { Texts } from '../lib/translator';
 import { describeStreetSummary } from '../lib/street-summary';
 import type { RouteGroup } from '../lib/route-groups';
 import { CircularDoublyLinkedList } from '../structures/circular-doubly-linked-list';
@@ -11,20 +13,24 @@ interface RouteStepsProps {
   onSelect: (index: number | null) => void;
 }
 
-function damageText(damageScore: number): string {
-  return damageScore > 0 ? `Daño ${formatDecimal(damageScore, 1)}` : 'Sin daño';
+function damageText(damageScore: number, { t, locale }: Texts): string {
+  return damageScore > 0
+    ? t('route.steps.damage', { value: formatDecimal(damageScore, 1, locale) })
+    : t('route.steps.noDamage');
 }
 
 /**
- * The route street by street, with Anterior and Siguiente to walk through it. The street
+ * The route street by street, with Previous and Next to walk through it. The street
  * picked is shown on the map and opens to list its segments. The arrow keys do the same as
  * the buttons, and Escape goes back to the whole route.
  *
- * The streets are kept in a circular doubly linked list, so Siguiente on the last street
- * goes to the first and Anterior on the first goes to the last, with no special cases at
- * the ends. With no street picked, Siguiente starts at the first and Anterior at the last.
+ * The streets are kept in a circular doubly linked list, so Next on the last street
+ * goes to the first and Previous on the first goes to the last, with no special cases at
+ * the ends. With no street picked, Next starts at the first and Previous at the last.
  */
 export function RouteSteps({ groups, selected, onSelect }: RouteStepsProps) {
+  const language = useLanguage();
+  const { t, locale } = language;
   const listRef = useRef<HTMLOListElement | null>(null);
   const total = groups.length;
 
@@ -66,7 +72,7 @@ export function RouteSteps({ groups, selected, onSelect }: RouteStepsProps) {
   };
 
   return (
-    <section className="route-steps" aria-label="Recorrido de la ruta" onKeyDown={onKeyDown}>
+    <section className="route-steps" aria-label={t('route.steps.label')} onKeyDown={onKeyDown}>
       <div className="route-steps__nav">
         <button
           type="button"
@@ -74,10 +80,12 @@ export function RouteSteps({ groups, selected, onSelect }: RouteStepsProps) {
           onClick={previous}
           disabled={!canWalk}
         >
-          Anterior
+          {t('route.steps.previous')}
         </button>
         <p className="route-steps__counter" aria-live="polite">
-          {selected === null ? 'Recorre la ruta' : `Calle ${selected + 1} de ${total}`}
+          {selected === null
+            ? t('route.steps.walk')
+            : t('route.steps.counter', { index: selected + 1, total })}
         </p>
         <button
           type="button"
@@ -85,12 +93,12 @@ export function RouteSteps({ groups, selected, onSelect }: RouteStepsProps) {
           onClick={next}
           disabled={!canWalk}
         >
-          Siguiente
+          {t('route.steps.next')}
         </button>
       </div>
       {selected !== null ? (
         <button type="button" className="route-link-button" onClick={() => onSelect(null)}>
-          Ver toda la ruta
+          {t('route.steps.all')}
         </button>
       ) : null}
       <ol className="route-steps__list" ref={listRef}>
@@ -110,23 +118,29 @@ export function RouteSteps({ groups, selected, onSelect }: RouteStepsProps) {
                 <span className="route-steps__text">
                   <span className="route-steps__name">{group.name}</span>
                   <span className="route-steps__meta">
-                    {formatLength(group.lengthM)} ·{' '}
-                    {pluralize(group.steps.length, 'tramo', 'tramos')}
-                    {group.damagedSteps > 0 ? ` · ${group.damagedSteps} con daño` : ''}
+                    {formatLength(group.lengthM, locale)} ·{' '}
+                    {pluralize(group.steps.length, t('segment.one'), t('segment.other'), locale)}
+                    {group.damagedSteps > 0
+                      ? ` · ${t('route.steps.withDamage', { count: group.damagedSteps })}`
+                      : ''}
                   </span>
                   {group.summary ? (
                     <span className="route-steps__meta">
-                      {describeStreetSummary(group.summary)}
+                      {describeStreetSummary(group.summary, language)}
                     </span>
                   ) : null}
                 </span>
               </button>
               {isSelected ? (
-                <ul className="route-steps__segments" aria-label={`Tramos de ${group.name}`}>
+                <ul
+                  className="route-steps__segments"
+                  aria-label={t('route.steps.segmentsOf', { name: group.name })}
+                >
                   {group.steps.map((step) => (
                     <li key={step.id}>
-                      Tramo {step.properties.order} · {formatLength(step.properties.lengthM)} ·{' '}
-                      {damageText(step.properties.damageScore)}
+                      {t('route.steps.segment', { order: step.properties.order })} ·{' '}
+                      {formatLength(step.properties.lengthM, locale)} ·{' '}
+                      {damageText(step.properties.damageScore, language)}
                     </li>
                   ))}
                 </ul>

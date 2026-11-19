@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { groupRouteSteps } from '../lib/route-groups';
 import { routeFixture } from '../test/route-fixtures';
+import { renderInEnglish } from '../test/english';
 import { RouteSteps } from './RouteSteps';
 
 const groups = groupRouteSteps(routeFixture);
@@ -324,5 +325,31 @@ describe('RouteSteps with the potholes of each street', () => {
       />,
     );
     expect(screen.queryByText(/a la vista/)).toBeNull();
+  });
+});
+
+describe('RouteSteps in English', () => {
+  it('walks through the streets with English texts and numbers', () => {
+    const onSelect = vi.fn();
+    renderInEnglish(<RouteSteps groups={groups} selected={null} onSelect={onSelect} />);
+
+    expect(screen.getByRole('region', { name: 'Walk through the route' })).toBeTruthy();
+    expect(screen.getByText('224 m · 2 segments · 1 with damage')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    expect(onSelect).toHaveBeenCalledWith(0);
+    fireEvent.click(screen.getByRole('button', { name: 'Previous' }));
+    expect(onSelect).toHaveBeenLastCalledWith(groups.length - 1);
+  });
+
+  it('shows where the person is and lists the segments of the street picked', () => {
+    renderInEnglish(<RouteSteps groups={groups} selected={0} onSelect={vi.fn()} />);
+
+    expect(screen.getByText('Street 1 of 2')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'See the whole route' })).toBeTruthy();
+    const segments = screen.getByRole('list', { name: 'Segments of Calle 18' });
+    expect([...segments.querySelectorAll('li')].map((item) => item.textContent)).toEqual([
+      'Segment 1 · 111 m · No damage',
+      'Segment 2 · 112 m · Damage 2.0',
+    ]);
   });
 });

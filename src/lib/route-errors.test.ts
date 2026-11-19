@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ApiError } from '../api/http';
+import { englishTexts } from '../test/english';
 import { describeRouteError, retryAfterSeconds } from './route-errors';
 
 const http = (status: number, code?: string, details?: Record<string, unknown>) =>
@@ -93,5 +94,66 @@ describe('retryAfterSeconds', () => {
     expect(retryAfterSeconds(http(503, 'X', { retryAfterS: 30 }))).toBe(30);
     expect(retryAfterSeconds(http(503, 'X', { retryAfterS: '30' }))).toBeUndefined();
     expect(retryAfterSeconds(http(503, 'X'))).toBeUndefined();
+  });
+});
+
+describe('describeRouteError in English', () => {
+  const english = englishTexts;
+
+  it('explains a slow server and a lost connection in English', () => {
+    expect(describeRouteError(new ApiError('timeout', 'x'), english).title).toBe(
+      'The server did not answer in time',
+    );
+    expect(describeRouteError(new ApiError('network', 'x'), english).help).toContain(
+      'internet connection',
+    );
+  });
+
+  it('explains that one-way streets leave no way through', () => {
+    const description = describeRouteError(http(404, 'NO_ROUTE'), english);
+    expect(description.title).toBe('There is no way between these points');
+    expect(description.help).toContain('direction of the streets');
+  });
+
+  it('says which point is too far and how far, with English units', () => {
+    const description = describeRouteError(
+      http(422, 'OUTSIDE_NETWORK', { point: 'destination', distanceM: 1530, maxDistanceM: 500 }),
+      english,
+    );
+    expect(description.title).toBe('The destination is far from the streets');
+    expect(description.help).toBe(
+      'It is 1.5 km from the nearest street and the maximum is 500 m. Move it closer to a street.',
+    );
+    expect(description.point).toBe('destination');
+    expect(
+      describeRouteError(http(422, 'OUTSIDE_NETWORK', { point: 'origin' }), english).title,
+    ).toBe('The origin is far from the streets');
+    expect(describeRouteError(http(422, 'OUTSIDE_NETWORK'), english).title).toBe(
+      'A point is far from the streets',
+    );
+  });
+
+  it('explains the other failures in English', () => {
+    expect(
+      describeRouteError(http(429, 'TOO_MANY_REQUESTS', { retryAfterS: 9 }), english),
+    ).toMatchObject({
+      title: 'Too many routes in a row',
+      waitS: 9,
+    });
+    expect(
+      describeRouteError(http(503, 'ROUTE_SERVICE_UNAVAILABLE', { retryAfterS: 30 }), english),
+    ).toMatchObject({ title: 'The route service did not wake up in time', wakeLink: true });
+    expect(describeRouteError(http(503, 'ROUTE_SERVICE_UNAVAILABLE'), english).title).toBe(
+      'The route service is not available',
+    );
+    expect(describeRouteError(http(503, 'DATABASE_UNAVAILABLE'), english).title).toBe(
+      'The database is not available',
+    );
+    expect(describeRouteError(http(400, 'INVALID_REQUEST'), english).title).toBe(
+      'The app asked for the route with invalid data',
+    );
+    expect(describeRouteError(http(500), english).title).toBe(
+      'The server answered with an error (code 500)',
+    );
   });
 });

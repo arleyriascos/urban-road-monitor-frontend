@@ -1,5 +1,6 @@
 import type { ApiError } from '../api/http';
 import { formatLength } from './format';
+import { defaultTexts, type Texts } from './translator';
 
 export type RoutePointName = 'origin' | 'destination';
 
@@ -16,8 +17,6 @@ export interface RouteErrorDescription {
   retryable: boolean;
 }
 
-const POINT_NAME: Record<RoutePointName, string> = { origin: 'origen', destination: 'destino' };
-
 function numberDetail(error: Pick<ApiError, 'details'>, key: string): number | undefined {
   const value = error.details?.[key];
   return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
@@ -33,21 +32,22 @@ export function retryAfterSeconds(error: Pick<ApiError, 'details'>): number | un
   return numberDetail(error, 'retryAfterS');
 }
 
-/** Plain-Spanish explanation of why there is no route and what the person can do. */
+/** Plain explanation of why there is no route and what the person can do, in their language. */
 export function describeRouteError(
   error: Pick<ApiError, 'kind' | 'status' | 'code' | 'details'>,
+  { t, locale }: Texts = defaultTexts,
 ): RouteErrorDescription {
   if (error.kind === 'timeout') {
     return {
-      title: 'El servidor no respondió a tiempo',
-      help: 'Puede estar despertando después de un rato sin uso. Intenta de nuevo.',
+      title: t('apiError.timeout.title'),
+      help: t('apiError.timeout.help'),
       retryable: true,
     };
   }
   if (error.kind === 'network') {
     return {
-      title: 'No se pudo conectar con el servidor',
-      help: 'Revisa tu conexión a internet e intenta de nuevo en unos segundos.',
+      title: t('apiError.network.title'),
+      help: t('apiError.network.help'),
       retryable: true,
     };
   }
@@ -55,8 +55,8 @@ export function describeRouteError(
   switch (error.code) {
     case 'NO_ROUTE':
       return {
-        title: 'No hay un camino entre estos puntos',
-        help: 'La ruta debe respetar el sentido de las calles. Prueba moviendo el origen o el destino.',
+        title: t('routeError.noRoute.title'),
+        help: t('routeError.noRoute.help'),
         retryable: false,
       };
     case 'OUTSIDE_NETWORK': {
@@ -65,55 +65,54 @@ export function describeRouteError(
       const limit = numberDetail(error, 'maxDistanceM');
       const where =
         distance !== undefined && limit !== undefined
-          ? `Está a ${formatLength(distance)} de la calle más cercana y el máximo es ${formatLength(limit)}. `
+          ? `${t('routeError.outside.where', {
+              distance: formatLength(distance, locale),
+              limit: formatLength(limit, locale),
+            })} `
           : '';
-      return {
-        title: point
-          ? `El ${POINT_NAME[point]} quedó lejos de las calles`
-          : 'Un punto quedó lejos de las calles',
-        help: `${where}Muévelo más cerca de una calle.`,
-        point,
-        retryable: false,
-      };
+      const title = point
+        ? t(point === 'origin' ? 'routeError.outside.origin' : 'routeError.outside.destination')
+        : t('routeError.outside.point');
+      return { title, help: `${where}${t('routeError.outside.help')}`, point, retryable: false };
     }
     case 'TOO_MANY_REQUESTS':
       return {
-        title: 'Demasiadas rutas seguidas',
-        help: 'El servidor acepta hasta 30 rutas por minuto. Espera un momento y vuelve a intentar.',
+        title: t('routeError.tooMany.title'),
+        help: t('routeError.tooMany.help'),
         waitS: retryAfterSeconds(error),
         retryable: true,
       };
     case 'ROUTE_SERVICE_UNAVAILABLE':
       if (retryAfterSeconds(error) !== undefined) {
         return {
-          title: 'El servicio de rutas no despertó a tiempo',
-          help: 'Ábrelo en una pestaña nueva para despertarlo, espera a que cargue y vuelve a intentar.',
+          title: t('routeError.noWake.title'),
+          help: t('routeError.noWake.help'),
           wakeLink: true,
           retryable: true,
         };
       }
       return {
-        title: 'El servicio de rutas no está disponible',
-        help: 'Intenta de nuevo en un momento.',
+        title: t('routeError.unavailable.title'),
+        help: t('routeError.tryLater'),
         retryable: true,
       };
     case 'DATABASE_UNAVAILABLE':
       return {
-        title: 'La base de datos no está disponible',
-        help: 'Puede estar encendiéndose. Intenta de nuevo en unos segundos.',
+        title: t('routeError.database.title'),
+        help: t('apiError.database.help'),
         retryable: true,
       };
     case 'INVALID_REQUEST':
     case 'INVALID_JSON':
       return {
-        title: 'La app pidió la ruta con datos inválidos',
-        help: 'Vuelve a poner el origen y el destino. Si se repite, es un error de la app.',
+        title: t('routeError.invalid.title'),
+        help: t('routeError.invalid.help'),
         retryable: false,
       };
     default:
       return {
-        title: `El servidor respondió con un error (código ${error.status ?? 'desconocido'})`,
-        help: 'Intenta de nuevo en un momento.',
+        title: t('apiError.other.title', { status: error.status ?? t('apiError.other.unknown') }),
+        help: t('routeError.tryLater'),
         retryable: true,
       };
   }

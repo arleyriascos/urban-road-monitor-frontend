@@ -187,11 +187,13 @@ export function MapView({
       origin &&
         createRoutePin('origin', origin, {
           hasError: errorPoint === 'origin',
+          texts: language,
           onMove: (point) => onMoveRef.current?.('origin', point),
         }),
       destination &&
         createRoutePin('destination', destination, {
           hasError: errorPoint === 'destination',
+          texts: language,
           onMove: (point) => onMoveRef.current?.('destination', point),
         }),
     ].filter((pin) => pin !== null);
@@ -199,7 +201,7 @@ export function MapView({
     return () => {
       pins.forEach((pin) => pin.remove());
     };
-  }, [origin, destination, errorPoint]);
+  }, [origin, destination, errorPoint, language]);
 
   // The route: a white edge and the blue line over it. The map moves to show it only when part
   // of it is out of view.

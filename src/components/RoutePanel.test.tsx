@@ -5,6 +5,7 @@ import type { RouteState } from '../hooks/useRoute';
 import { groupRouteSteps } from '../lib/route-groups';
 import { routeFixture } from '../test/route-fixtures';
 import type { LatLng } from '../types/route';
+import { renderInEnglish } from '../test/english';
 import { RoutePanel } from './RoutePanel';
 
 const A: LatLng = { latitude: 1.2136, longitude: -77.2811 };
@@ -272,5 +273,90 @@ describe('RoutePanel', () => {
     fireEvent.click(screen.getByRole('button', { name: /Calle sin nombre/ }));
 
     expect(onSelect).toHaveBeenCalledWith(1);
+  });
+});
+
+describe('RoutePanel in English', () => {
+  function renderEnglish(
+    overrides: Partial<Parameters<typeof RoutePanel>[0]> = {},
+    state: RouteState = { status: 'idle' },
+  ) {
+    renderInEnglish(
+      <RoutePanel
+        origin={null}
+        destination={null}
+        criterion="balanced"
+        state={state}
+        wakeUrl="https://ai.example.com/health"
+        onCriterionChange={vi.fn()}
+        onRetry={vi.fn()}
+        onSwap={vi.fn()}
+        onClear={vi.fn()}
+        onClose={vi.fn()}
+        {...overrides}
+      />,
+    );
+  }
+
+  it('tells what to do next, step by step, in English', () => {
+    renderEnglish();
+    expect(screen.getByRole('region', { name: 'Directions' })).toBeTruthy();
+    expect(screen.getByText('Tap the map to place the origin (A).')).toBeTruthy();
+    expect(
+      screen.getByText('Not set', { selector: '.route-points__item:first-child *' }),
+    ).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Close Directions' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Swap A and B' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Clear' })).toBeTruthy();
+  });
+
+  it('writes the points with English decimals and the hint for the destination', () => {
+    renderEnglish({ origin: A });
+    expect(screen.getByText('Now tap the map to place the destination (B).')).toBeTruthy();
+    expect(screen.getByText('1.21360 · -77.28110')).toBeTruthy();
+  });
+
+  it('lets the person choose the criterion, in English', () => {
+    renderEnglish({ origin: A, destination: B });
+    expect(screen.getByRole('button', { name: 'Shortest' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Avoid potholes' })).toBeTruthy();
+    expect(
+      screen.getByText('Balances the distance and the condition of the streets.'),
+    ).toBeTruthy();
+  });
+
+  it('says that the route service is waking up, and which attempt it is', () => {
+    renderEnglish({ origin: A, destination: B }, { status: 'waking', attempt: 2, retryAfterS: 30 });
+    expect(screen.getByText('Waking up the route service…')).toBeTruthy();
+    expect(screen.getByText(/Attempt 2 of/)).toBeTruthy();
+  });
+
+  it('says that the route is ready and whether it came from the cache', () => {
+    renderEnglish(
+      { origin: A, destination: B, groups: groupRouteSteps(routeFixture) },
+      { status: 'success', route: { ...routeFixture, fromCache: true } },
+    );
+    expect(screen.getByText('Route ready.')).toBeTruthy();
+    expect(screen.getByText('It came from the cache.')).toBeTruthy();
+  });
+
+  it('explains an error and counts down the wait before retrying, in English', () => {
+    renderEnglish(
+      { origin: A, destination: B },
+      { status: 'error', error: httpError(429, 'TOO_MANY_REQUESTS', { retryAfterS: 5 }) },
+    );
+    expect(screen.getByText('Too many routes in a row')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Retry in 5 s' })).toBeTruthy();
+  });
+
+  it('offers the link that wakes the route service, in English', () => {
+    renderEnglish(
+      { origin: A, destination: B },
+      {
+        status: 'error',
+        error: httpError(503, 'ROUTE_SERVICE_UNAVAILABLE', { retryAfterS: 30 }),
+      },
+    );
+    expect(screen.getByRole('link', { name: 'Wake up the route service' })).toBeTruthy();
   });
 });

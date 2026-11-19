@@ -4,6 +4,7 @@ import { ApiError } from '../api/http';
 import { groupRouteSteps } from '../lib/route-groups';
 import { routeFixture } from '../test/route-fixtures';
 import type { RouteAnswer } from '../types/route';
+import { renderInEnglish } from '../test/english';
 import { RouteDetails } from './RouteDetails';
 
 const origin = { latitude: 1.2136, longitude: -77.2811 };
@@ -158,5 +159,46 @@ describe('RouteDetails algorithm comparison', () => {
 
     expect(screen.queryByRole('table')).toBeNull();
     expect(screen.getByRole('button', { name: 'Comparar con Dijkstra' })).toBeTruthy();
+  });
+});
+
+describe('RouteDetails in English', () => {
+  it('writes the summary and the technical details in English', () => {
+    renderInEnglish(
+      <RouteDetails
+        route={routeFixture}
+        groups={groups}
+        origin={origin}
+        destination={destination}
+        criterion="avoid_potholes"
+        fetchRoute={vi.fn(async () => dijkstra)}
+      />,
+    );
+
+    expect(value('Distance')).toBe('336 m');
+    expect(value('Streets')).toBe('2');
+    expect(value('Segments')).toBe('3');
+    expect(value('With damage')).toBe('1 of 3');
+    expect(value('Criterion')).toBe('Avoid potholes');
+    expect(value('Came from the cache')).toBe('No');
+    expect(screen.getByText('Technical details')).toBeTruthy();
+  });
+
+  it('compares with the other algorithm and explains the result in English', async () => {
+    renderInEnglish(
+      <RouteDetails
+        route={routeFixture}
+        groups={groups}
+        origin={origin}
+        destination={destination}
+        criterion="balanced"
+        fetchRoute={vi.fn(async () => dijkstra)}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Compare with Dijkstra' }));
+    expect(await screen.findByText(/Both algorithms give the same cost/)).toBeTruthy();
+    expect(screen.getByRole('columnheader', { name: 'Explored nodes' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Compare again' })).toBeTruthy();
   });
 });

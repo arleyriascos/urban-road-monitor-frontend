@@ -1,7 +1,9 @@
 import { useEffect, useState, type ComponentProps } from 'react';
+import { useLanguage } from '../i18n/useLanguage';
 import { MAX_WAKE_ATTEMPTS, type RouteState } from '../hooks/useRoute';
 import { formatDecimal } from '../lib/format';
 import { describeRouteError } from '../lib/route-errors';
+import type { Texts, Translator } from '../lib/translator';
 import type { RouteGroup } from '../lib/route-groups';
 import type { LatLng, RouteCriterion } from '../types/route';
 import { CriterionPicker } from './CriterionPicker';
@@ -31,16 +33,16 @@ interface RoutePanelProps {
   onClose: () => void;
 }
 
-function hint(origin: LatLng | null, destination: LatLng | null): string {
-  if (!origin) return 'Toca el mapa para poner el origen (A).';
-  if (!destination) return 'Ahora toca el mapa para poner el destino (B).';
-  return 'Arrastra A o B para moverlos, o toca el mapa para empezar otra ruta.';
+function hint(origin: LatLng | null, destination: LatLng | null, t: Translator): string {
+  if (!origin) return t('route.hint.origin');
+  if (!destination) return t('route.hint.destination');
+  return t('route.hint.both');
 }
 
 /** Where a point was placed, as latitude and longitude. */
-function describePoint(point: LatLng | null): string {
-  if (!point) return 'Sin poner';
-  return `${formatDecimal(point.latitude, 5)} · ${formatDecimal(point.longitude, 5)}`;
+function describePoint(point: LatLng | null, { t, locale }: Texts): string {
+  if (!point) return t('route.point.unset');
+  return `${formatDecimal(point.latitude, 5, locale)} · ${formatDecimal(point.longitude, 5, locale)}`;
 }
 
 /** The two points of the route: A is the origin and B the destination. */
@@ -51,12 +53,19 @@ function RoutePoints({
   origin: LatLng | null;
   destination: LatLng | null;
 }) {
+  const language = useLanguage();
+  const { t } = language;
   const points = [
-    { letter: 'A', name: 'Origen', point: origin, modifier: 'origin' },
-    { letter: 'B', name: 'Destino', point: destination, modifier: 'destination' },
+    { letter: 'A', name: t('route.point.origin'), point: origin, modifier: 'origin' },
+    {
+      letter: 'B',
+      name: t('route.point.destination'),
+      point: destination,
+      modifier: 'destination',
+    },
   ];
   return (
-    <ul className="route-points" aria-label="Puntos de la ruta">
+    <ul className="route-points" aria-label={t('route.points.label')}>
       {points.map(({ letter, name, point, modifier }) => (
         <li key={letter} className="route-points__item">
           <span
@@ -72,7 +81,7 @@ function RoutePoints({
                 point ? 'route-points__value' : 'route-points__value route-points__value--empty'
               }
             >
-              {describePoint(point)}
+              {describePoint(point, language)}
             </span>
           </span>
         </li>
@@ -83,6 +92,7 @@ function RoutePoints({
 
 /** "Reintentar", which waits the seconds the server asked for before it can be used. */
 function RetryButton({ waitS = 0, onRetry }: { waitS?: number; onRetry: () => void }) {
+  const { t } = useLanguage();
   const [left, setLeft] = useState(Math.ceil(waitS));
   const counting = left > 0;
 
@@ -94,7 +104,7 @@ function RetryButton({ waitS = 0, onRetry }: { waitS?: number; onRetry: () => vo
 
   return (
     <button type="button" className="route-button" onClick={onRetry} disabled={counting}>
-      {counting ? `Reintentar en ${left} s` : 'Reintentar'}
+      {counting ? t('route.retryIn', { seconds: left }) : t('route.retry')}
     </button>
   );
 }
@@ -105,36 +115,37 @@ function RouteStatus({
   wakeUrl,
   onRetry,
 }: Pick<RoutePanelProps, 'state' | 'requestKey' | 'wakeUrl' | 'onRetry'>) {
+  const language = useLanguage();
+  const { t } = language;
   switch (state.status) {
     case 'idle':
       return null;
     case 'loading':
       return (
         <p className="route-status" role="status">
-          Calculando la ruta…
+          {t('route.status.loading')}
         </p>
       );
     case 'waking':
       return (
         <div className="route-status" role="status">
-          <p className="route-status__title">Despertando el servicio de rutas…</p>
+          <p className="route-status__title">{t('route.status.waking.title')}</p>
           <p className="route-status__help">
-            Duerme tras un rato sin uso y puede tardar hasta un minuto. Intento {state.attempt} de{' '}
-            {MAX_WAKE_ATTEMPTS}.
+            {t('route.status.waking.help', { attempt: state.attempt, max: MAX_WAKE_ATTEMPTS })}
           </p>
         </div>
       );
     case 'success':
       return (
         <p className="route-status route-status--ok" role="status">
-          Ruta lista.
+          {t('route.status.ready')}
           {state.route.fromCache ? (
-            <span className="route-status__note"> Salió de la caché.</span>
+            <span className="route-status__note"> {t('route.status.cache')}</span>
           ) : null}
         </p>
       );
     case 'error': {
-      const description = describeRouteError(state.error);
+      const description = describeRouteError(state.error, language);
       return (
         <div className="route-status route-status--error" role="alert">
           <p className="route-status__title">{description.title}</p>
@@ -145,7 +156,7 @@ function RouteStatus({
             ) : null}
             {description.wakeLink && wakeUrl ? (
               <a className="route-link" href={wakeUrl} target="_blank" rel="noopener noreferrer">
-                Despertar el servicio de rutas
+                {t('route.wakeLink')}
               </a>
             ) : null}
           </div>
@@ -155,25 +166,26 @@ function RouteStatus({
   }
 }
 
-/** The "Cómo llegar" panel: how to place the points, the criterion and the state of the route. */
+/** The "Directions" panel: how to place the points, the criterion and the state of the route. */
 export function RoutePanel(props: RoutePanelProps) {
   const { origin, destination, criterion, onCriterionChange, onSwap, onClear, onClose } = props;
   const { groups = [], selected = null, onSelect = () => undefined } = props;
+  const { t } = useLanguage();
 
   return (
-    <section className="route-panel" aria-label="Cómo llegar">
+    <section className="route-panel" aria-label={t('route.panel.title')}>
       <div className="route-panel__header">
-        <h2 className="route-panel__title">Cómo llegar</h2>
+        <h2 className="route-panel__title">{t('route.panel.title')}</h2>
         <button
           type="button"
           className="route-panel__close"
           onClick={onClose}
-          aria-label="Cerrar Cómo llegar"
+          aria-label={t('route.panel.close')}
         >
           <Icon name="close" />
         </button>
       </div>
-      <p className="route-panel__hint">{hint(origin, destination)}</p>
+      <p className="route-panel__hint">{hint(origin, destination, t)}</p>
       <RoutePoints origin={origin} destination={destination} />
       <CriterionPicker value={criterion} onChange={onCriterionChange} />
       <RouteStatus
@@ -203,7 +215,7 @@ export function RoutePanel(props: RoutePanelProps) {
           disabled={!origin || !destination}
         >
           <Icon name="swap" />
-          Intercambiar A y B
+          {t('route.swap')}
         </button>
         <button
           type="button"
@@ -211,7 +223,7 @@ export function RoutePanel(props: RoutePanelProps) {
           onClick={onClear}
           disabled={!origin && !destination}
         >
-          Limpiar
+          {t('route.clear')}
         </button>
       </div>
     </section>

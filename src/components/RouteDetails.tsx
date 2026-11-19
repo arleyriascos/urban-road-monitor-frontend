@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ApiError } from '../api/http';
+import { useLanguage } from '../i18n/useLanguage';
 import { getRoute, type RouteQuery } from '../api/routes';
 import { formatDecimal, formatLength, formatNumber, formatPercent } from '../lib/format';
 import { CRITERIA } from '../lib/route-criteria';
@@ -28,6 +29,7 @@ interface RouteDetailsProps {
 }
 
 function ComparisonResult({ route, other }: { route: RouteAnswer; other: RouteAnswer }) {
+  const { t, locale } = useLanguage();
   const rows = [route, other].sort((a, b) => a.algorithm.localeCompare(b.algorithm));
   const astar = rows.find((row) => row.algorithm === 'astar');
   const dijkstra = rows.find((row) => row.algorithm === 'dijkstra');
@@ -43,29 +45,27 @@ function ComparisonResult({ route, other }: { route: RouteAnswer; other: RouteAn
       <table className="route-compare__table">
         <thead>
           <tr>
-            <th scope="col">Algoritmo</th>
-            <th scope="col">Nodos explorados</th>
-            <th scope="col">Tiempo</th>
-            <th scope="col">Costo</th>
+            <th scope="col">{t('route.fact.algorithm')}</th>
+            <th scope="col">{t('route.fact.explored')}</th>
+            <th scope="col">{t('route.compare.time')}</th>
+            <th scope="col">{t('route.compare.cost')}</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => (
             <tr key={row.algorithm}>
               <th scope="row">{ALGORITHM_NAME[row.algorithm]}</th>
-              <td>{formatNumber(row.summary.exploredNodes)}</td>
+              <td>{formatNumber(row.summary.exploredNodes, locale)}</td>
               <td>{row.summary.computationMs} ms</td>
-              <td>{formatDecimal(row.summary.cost, 1)}</td>
+              <td>{formatDecimal(row.summary.cost, 1, locale)}</td>
             </tr>
           ))}
         </tbody>
       </table>
       <p className="route-compare__note">
-        {sameCost
-          ? 'Los dos algoritmos dan el mismo costo: la ruta es igual de buena.'
-          : 'Los costos no coinciden; revisa el resultado.'}
+        {sameCost ? t('route.compare.sameCost') : t('route.compare.differentCost')}
         {share !== null
-          ? ` A* exploró el ${formatPercent(share)} de los nodos que exploró Dijkstra.`
+          ? ` ${t('route.compare.share', { share: formatPercent(share, locale) })}`
           : ''}
       </p>
     </div>
@@ -82,6 +82,8 @@ function AlgorithmComparison({
   query: Omit<RouteQuery, 'algorithm'>;
   fetchRoute: FetchRoute;
 }) {
+  const language = useLanguage();
+  const { t } = language;
   // The answer is kept with the route it belongs to, so a new route starts without one.
   const [stored, setStored] = useState<{ route: RouteAnswer; state: Comparison } | null>(null);
   const state: Comparison = stored?.route === route ? stored.state : { status: 'idle' };
@@ -111,17 +113,17 @@ function AlgorithmComparison({
         disabled={state.status === 'loading'}
       >
         {state.status === 'done'
-          ? 'Comparar de nuevo'
-          : `Comparar con ${ALGORITHM_NAME[otherAlgorithm]}`}
+          ? t('route.compare.again')
+          : t('route.compare.with', { algorithm: ALGORITHM_NAME[otherAlgorithm] })}
       </button>
       {state.status === 'loading' ? (
         <p className="route-compare__note" role="status">
-          Calculando con {ALGORITHM_NAME[otherAlgorithm]}…
+          {t('route.compare.loading', { algorithm: ALGORITHM_NAME[otherAlgorithm] })}
         </p>
       ) : null}
       {state.status === 'error' ? (
         <p className="route-compare__note route-compare__note--error" role="alert">
-          {describeRouteError(state.error).title}
+          {describeRouteError(state.error, language).title}
         </p>
       ) : null}
       {state.status === 'done' ? <ComparisonResult route={route} other={state.other} /> : null}
@@ -138,46 +140,51 @@ export function RouteDetails({
   criterion,
   fetchRoute = getRoute,
 }: RouteDetailsProps) {
+  const { t, locale } = useLanguage();
   const { summary } = route;
-  const criterionLabel = CRITERIA.find((item) => item.value === criterion)?.label ?? criterion;
+  const criterionItem = CRITERIA.find((item) => item.value === criterion);
+  const criterionLabel = criterionItem ? t(criterionItem.labelKey) : criterion;
 
   return (
     <div className="route-info">
       <dl className="route-summary">
         <div>
-          <dt>Distancia</dt>
-          <dd>{formatLength(summary.lengthM)}</dd>
+          <dt>{t('route.summary.distance')}</dt>
+          <dd>{formatLength(summary.lengthM, locale)}</dd>
         </div>
         <div>
-          <dt>Calles</dt>
-          <dd>{formatNumber(groups.length)}</dd>
+          <dt>{t('route.summary.streets')}</dt>
+          <dd>{formatNumber(groups.length, locale)}</dd>
         </div>
         <div>
-          <dt>Tramos</dt>
-          <dd>{formatNumber(summary.steps)}</dd>
+          <dt>{t('route.summary.segments')}</dt>
+          <dd>{formatNumber(summary.steps, locale)}</dd>
         </div>
         <div>
-          <dt>Con daño</dt>
+          <dt>{t('route.summary.damaged')}</dt>
           <dd>
-            {formatNumber(countDamagedSteps(groups))} de {formatNumber(summary.steps)}
+            {t('route.summary.damagedOf', {
+              damaged: formatNumber(countDamagedSteps(groups), locale),
+              total: formatNumber(summary.steps, locale),
+            })}
           </dd>
         </div>
       </dl>
       <details className="route-details">
-        <summary>Detalles técnicos</summary>
+        <summary>{t('route.technical')}</summary>
         <dl className="route-facts">
-          <dt>Criterio</dt>
+          <dt>{t('route.fact.criterion')}</dt>
           <dd>{criterionLabel}</dd>
-          <dt>Algoritmo</dt>
+          <dt>{t('route.fact.algorithm')}</dt>
           <dd>{ALGORITHM_NAME[route.algorithm]}</dd>
-          <dt>Nodos explorados</dt>
-          <dd>{formatNumber(summary.exploredNodes)}</dd>
-          <dt>Tiempo de cálculo</dt>
+          <dt>{t('route.fact.explored')}</dt>
+          <dd>{formatNumber(summary.exploredNodes, locale)}</dd>
+          <dt>{t('route.fact.time')}</dt>
           <dd>{summary.computationMs} ms</dd>
-          <dt>Costo de la ruta</dt>
-          <dd>{formatDecimal(summary.cost, 1)}</dd>
-          <dt>Salió de la caché</dt>
-          <dd>{route.fromCache ? 'Sí' : 'No'}</dd>
+          <dt>{t('route.fact.cost')}</dt>
+          <dd>{formatDecimal(summary.cost, 1, locale)}</dd>
+          <dt>{t('route.fact.cache')}</dt>
+          <dd>{route.fromCache ? t('common.yes') : t('common.no')}</dd>
         </dl>
         <AlgorithmComparison
           route={route}

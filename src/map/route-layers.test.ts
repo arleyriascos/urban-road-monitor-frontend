@@ -1,5 +1,6 @@
 import * as L from 'leaflet';
 import { describe, expect, it, vi } from 'vitest';
+import { englishTexts } from '../test/english';
 import { routeFixture } from '../test/route-fixtures';
 import { PANES } from './base-map';
 import {
@@ -185,5 +186,19 @@ describe('stepsBounds', () => {
     const bounds = stepsBounds([routeFixture.route.features[0]]);
     expect(bounds.getEast()).toBeCloseTo(-77.2801, 6);
     expect(bounds.getNorth()).toBeCloseTo(1.2137, 6);
+  });
+});
+
+describe('the title of a pin in English', () => {
+  it('names the point and says it can be dragged, in the language of the app', () => {
+    const point = { latitude: 1.2136, longitude: -77.2811 };
+    const origin = createRoutePin('origin', point, { onMove: vi.fn(), texts: englishTexts });
+    const destination = createRoutePin('destination', point, {
+      onMove: vi.fn(),
+      texts: englishTexts,
+    });
+    expect(origin.options.title).toBe('Origin: drag it to move it');
+    expect(origin.options.alt).toBe('Origin');
+    expect(destination.options.title).toBe('Destination: drag it to move it');
   });
 });

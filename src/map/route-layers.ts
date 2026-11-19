@@ -1,6 +1,7 @@
 import * as L from 'leaflet';
 import type { RoutePointName } from '../lib/route-errors';
 import { arrowSpots } from '../lib/route-geometry';
+import { defaultTexts, type Texts } from '../lib/translator';
 import type { LatLng, RouteAnswer, RouteStepFeature, RouteStepProperties } from '../types/route';
 import { PANES } from './base-map';
 
@@ -14,7 +15,6 @@ export const HIGHLIGHT_COLOR = '#7c3aed';
 export const MIN_CONNECTOR_M = 5;
 
 const PIN_LABEL: Record<RoutePointName, string> = { origin: 'A', destination: 'B' };
-const PIN_NAME: Record<RoutePointName, string> = { origin: 'Origen', destination: 'Destino' };
 
 /** The A (green) or B (red) pin; it turns into a warning when that point has a problem. */
 export function routePinIcon(kind: RoutePointName, hasError: boolean): L.DivIcon {
@@ -29,6 +29,8 @@ export function routePinIcon(kind: RoutePointName, hasError: boolean): L.DivIcon
 
 interface PinOptions {
   hasError?: boolean;
+  /** The language of the title of the pin. Spanish when none is given. */
+  texts?: Texts;
   /** Called when the person drops the pin somewhere else (not while dragging). */
   onMove: (point: LatLng) => void;
 }
@@ -37,15 +39,15 @@ interface PinOptions {
 export function createRoutePin(
   kind: RoutePointName,
   point: LatLng,
-  { hasError = false, onMove }: PinOptions,
+  { hasError = false, texts = defaultTexts, onMove }: PinOptions,
 ): L.Marker {
   const marker = L.marker([point.latitude, point.longitude], {
     draggable: true,
     autoPan: true,
     keyboard: true,
     icon: routePinIcon(kind, hasError),
-    title: `${PIN_NAME[kind]}: arrástralo para moverlo`,
-    alt: PIN_NAME[kind],
+    title: texts.t(kind === 'origin' ? 'route.pin.origin' : 'route.pin.destination'),
+    alt: texts.t(kind === 'origin' ? 'route.point.origin' : 'route.point.destination'),
     zIndexOffset: kind === 'destination' ? 10 : 0,
   });
   marker.on('dragend', () => {
