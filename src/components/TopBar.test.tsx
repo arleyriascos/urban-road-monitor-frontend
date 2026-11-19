@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { renderInEnglish } from '../test/english';
 import { statsFixture } from '../test/fixtures';
 import { TopBar } from './TopBar';
 
@@ -58,5 +59,19 @@ describe('TopBar', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Ingresar' }));
 
     expect(onSignIn).toHaveBeenCalledOnce();
+  });
+});
+
+describe('TopBar in English', () => {
+  it('shows the title, the numbers and the camera link in English', () => {
+    renderInEnglish(<TopBar stats={statsFixture} />);
+    expect(screen.getByRole('heading', { name: 'Street condition in Pasto' })).toBeTruthy();
+    const summary = screen.getByRole('list', { name: 'City summary' });
+    expect([...summary.querySelectorAll('li')].map((item) => item.textContent)).toEqual([
+      '4,610 roads',
+      '774.1 km',
+      '54 active potholes',
+    ]);
+    expect(screen.getByRole('link', { name: 'Pothole detector' })).toBeTruthy();
   });
 });

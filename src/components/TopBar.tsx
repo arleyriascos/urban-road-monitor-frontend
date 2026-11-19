@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/useLanguage';
 import { summarizeNetwork } from '../lib/legend';
 import type { NetworkStats } from '../types/map';
 import { CAMERA_PATH } from './CameraPage';
@@ -19,7 +20,9 @@ function Figure({ text }: { text: string }) {
 
 /** Title of the app, the numbers of the city and, when given, who is using it. */
 export function TopBar({ stats, account }: { stats: NetworkStats; account?: AccountActions }) {
-  const summary = summarizeNetwork(stats);
+  const language = useLanguage();
+  const { t } = language;
+  const summary = summarizeNetwork(stats, language);
 
   return (
     <header className="topbar">
@@ -27,17 +30,17 @@ export function TopBar({ stats, account }: { stats: NetworkStats; account?: Acco
         <BrandMark />
         <span className="brand__text">
           <span className="brand__name">Urban Road Monitor</span>
-          <h1 className="brand__sub topbar__title">Estado de las calles de Pasto</h1>
+          <h1 className="brand__sub topbar__title">{t('topbar.title')}</h1>
         </span>
       </a>
-      <ul className="topbar__summary" aria-label="Resumen de la ciudad">
+      <ul className="topbar__summary" aria-label={t('topbar.summary')}>
         <Figure text={summary.roads} />
         <Figure text={summary.length} />
         <Figure text={summary.potholes} />
       </ul>
       <a className="topbar__camera" href={CAMERA_PATH}>
         <Icon name="camera" />
-        <span className="topbar__camera-text">Detector de baches</span>
+        <span className="topbar__camera-text">{t('topbar.camera')}</span>
       </a>
       {account && <AccountBadge {...account} />}
     </header>

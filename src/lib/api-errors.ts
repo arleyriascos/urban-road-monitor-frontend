@@ -1,32 +1,29 @@
 import type { ApiError } from '../api/http';
+import { inDefaultLanguage, type Translator } from './translator';
 
 export interface ErrorDescription {
   title: string;
   help: string;
 }
 
-/** Plain-Spanish explanation of what went wrong and what the person can do. */
-export function describeError(error: Pick<ApiError, 'kind' | 'status'>): ErrorDescription {
+/** Plain explanation of what went wrong and what the person can do, in their language. */
+export function describeError(
+  error: Pick<ApiError, 'kind' | 'status'>,
+  t: Translator = inDefaultLanguage,
+): ErrorDescription {
   if (error.kind === 'timeout') {
-    return {
-      title: 'El servidor no respondió a tiempo',
-      help: 'Puede estar despertando después de un rato sin uso. Intenta de nuevo.',
-    };
+    return { title: t('apiError.timeout.title'), help: t('apiError.timeout.help') };
   }
   if (error.kind === 'network') {
-    return {
-      title: 'No se pudo conectar con el servidor',
-      help: 'Revisa tu conexión a internet e intenta de nuevo en unos segundos.',
-    };
+    return { title: t('apiError.network.title'), help: t('apiError.network.help') };
   }
   if (error.status === 503) {
-    return {
-      title: 'El servidor respondió, pero la base de datos no está disponible',
-      help: 'La base de datos puede estar encendiéndose. Intenta de nuevo en unos segundos.',
-    };
+    return { title: t('apiError.database.title'), help: t('apiError.database.help') };
   }
   return {
-    title: `El servidor respondió con un error (código ${error.status ?? 'desconocido'})`,
-    help: 'Intenta de nuevo. Si el error continúa, revisa los registros del servidor en Render.',
+    title: t('apiError.other.title', {
+      status: error.status ?? t('apiError.other.unknown'),
+    }),
+    help: t('apiError.other.help'),
   };
 }

@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../api/http';
 import { SLOW_REQUEST_MS } from '../hooks/useMapData';
+import { renderInEnglish } from '../test/english';
 import { SessionCheckScreen } from './SessionCheckScreen';
 
 afterEach(() => {
@@ -67,5 +68,25 @@ describe('SessionCheckScreen', () => {
     unmount();
 
     expect(vi.getTimerCount()).toBe(0);
+  });
+});
+
+describe('SessionCheckScreen in English', () => {
+  it('says the session is being checked, and lets a person retry or go on as a guest', () => {
+    const onRetry = vi.fn();
+    const onSkip = vi.fn();
+    renderInEnglish(
+      <SessionCheckScreen
+        unreachable={new ApiError('network', 'down')}
+        onRetry={onRetry}
+        onSkip={onSkip}
+      />,
+    );
+    expect(screen.getByText('Could not connect to the server')).toBeTruthy();
+    expect(screen.getByText(/Your session is still saved/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Continue as a guest for now' }));
+    expect(onRetry).toHaveBeenCalledTimes(1);
+    expect(onSkip).toHaveBeenCalledTimes(1);
   });
 });

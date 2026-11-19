@@ -1,6 +1,7 @@
 import type { NetworkStats } from '../types/map';
 import { capitalize, formatDecimal, formatNumber, pluralize } from './format';
 import { safeColor } from './html';
+import { defaultTexts, type Texts } from './translator';
 
 export interface LegendEntry {
   severity: string;
@@ -45,10 +46,18 @@ export function countPotholes(stats: NetworkStats): PotholeCounts {
 }
 
 /** Texts of the top bar. */
-export function summarizeNetwork(stats: NetworkStats): NetworkSummary {
+export function summarizeNetwork(
+  stats: NetworkStats,
+  { t, locale }: Texts = defaultTexts,
+): NetworkSummary {
   return {
-    roads: pluralize(stats.roads, 'vía', 'vías'),
-    length: `${formatDecimal(stats.totalLengthKm, 1)} km`,
-    potholes: pluralize(countPotholes(stats).active, 'bache activo', 'baches activos'),
+    roads: pluralize(stats.roads, t('topbar.roads.one'), t('topbar.roads.other'), locale),
+    length: `${formatDecimal(stats.totalLengthKm, 1, locale)} km`,
+    potholes: pluralize(
+      countPotholes(stats).active,
+      t('topbar.potholes.one'),
+      t('topbar.potholes.other'),
+      locale,
+    ),
   };
 }

@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+import { renderInEnglish } from '../test/english';
 import { LoadingScreen } from './LoadingScreen';
 
 describe('LoadingScreen', () => {
@@ -27,5 +28,15 @@ describe('LoadingScreen', () => {
   it('waits for the server and the database', () => {
     const { container } = render(<LoadingScreen slow={false} />);
     expect(container.querySelectorAll('.route__stop--pending')).toHaveLength(2);
+  });
+});
+
+describe('LoadingScreen in English', () => {
+  it('tells what is happening, and why it may take long, in English', () => {
+    renderInEnglish(<LoadingScreen slow />);
+    expect(screen.getByText('Loading the map…')).toBeTruthy();
+    expect(screen.getByText(/free server goes to sleep/)).toBeTruthy();
+    expect(screen.getByRole('list', { name: 'Path of the request' })).toBeTruthy();
+    expect(screen.getByText('Your browser')).toBeTruthy();
   });
 });

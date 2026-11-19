@@ -1,3 +1,5 @@
+import type { MessageKey } from '../i18n/translate';
+
 export type StopStatus = 'reached' | 'pending' | 'failed';
 
 /** What the route needs to know about a request, whichever request it is. */
@@ -6,15 +8,21 @@ export type RouteState =
   | { status: 'success' }
   | { status: 'error'; error: { kind: 'network' | 'timeout' | 'http'; status?: number } };
 
+/** A stop of the road, with the keys of the texts that name it and say what it is. */
 export interface Stop {
-  name: string;
-  detail: string;
+  id: 'browser' | 'server' | 'database';
+  nameKey: MessageKey;
+  detailKey: MessageKey;
 }
 
 export const STOPS: readonly Stop[] = [
-  { name: 'Tu navegador', detail: 'Frontend en Vercel' },
-  { name: 'Servidor', detail: 'API REST en Render' },
-  { name: 'Base de datos', detail: 'PostgreSQL en Neon' },
+  { id: 'browser', nameKey: 'connection.browser.name', detailKey: 'connection.browser.detail' },
+  { id: 'server', nameKey: 'connection.server.name', detailKey: 'connection.server.detail' },
+  {
+    id: 'database',
+    nameKey: 'connection.database.name',
+    detailKey: 'connection.database.detail',
+  },
 ];
 
 /**

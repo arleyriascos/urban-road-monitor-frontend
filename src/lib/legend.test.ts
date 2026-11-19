@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { englishTexts } from '../test/english';
 import { statsFixture } from '../test/fixtures';
 import type { NetworkStats } from '../types/map';
 import { buildSeverityLegend, countPotholes, summarizeNetwork } from './legend';
@@ -58,6 +59,16 @@ describe('summarizeNetwork', () => {
     expect(summarizeNetwork(single)).toMatchObject({
       roads: '1 vía',
       potholes: '1 bache activo',
+    });
+  });
+});
+
+describe('summarizeNetwork in English', () => {
+  it('writes the numbers the English way', () => {
+    expect(summarizeNetwork(statsFixture, englishTexts)).toEqual({
+      roads: '4,610 roads',
+      length: '774.1 km',
+      potholes: '54 active potholes',
     });
   });
 });

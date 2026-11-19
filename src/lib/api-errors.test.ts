@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { englishTexts } from '../test/english';
 import { describeError } from './api-errors';
 
 describe('describeError', () => {
@@ -25,5 +26,28 @@ describe('describeError', () => {
 
   it('says "desconocido" when there is no status code', () => {
     expect(describeError({ kind: 'http' }).title).toContain('desconocido');
+  });
+});
+
+describe('describeError in English', () => {
+  const english = englishTexts.t;
+
+  it('explains each kind of failure in English', () => {
+    expect(describeError({ kind: 'timeout' }, english).title).toBe(
+      'The server did not answer in time',
+    );
+    expect(describeError({ kind: 'network' }, english).title).toBe(
+      'Could not connect to the server',
+    );
+    expect(describeError({ kind: 'http', status: 503 }, english).title).toContain(
+      'the database is not available',
+    );
+  });
+
+  it('names the code of any other error, or says it is unknown', () => {
+    expect(describeError({ kind: 'http', status: 500 }, english).title).toBe(
+      'The server answered with an error (code 500)',
+    );
+    expect(describeError({ kind: 'http' }, english).title).toContain('(code unknown)');
   });
 });

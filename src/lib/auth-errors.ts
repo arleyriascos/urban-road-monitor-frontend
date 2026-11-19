@@ -1,6 +1,5 @@
 import type { ApiError } from '../api/http';
-import { DEFAULT_LOCALE } from '../i18n/locale';
-import { translate, type MessageKey, type MessageParams } from '../i18n/translate';
+import { inDefaultLanguage, type Translator } from './translator';
 
 export interface SignInErrorDescription {
   title: string;
@@ -11,11 +10,6 @@ export interface SignInErrorDescription {
 export function isSessionGone(error: Pick<ApiError, 'kind' | 'status'>): boolean {
   return error.kind === 'http' && error.status === 401;
 }
-
-/** How a text is written: `t` of the language of the app. Spanish when none is given. */
-type Translator = (key: MessageKey, params?: MessageParams) => string;
-
-const inDefaultLanguage: Translator = (key, params) => translate(DEFAULT_LOCALE, key, params);
 
 /** Plain explanation of why signing in with Google failed and what to do, in the person's language. */
 export function describeSignInError(

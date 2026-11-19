@@ -3,7 +3,7 @@ import { getStopStatuses, STOPS } from './connection-stops';
 
 describe('STOPS', () => {
   it('are the three places a request goes through', () => {
-    expect(STOPS.map((stop) => stop.name)).toEqual(['Tu navegador', 'Servidor', 'Base de datos']);
+    expect(STOPS.map((stop) => stop.id)).toEqual(['browser', 'server', 'database']);
   });
 });
 
