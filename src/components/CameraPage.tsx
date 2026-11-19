@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useLanguage } from '../i18n/useLanguage';
 import { useCamera, type CameraDependencies } from '../hooks/useCamera';
 import { useDetection, type DetectionDependencies } from '../hooks/useDetection';
 import { useDetectionSending, type SendingDependencies } from '../hooks/useDetectionSending';
@@ -47,6 +48,7 @@ function showStream(video: HTMLVideoElement, stream: MediaStream | null): void {
  * camera is replaced by a screen that asks to sign in.
  */
 export function CameraPage({ dependencies = {} }: { dependencies?: CameraPageDependencies }) {
+  const language = useLanguage();
   const camera = useCamera(dependencies.camera);
   const model = useDetectorModel(dependencies.model);
   const [video, setVideo] = useState<HTMLVideoElement | null>(null);
@@ -70,7 +72,7 @@ export function CameraPage({ dependencies = {} }: { dependencies?: CameraPageDep
     geolocation,
     dependencies.sending,
   );
-  const summary = summarizeSending(access, geolocation.state, sending, stream !== null);
+  const summary = summarizeSending(access, geolocation.state, sending, stream !== null, language);
   const gate = dependencies.gate ?? defaultGate;
 
   const { start: startCamera, stop: stopCamera } = camera;

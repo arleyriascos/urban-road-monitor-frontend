@@ -1,21 +1,21 @@
+import type { MessageKey } from '../i18n/translate';
+
 export type CameraErrorKind =
   'denied' | 'not_found' | 'busy' | 'unsupported' | 'insecure' | 'other';
 
+/** Why the camera did not open. The text for the person is chosen when it is shown. */
 export interface CameraError {
   kind: CameraErrorKind;
-  /** What to tell the person, in plain Spanish, with what they can do about it. */
-  message: string;
 }
 
-const MESSAGES: Record<CameraErrorKind, string> = {
-  denied:
-    'No tenemos permiso para usar la cámara. Actívalo en los ajustes del navegador para este sitio y vuelve a intentarlo.',
-  not_found: 'No encontramos una cámara en este dispositivo.',
-  busy: 'La cámara está en uso por otra aplicación. Ciérrala y vuelve a intentarlo.',
-  unsupported:
-    'Este navegador no puede usar la cámara. Prueba con Chrome, Safari o Firefox actualizados.',
-  insecure: 'La cámara solo funciona en una conexión segura (https).',
-  other: 'No pudimos abrir la cámara. Vuelve a intentarlo.',
+/** What to tell the person, with what they can do about it: the key of its text. */
+export const CAMERA_ERROR_KEYS: Record<CameraErrorKind, MessageKey> = {
+  denied: 'cameraError.denied',
+  not_found: 'cameraError.notFound',
+  busy: 'cameraError.busy',
+  unsupported: 'cameraError.unsupported',
+  insecure: 'cameraError.insecure',
+  other: 'cameraError.other',
 };
 
 function kindOf(error: unknown): CameraErrorKind {
@@ -41,8 +41,7 @@ function kindOf(error: unknown): CameraErrorKind {
   }
 }
 
-/** Turns what the browser throws when the camera does not open into a message for the person. */
+/** Turns what the browser throws when the camera does not open into a kind of problem. */
 export function describeCameraError(error: unknown): CameraError {
-  const kind = kindOf(error);
-  return { kind, message: MESSAGES[kind] };
+  return { kind: kindOf(error) };
 }

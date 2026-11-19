@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { describeCameraError } from './camera-error';
+import { translate } from '../i18n/translate';
+import { CAMERA_ERROR_KEYS, describeCameraError } from './camera-error';
 
 describe('describeCameraError', () => {
   it.each([
@@ -26,14 +27,15 @@ describe('describeCameraError', () => {
       'Other',
     ];
     for (const name of names) {
-      expect(describeCameraError(new DOMException('x', name)).message).toMatch(/cámara|navegador/);
+      const { kind } = describeCameraError(new DOMException('x', name));
+      expect(translate('es', CAMERA_ERROR_KEYS[kind])).toMatch(/cámara|navegador/);
     }
   });
 
   it('tells the person how to fix a denied permission', () => {
-    expect(describeCameraError(new DOMException('x', 'NotAllowedError')).message).toMatch(
-      /ajustes/,
-    );
+    const { kind } = describeCameraError(new DOMException('x', 'NotAllowedError'));
+    expect(translate('es', CAMERA_ERROR_KEYS[kind])).toMatch(/ajustes/);
+    expect(translate('en', CAMERA_ERROR_KEYS[kind])).toMatch(/settings/);
   });
 
   it('handles values that are not errors', () => {

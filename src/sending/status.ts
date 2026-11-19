@@ -2,7 +2,8 @@ import { describeGpsProblem } from './gps-error';
 import { describeAccess, type SendAccess } from './access';
 import type { GeolocationState } from '../hooks/useGeolocation';
 import type { SendingView } from '../hooks/useDetectionSending';
-import { pluralize } from '../lib/format';
+import { formatNumber } from '../lib/format';
+import { defaultTexts, type Texts } from '../lib/translator';
 
 export type MessageTone = 'info' | 'warning';
 
@@ -23,28 +24,24 @@ export interface SendingSummary {
   counts: SendingCounts | null;
 }
 
-function senderMessage(view: SendingView): StatusMessage | null {
+function senderMessage(view: SendingView, { t, locale }: Texts): StatusMessage | null {
+  const count = formatNumber(view.pending, locale);
+  const one = view.pending === 1;
   switch (view.status) {
     case 'waiting':
       return {
         tone: 'warning',
-        text: `No se pudo enviar por ahora. ${pluralize(view.pending, 'bache espera', 'baches esperan')} en tu teléfono y se enviará${view.pending === 1 ? '' : 'n'} solo${view.pending === 1 ? '' : 's'} al volver la conexión.`,
+        text: t(one ? 'sending.waitingMessage.one' : 'sending.waitingMessage.other', { count }),
       };
     case 'session_over':
       return {
         tone: 'warning',
-        text: `Tu sesión terminó. ${pluralize(view.pending, 'bache queda', 'baches quedan')} guardado${view.pending === 1 ? '' : 's'} en tu teléfono; ingresa de nuevo desde el mapa para enviarlos.`,
+        text: t(one ? 'sending.sessionOver.one' : 'sending.sessionOver.other', { count }),
       };
     case 'not_allowed':
-      return {
-        tone: 'warning',
-        text: 'Tu cuenta no puede guardar baches ahora. Los que viste quedan en tu teléfono.',
-      };
+      return { tone: 'warning', text: t('sending.notAllowed') };
     case 'model_outdated':
-      return {
-        tone: 'warning',
-        text: 'Hay un modelo más nuevo. Recarga la página para actualizarlo; mientras tanto los baches quedan en tu teléfono.',
-      };
+      return { tone: 'warning', text: t('sending.modelOutdated') };
     default:
       return null;
   }
@@ -56,22 +53,26 @@ export function summarizeSending(
   gps: GeolocationState,
   view: SendingView,
   cameraOn: boolean,
+  texts: Texts = defaultTexts,
 ): SendingSummary {
-  const messages: StatusMessage[] = [{ tone: 'info', text: describeAccess(access) }];
+  const { t, locale } = texts;
+  const messages: StatusMessage[] = [{ tone: 'info', text: describeAccess(access, t) }];
   if (access.status !== 'allowed') return { messages, counts: null };
 
   if (cameraOn && gps.status === 'problem') {
-    messages.push({ tone: 'warning', text: describeGpsProblem(gps.problem) });
+    messages.push({ tone: 'warning', text: describeGpsProblem(gps.problem, t) });
   } else if (cameraOn && gps.status === 'waiting') {
-    messages.push({ tone: 'info', text: 'Buscando la ubicación del teléfono…' });
+    messages.push({ tone: 'info', text: t('sending.locating') });
   }
 
-  const problem = senderMessage(view);
+  const problem = senderMessage(view, texts);
   if (problem) messages.push(problem);
   else if (!cameraOn && view.pending > 0) {
     messages.push({
       tone: 'info',
-      text: `${pluralize(view.pending, 'bache pendiente', 'baches pendientes')} de enviar.`,
+      text: t(view.pending === 1 ? 'sending.pending.one' : 'sending.pending.other', {
+        count: formatNumber(view.pending, locale),
+      }),
     });
   }
 

@@ -1,3 +1,4 @@
+import { inDefaultLanguage, type Translator } from '../lib/translator';
 import type { AccountProfile } from '../types/auth';
 
 /** The permission the backend asks for to record detections (every signed-in account has it). */
@@ -29,19 +30,19 @@ export function accessOf(
 }
 
 /** What the camera screen tells the person about saving, in one sentence. */
-export function describeAccess(access: SendAccess): string {
+export function describeAccess(access: SendAccess, t: Translator = inDefaultLanguage): string {
   switch (access.status) {
     case 'guest':
-      return 'Ingresa con tu cuenta de Google para detectar y guardar baches.';
+      return t('access.guest');
     case 'checking':
-      return 'Revisando tu cuenta…';
+      return t('access.checking');
     case 'allowed':
-      return 'Los baches que veas se guardan y se envían a tu nombre.';
+      return t('access.allowed');
     case 'no_permission':
-      return 'Tu cuenta no tiene permiso para guardar baches. Pide a un administrador que la revise.';
+      return t('access.noPermission');
     case 'session_over':
-      return 'Tu sesión terminó, así que los baches no se guardan. Vuelve al mapa e ingresa de nuevo.';
+      return t('access.sessionOver');
     case 'unreachable':
-      return 'No se pudo revisar tu cuenta. Se intentará de nuevo en unos segundos.';
+      return t('access.unreachable');
   }
 }

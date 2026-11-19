@@ -1,3 +1,5 @@
+import { CAMERA_ERROR_KEYS } from '../camera/camera-error';
+import { useLanguage } from '../i18n/useLanguage';
 import type { CameraState } from '../hooks/useCamera';
 import type { DetectionState } from '../hooks/useDetection';
 import type { ModelState } from '../hooks/useDetectorModel';
@@ -5,6 +7,7 @@ import { progressFraction } from '../detection/model-download';
 import type { PerformanceReading } from '../detection/meters';
 import { formatDuration } from '../lib/duration';
 import { formatDecimal, formatPercent } from '../lib/format';
+import type { Texts } from '../lib/translator';
 import type { SendingSummary } from '../sending/status';
 import { CameraHeader } from './CameraHeader';
 import { Icon } from './Icon';
@@ -25,27 +28,34 @@ export interface CameraViewProps {
   videoRef: (video: HTMLVideoElement | null) => void;
 }
 
-function modelStatus(model: ModelState): string | null {
+function modelStatus(model: ModelState, { t, locale }: Texts): string | null {
   if (model.status === 'loading') {
     const fraction = model.progress ? progressFraction(model.progress) : null;
     return fraction === null
-      ? 'Descargando el modelo de detección…'
-      : `Descargando el modelo de detección: ${formatPercent(fraction)}`;
+      ? t('camera.model.downloading')
+      : t('camera.model.downloadingPercent', { percent: formatPercent(fraction, locale) });
   }
-  if (model.status === 'error') return model.message;
+  if (model.status === 'error') {
+    return t(model.reason === 'failed' ? 'modelError.failed' : 'modelError.unknown');
+  }
   return null;
 }
 
 /** The speed of the detection over the video, while it runs. The meters below have the detail. */
 function LiveBadges({ reading }: { reading: PerformanceReading | null }) {
+  const { t, locale } = useLanguage();
   return (
     <div className="camera__badges" aria-hidden="true">
-      <span className="camera__badge camera__badge--live">Detectando</span>
+      <span className="camera__badge camera__badge--live">{t('camera.badge.detecting')}</span>
       {reading?.fps != null && (
-        <span className="camera__badge">{`${formatDecimal(reading.fps, 1)} det/s`}</span>
+        <span className="camera__badge">
+          {t('camera.badge.perSecond', { value: formatDecimal(reading.fps, 1, locale) })}
+        </span>
       )}
       {reading?.totalMs != null && (
-        <span className="camera__badge">{`${formatDuration(reading.totalMs)} por cuadro`}</span>
+        <span className="camera__badge">
+          {t('camera.badge.perFrame', { value: formatDuration(reading.totalMs, locale) })}
+        </span>
       )}
     </div>
   );
@@ -61,9 +71,11 @@ export function CameraView({
   onStop,
   videoRef,
 }: CameraViewProps) {
+  const language = useLanguage();
+  const { t } = language;
   const on = camera.status === 'on';
   const opening = camera.status === 'opening';
-  const status = modelStatus(model);
+  const status = modelStatus(model, language);
   const ready = model.status === 'ready';
 
   return (
@@ -78,7 +90,7 @@ export function CameraView({
             autoPlay
             muted
             playsInline
-            aria-label="Vista de la cámara"
+            aria-label={t('camera.video')}
           />
           <OverlayCanvas
             detections={detection.latest?.detections ?? []}
@@ -89,7 +101,7 @@ export function CameraView({
               <span className="camera__placeholder-icon" aria-hidden="true">
                 <Icon name="camera" />
               </span>
-              {opening ? 'Abriendo la cámara…' : 'La cámara está apagada.'}
+              {opening ? t('camera.opening') : t('camera.off')}
             </p>
           )}
           {on && ready && <LiveBadges reading={detection.reading?.performance ?? null} />}
@@ -103,20 +115,20 @@ export function CameraView({
                 className="camera__button camera__button--stop"
                 onClick={onStop}
               >
-                Apagar la cámara
+                {t('camera.stop')}
               </button>
             ) : (
               <button type="button" className="camera__button" onClick={onStart}>
                 {camera.status === 'error' || model.status === 'error'
-                  ? 'Intentar de nuevo'
-                  : 'Activar la cámara'}
+                  ? t('camera.retry')
+                  : t('camera.start')}
               </button>
             )}
           </div>
 
           {camera.status === 'error' && (
             <p className="camera__message camera__message--error" role="alert">
-              {camera.error.message}
+              {t(CAMERA_ERROR_KEYS[camera.error.kind])}
             </p>
           )}
           {status && (
@@ -129,7 +141,7 @@ export function CameraView({
           )}
           {on && ready && !detection.latest && (
             <p className="camera__message" role="status">
-              Buscando baches…
+              {t('camera.searching')}
             </p>
           )}
 
@@ -145,10 +157,7 @@ export function CameraView({
 
           <p className="camera__privacy">
             <Icon name="shield" />
-            <span>
-              Las imágenes de la cámara se analizan en tu dispositivo y no salen de él. Solo se
-              envía, con tu cuenta, dónde está cada bache y qué tan grande se ve.
-            </span>
+            <span>{t('camera.privacy')}</span>
           </p>
         </aside>
       </div>

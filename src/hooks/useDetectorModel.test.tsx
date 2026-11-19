@@ -67,7 +67,7 @@ describe('useDetectorModel', () => {
 
     act(() => result.current.load());
     await waitFor(() => expect(result.current.state.status).toBe('error'));
-    expect(result.current.state).toMatchObject({ message: expect.stringMatching(/modelo/) });
+    expect(result.current.state).toMatchObject({ reason: 'failed' });
 
     fail = false;
     act(() => result.current.load());

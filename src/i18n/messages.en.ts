@@ -366,4 +366,72 @@ export const en: Record<MessageKey, string> = {
   'routeError.invalid.title': 'The app asked for the route with invalid data',
   'routeError.invalid.help':
     'Place the origin and the destination again. If it happens again, it is an error of the app.',
+  'cameraError.denied':
+    'We do not have permission to use the camera. Turn it on in the browser settings for this site and try again.',
+  'cameraError.notFound': 'We did not find a camera on this device.',
+  'cameraError.busy': 'The camera is in use by another app. Close it and try again.',
+  'cameraError.unsupported':
+    'This browser cannot use the camera. Try an up-to-date Chrome, Safari or Firefox.',
+  'cameraError.insecure': 'The camera only works on a secure connection (https).',
+  'cameraError.other': 'We could not open the camera. Try again.',
+  'modelError.failed':
+    'We could not load the detection model. Check your connection and try again.',
+  'modelError.unknown': 'We could not load the detection model.',
+  'camera.model.downloading': 'Downloading the detection model…',
+  'camera.model.downloadingPercent': 'Downloading the detection model: {percent}',
+  'camera.badge.detecting': 'Detecting',
+  'camera.badge.perSecond': '{value} det/s',
+  'camera.badge.perFrame': '{value} per frame',
+  'camera.video': 'Camera view',
+  'camera.off': 'The camera is off.',
+  'camera.opening': 'Opening the camera…',
+  'camera.stop': 'Turn the camera off',
+  'camera.start': 'Turn the camera on',
+  'camera.retry': 'Try again',
+  'camera.searching': 'Looking for potholes…',
+  'camera.privacy':
+    'The camera images are analyzed on your device and never leave it. Only where each pothole is and how big it looks is sent, with your account.',
+  'sending.label': 'Saving potholes',
+  'sending.sent': 'Sent',
+  'sending.waiting': 'Waiting',
+  'access.guest': 'Sign in with your Google account to detect and save potholes.',
+  'access.checking': 'Checking your account…',
+  'access.allowed': 'The potholes you see are saved and sent under your name.',
+  'access.noPermission':
+    'Your account is not allowed to save potholes. Ask an administrator to review it.',
+  'access.sessionOver':
+    'Your session ended, so the potholes are not saved. Go back to the map and sign in again.',
+  'access.unreachable': 'Your account could not be checked. We will try again in a few seconds.',
+  'gps.denied':
+    'There is no permission to use the location. Turn it on in the browser settings to be able to save the potholes.',
+  'gps.unsupported': 'This browser cannot give the location, so the potholes are not saved.',
+  'gps.unavailable': 'The phone cannot be located. Go to an open place and wait a few seconds.',
+  'sending.locating': 'Looking for the location of the phone…',
+  'sending.waitingMessage.one':
+    'Could not send for now. {count} pothole is waiting on your phone and will be sent on its own when the connection returns.',
+  'sending.waitingMessage.other':
+    'Could not send for now. {count} potholes are waiting on your phone and will be sent on their own when the connection returns.',
+  'sending.sessionOver.one':
+    'Your session ended. {count} pothole is kept on your phone; sign in again from the map to send it.',
+  'sending.sessionOver.other':
+    'Your session ended. {count} potholes are kept on your phone; sign in again from the map to send them.',
+  'sending.notAllowed':
+    'Your account cannot save potholes now. The ones you saw stay on your phone.',
+  'sending.modelOutdated':
+    'There is a newer model. Reload the page to update it; meanwhile the potholes stay on your phone.',
+  'sending.pending.one': '{count} pothole waiting to be sent.',
+  'sending.pending.other': '{count} potholes waiting to be sent.',
+  'meter.performance.title': 'Performance',
+  'meter.performance.fps': 'Detections per second',
+  'meter.performance.model': 'Model time',
+  'meter.performance.total': 'Total time per frame',
+  'meter.performance.load': 'Model loading',
+  'meter.measuring': 'Measuring…',
+  'meter.size.title': 'Size and severity',
+  'meter.size.rule.leve': 'less than {limit} of the frame',
+  'meter.size.rule.moderado': 'from {from} to {to} of the frame',
+  'meter.size.rule.grave': '{limit} or more of the frame',
+  'meter.size.boxes': 'Potholes, from the biggest to the smallest',
+  'meter.size.coverage': '{value} of the frame',
+  'meter.size.score': 'confidence {value}',
 };

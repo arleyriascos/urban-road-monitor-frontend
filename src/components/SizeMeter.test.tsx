@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import type { SizeSummary } from '../detection/meters';
+import { renderInEnglish } from '../test/english';
 import { SizeMeter } from './SizeMeter';
 
 const EMPTY: SizeSummary = {
@@ -60,5 +61,23 @@ describe('SizeMeter', () => {
   it('is a labelled region', () => {
     render(<SizeMeter summary={null} />);
     expect(screen.getByRole('region', { name: 'Tamaño y gravedad' })).toBeTruthy();
+  });
+});
+
+describe('SizeMeter in English', () => {
+  it('writes the rules and the boxes in English', () => {
+    renderInEnglish(<SizeMeter summary={TWO} />);
+    expect(screen.getByRole('heading', { name: 'Size and severity' })).toBeTruthy();
+    expect(screen.getByText('2 potholes in sight')).toBeTruthy();
+    expect(screen.getAllByText('severe')).toHaveLength(2);
+    expect(screen.getAllByText(/of the frame/).length).toBeGreaterThan(0);
+    const boxes = screen.getByRole('list', { name: 'Potholes, from the biggest to the smallest' });
+    expect(within(boxes).getByText('13 % of the frame')).toBeTruthy();
+    expect(within(boxes).getByText('confidence 91 %')).toBeTruthy();
+  });
+
+  it('says there are no potholes in English', () => {
+    renderInEnglish(<SizeMeter summary={null} />);
+    expect(screen.getByText('No potholes in sight')).toBeTruthy();
   });
 });

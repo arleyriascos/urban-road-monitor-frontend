@@ -1,3 +1,5 @@
+import { inDefaultLanguage, type Translator } from '../lib/translator';
+
 /** Why the GPS gives no position, in words for the person. */
 export type GpsProblem = 'denied' | 'unavailable' | 'unsupported';
 
@@ -8,13 +10,13 @@ export function classifyGpsError(error: { code?: number } | null | undefined): G
   return error?.code === PERMISSION_DENIED ? 'denied' : 'unavailable';
 }
 
-export function describeGpsProblem(problem: GpsProblem): string {
+export function describeGpsProblem(problem: GpsProblem, t: Translator = inDefaultLanguage): string {
   switch (problem) {
     case 'denied':
-      return 'No hay permiso para usar la ubicación. Actívalo en los ajustes del navegador para poder guardar los baches.';
+      return t('gps.denied');
     case 'unsupported':
-      return 'Este navegador no puede dar la ubicación, así que los baches no se guardan.';
+      return t('gps.unsupported');
     case 'unavailable':
-      return 'No se logra ubicar el teléfono. Sal a un lugar abierto y espera unos segundos.';
+      return t('gps.unavailable');
   }
 }

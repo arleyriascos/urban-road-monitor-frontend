@@ -375,6 +375,75 @@ export const es = {
   'routeError.invalid.title': 'La app pidió la ruta con datos inválidos',
   'routeError.invalid.help':
     'Vuelve a poner el origen y el destino. Si se repite, es un error de la app.',
+  'cameraError.denied':
+    'No tenemos permiso para usar la cámara. Actívalo en los ajustes del navegador para este sitio y vuelve a intentarlo.',
+  'cameraError.notFound': 'No encontramos una cámara en este dispositivo.',
+  'cameraError.busy': 'La cámara está en uso por otra aplicación. Ciérrala y vuelve a intentarlo.',
+  'cameraError.unsupported':
+    'Este navegador no puede usar la cámara. Prueba con Chrome, Safari o Firefox actualizados.',
+  'cameraError.insecure': 'La cámara solo funciona en una conexión segura (https).',
+  'cameraError.other': 'No pudimos abrir la cámara. Vuelve a intentarlo.',
+  'modelError.failed':
+    'No pudimos cargar el modelo de detección. Revisa tu conexión y vuelve a intentarlo.',
+  'modelError.unknown': 'No pudimos cargar el modelo de detección.',
+  'camera.model.downloading': 'Descargando el modelo de detección…',
+  'camera.model.downloadingPercent': 'Descargando el modelo de detección: {percent}',
+  'camera.badge.detecting': 'Detectando',
+  'camera.badge.perSecond': '{value} det/s',
+  'camera.badge.perFrame': '{value} por cuadro',
+  'camera.video': 'Vista de la cámara',
+  'camera.off': 'La cámara está apagada.',
+  'camera.opening': 'Abriendo la cámara…',
+  'camera.stop': 'Apagar la cámara',
+  'camera.start': 'Activar la cámara',
+  'camera.retry': 'Intentar de nuevo',
+  'camera.searching': 'Buscando baches…',
+  'camera.privacy':
+    'Las imágenes de la cámara se analizan en tu dispositivo y no salen de él. Solo se envía, con tu cuenta, dónde está cada bache y qué tan grande se ve.',
+  'sending.label': 'Guardado de baches',
+  'sending.sent': 'Enviados',
+  'sending.waiting': 'En espera',
+  'access.guest': 'Ingresa con tu cuenta de Google para detectar y guardar baches.',
+  'access.checking': 'Revisando tu cuenta…',
+  'access.allowed': 'Los baches que veas se guardan y se envían a tu nombre.',
+  'access.noPermission':
+    'Tu cuenta no tiene permiso para guardar baches. Pide a un administrador que la revise.',
+  'access.sessionOver':
+    'Tu sesión terminó, así que los baches no se guardan. Vuelve al mapa e ingresa de nuevo.',
+  'access.unreachable': 'No se pudo revisar tu cuenta. Se intentará de nuevo en unos segundos.',
+  'gps.denied':
+    'No hay permiso para usar la ubicación. Actívalo en los ajustes del navegador para poder guardar los baches.',
+  'gps.unsupported': 'Este navegador no puede dar la ubicación, así que los baches no se guardan.',
+  'gps.unavailable':
+    'No se logra ubicar el teléfono. Sal a un lugar abierto y espera unos segundos.',
+  'sending.locating': 'Buscando la ubicación del teléfono…',
+  'sending.waitingMessage.one':
+    'No se pudo enviar por ahora. {count} bache espera en tu teléfono y se enviará solo al volver la conexión.',
+  'sending.waitingMessage.other':
+    'No se pudo enviar por ahora. {count} baches esperan en tu teléfono y se enviarán solos al volver la conexión.',
+  'sending.sessionOver.one':
+    'Tu sesión terminó. {count} bache queda guardado en tu teléfono; ingresa de nuevo desde el mapa para enviarlos.',
+  'sending.sessionOver.other':
+    'Tu sesión terminó. {count} baches quedan guardados en tu teléfono; ingresa de nuevo desde el mapa para enviarlos.',
+  'sending.notAllowed':
+    'Tu cuenta no puede guardar baches ahora. Los que viste quedan en tu teléfono.',
+  'sending.modelOutdated':
+    'Hay un modelo más nuevo. Recarga la página para actualizarlo; mientras tanto los baches quedan en tu teléfono.',
+  'sending.pending.one': '{count} bache pendiente de enviar.',
+  'sending.pending.other': '{count} baches pendientes de enviar.',
+  'meter.performance.title': 'Rendimiento',
+  'meter.performance.fps': 'Detecciones por segundo',
+  'meter.performance.model': 'Tiempo del modelo',
+  'meter.performance.total': 'Tiempo total por cuadro',
+  'meter.performance.load': 'Carga del modelo',
+  'meter.measuring': 'Midiendo…',
+  'meter.size.title': 'Tamaño y gravedad',
+  'meter.size.rule.leve': 'menos de {limit} del cuadro',
+  'meter.size.rule.moderado': 'de {from} a {to} del cuadro',
+  'meter.size.rule.grave': '{limit} o más del cuadro',
+  'meter.size.boxes': 'Baches, del más grande al más pequeño',
+  'meter.size.coverage': '{value} del cuadro',
+  'meter.size.score': 'seguridad {value}',
 } as const;
 
 export type MessageKey = keyof typeof es;

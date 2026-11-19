@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { englishTexts } from '../test/english';
 import { accessOf, describeAccess, RECORD_PERMISSION, type SendAccess } from './access';
 
 describe('accessOf', () => {
@@ -27,7 +28,7 @@ describe('describeAccess', () => {
       { status: 'session_over' },
       { status: 'unreachable' },
     ];
-    const texts = states.map(describeAccess);
+    const texts = states.map((state) => describeAccess(state));
     expect(new Set(texts).size).toBe(states.length);
   });
 
@@ -37,5 +38,22 @@ describe('describeAccess', () => {
 
   it('does not ask for the role of collaborator any more', () => {
     expect(describeAccess({ status: 'no_permission' })).not.toMatch(/colaborador/);
+  });
+});
+
+describe('describeAccess in English', () => {
+  it('says something different in English for each state', () => {
+    const states: SendAccess[] = [
+      { status: 'guest' },
+      { status: 'checking' },
+      { status: 'allowed', token: 't', userId: 'u' },
+      { status: 'no_permission' },
+      { status: 'session_over' },
+      { status: 'unreachable' },
+    ];
+    const texts = states.map((state) => describeAccess(state, englishTexts.t));
+    expect(new Set(texts).size).toBe(states.length);
+    expect(texts[0]).toMatch(/Sign in with your Google account/);
+    expect(texts[2]).toMatch(/saved and sent under your name/);
   });
 });

@@ -8,7 +8,8 @@ export type ModelState =
   | { status: 'idle' }
   | { status: 'loading'; progress: DownloadProgress | null }
   | { status: 'ready'; detector: Detector; downloadMs: number; startMs: number }
-  | { status: 'error'; message: string };
+  /** `failed`: the download or the start failed with a reason; `unknown`: it gave none. */
+  | { status: 'error'; reason: 'failed' | 'unknown' };
 
 export interface ModelDependencies {
   loadModel: (
@@ -70,10 +71,7 @@ export function useDetectorModel(
         started.current = false;
         setState({
           status: 'error',
-          message:
-            error instanceof Error && error.message
-              ? 'No pudimos cargar el modelo de detección. Revisa tu conexión y vuelve a intentarlo.'
-              : 'No pudimos cargar el modelo de detección.',
+          reason: error instanceof Error && error.message ? 'failed' : 'unknown',
         });
       },
     );

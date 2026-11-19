@@ -11,3 +11,10 @@ describe('formatCoverage', () => {
     expect(formatCoverage(ratio)).toBe(text);
   });
 });
+
+describe('formatCoverage in English', () => {
+  it('uses the decimal point of English', () => {
+    expect(formatCoverage(0.004, 'en')).toBe('0.4 %');
+    expect(formatCoverage(0.125, 'en')).toBe('13 %');
+  });
+});

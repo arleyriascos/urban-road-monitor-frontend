@@ -1,9 +1,12 @@
+import { useLanguage } from '../i18n/useLanguage';
+import { formatNumber } from '../lib/format';
 import type { SendingSummary } from '../sending/status';
 
 /** What happens to the potholes the camera sees: saved or not, how many were sent, how many wait. */
 export function SendingStatus({ summary }: { summary: SendingSummary }) {
+  const { t, locale } = useLanguage();
   return (
-    <section className="sending" aria-label="Guardado de baches">
+    <section className="sending" aria-label={t('sending.label')}>
       {summary.messages.map((message) => (
         <p
           key={message.text}
@@ -16,12 +19,12 @@ export function SendingStatus({ summary }: { summary: SendingSummary }) {
       {summary.counts && (
         <dl className="sending__counts">
           <div className="sending__count">
-            <dt>Enviados</dt>
-            <dd>{summary.counts.stored}</dd>
+            <dt>{t('sending.sent')}</dt>
+            <dd>{formatNumber(summary.counts.stored, locale)}</dd>
           </div>
           <div className="sending__count">
-            <dt>En espera</dt>
-            <dd>{summary.counts.pending}</dd>
+            <dt>{t('sending.waiting')}</dt>
+            <dd>{formatNumber(summary.counts.pending, locale)}</dd>
           </div>
         </dl>
       )}

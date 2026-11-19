@@ -12,3 +12,12 @@ describe('formatDuration', () => {
     expect(formatDuration(ms)).toBe(text);
   });
 });
+
+describe('formatDuration in English', () => {
+  it.each([
+    [120.4, '120 ms'],
+    [1840, '1.8 s'],
+  ])('%d ms is %s', (ms, text) => {
+    expect(formatDuration(ms, 'en')).toBe(text);
+  });
+});
