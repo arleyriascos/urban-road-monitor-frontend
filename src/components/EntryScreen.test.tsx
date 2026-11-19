@@ -308,3 +308,48 @@ describe('EntryScreen in English', () => {
     expect(within(table).getByRole('rowheader', { name: 'See the pothole map' })).toBeTruthy();
   });
 });
+
+describe('EntryScreen, language switch', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    document.documentElement.removeAttribute('lang');
+  });
+
+  it('lets a guest change the language of the whole screen without signing in', () => {
+    render(
+      <LanguageProvider>
+        <EntryScreen
+          signIn={idle}
+          googleClientId="client-1"
+          onCredential={vi.fn()}
+          onGuest={vi.fn()}
+        />
+      </LanguageProvider>,
+    );
+    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('Inicia sesión');
+
+    fireEvent.click(screen.getByRole('button', { name: 'English' }));
+
+    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('Sign in');
+    expect(screen.getByRole('button', { name: 'Continue as a guest' })).toBeTruthy();
+    expect(window.localStorage.getItem('urban-road-monitor.language')).toBe('en');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Español' }));
+    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('Inicia sesión');
+  });
+
+  it('keeps what the person wrote in the form when the language changes', () => {
+    render(
+      <LanguageProvider>
+        <EntryScreen signIn={idle} googleClientId={null} onCredential={vi.fn()} onGuest={vi.fn()} />
+      </LanguageProvider>,
+    );
+    fireEvent.change(screen.getByLabelText('Correo electrónico'), {
+      target: { value: 'ana@example.com' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'English' }));
+
+    expect((screen.getByLabelText('Email') as HTMLInputElement).value).toBe('ana@example.com');
+  });
+});

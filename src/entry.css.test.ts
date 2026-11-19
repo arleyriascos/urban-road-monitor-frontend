@@ -46,3 +46,14 @@ describe('the entry stylesheet', () => {
     expect(css).toMatch(/\.entry__note a\s*{[^}]*color:\s*var\(--route-text, var\(--brand\)\)/);
   });
 });
+
+describe('the language switch of the entry screen', () => {
+  it('sits in a row with the tag of the project that wraps on a narrow screen', () => {
+    expect(css).toMatch(/\.entry__top\s*{[^}]*display:\s*flex/);
+    expect(css).toMatch(/\.entry__top\s*{[^}]*flex-wrap:\s*wrap/);
+  });
+
+  it('leaves air between the form and the other ways of entering', () => {
+    expect(css).toMatch(/\.entry__actions\s*{[^}]*margin-top:\s*(2\d|3\d)px/);
+  });
+});

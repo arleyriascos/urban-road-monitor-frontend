@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { LanguageSwitch } from '../i18n/LanguageSwitch';
 import { useLanguage } from '../i18n/useLanguage';
 import { ACCESS_PANEL_ID, accessTabId } from '../lib/access-ids';
 import { describeSignInError } from '../lib/auth-errors';
@@ -105,7 +106,10 @@ export function EntryScreen({
 
       <section className="entry" aria-busy={working}>
         <div className="entry__inner">
-          <p className="entry__eyebrow">{t('entry.eyebrow')}</p>
+          <div className="entry__top">
+            <p className="entry__eyebrow">{t('entry.eyebrow')}</p>
+            <LanguageSwitch />
+          </div>
 
           <AccessTabs view={view} onChange={setView} />
 

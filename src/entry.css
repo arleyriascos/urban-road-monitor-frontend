@@ -173,9 +173,19 @@
   width: min(440px, 100%);
 }
 
+/* The tag of the project and, at the other end, the language switch. */
+.entry__top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin: 0 0 18px;
+}
+
 .entry__eyebrow {
   display: inline-block;
-  margin: 0 0 18px;
+  margin: 0;
   padding: 5px 12px;
   font-size: 0.8rem;
   font-weight: 600;
@@ -202,6 +212,9 @@
   flex-direction: column;
   align-items: stretch;
   gap: 14px;
+  /* Air between the form and "o entra de otra forma", so the line of "Crear cuenta" is not
+     squeezed against the divider. */
+  margin-top: 28px;
 }
 
 .entry__buttons {
