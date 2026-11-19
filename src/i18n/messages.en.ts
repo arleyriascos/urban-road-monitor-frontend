@@ -14,4 +14,25 @@ export const en: Record<MessageKey, string> = {
   'form.error.nameLong': 'Use at most {max} characters.',
   'form.password.show': 'Show password',
   'form.password.hide': 'Hide password',
+  'form.name.label': 'Full name',
+  'form.email.label': 'Email',
+  'form.email.placeholder': 'you@example.com',
+  'form.password.label': 'Password',
+  'form.password.hint': 'At least {min} characters.',
+  'form.recover.help': 'Enter your email and we will send you a link to choose a new password.',
+  'form.submit.login': 'Sign in',
+  'form.submit.register': 'Create account',
+  'form.submit.recover': 'Send link',
+  'form.forgot': 'Forgot your password?',
+  'form.switch.registerPrompt': "Don't have an account yet?",
+  'form.switch.register': 'Create account',
+  'form.switch.loginPrompt': 'Already have an account?',
+  'form.switch.login': 'Sign in',
+  'form.back': 'Back to sign in',
+  'form.soon.login':
+    'Signing in with email and password will be available soon. For now, use Google or continue as a guest.',
+  'form.soon.register':
+    'Creating an account with email and password will be available soon. For now, use Google or continue as a guest.',
+  'form.soon.recover':
+    'Recovering your password will be available soon. For now, use Google or continue as a guest.',
 };

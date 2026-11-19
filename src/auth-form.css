@@ -99,3 +99,80 @@
     height: 44px;
   }
 }
+
+/* The form: its fields one under the other, and the button that sends it. */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-form__help {
+  margin: 0;
+  color: var(--muted);
+}
+
+.auth-form__submit {
+  width: 100%;
+  min-height: 48px;
+}
+
+.auth-form__submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* A button that looks like a link: it changes the form, it does not go to another page. */
+.auth-form__link {
+  align-self: flex-start;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--route-text, var(--brand));
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-form__link:hover {
+  text-decoration: underline;
+}
+
+.auth-form__link:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.auth-form__switch {
+  margin: 0;
+  color: var(--muted);
+}
+
+.auth-form__switch .auth-form__link {
+  padding: 0;
+}
+
+.auth-form__notice {
+  margin: 0;
+  padding: 10px 14px;
+  border-left: 4px solid var(--brand);
+  border-radius: 6px;
+  background: var(--brand-soft);
+  color: var(--brand-ink);
+  font-size: 0.92rem;
+}
+
+@media (max-width: 640px) {
+  .auth-form__submit {
+    min-height: 52px;
+  }
+
+  .auth-form__link {
+    min-height: 44px;
+  }
+
+  .auth-form__switch .auth-form__link {
+    min-height: 0;
+  }
+}
