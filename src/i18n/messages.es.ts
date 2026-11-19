@@ -97,6 +97,12 @@ export const es = {
     'El servidor puede estar despertando o Google no respondió. Intenta de nuevo en unos segundos.',
   'authError.other.title': 'No se pudo ingresar',
   'authError.other.help': 'Intenta de nuevo, o sigue como invitado.',
+  'account.guest.signIn': 'Ingresar',
+  'account.menu.label': 'Menú de la cuenta',
+  'account.menu.profile': 'Mi perfil',
+  'account.menu.trips': 'Mis viajes',
+  'account.menu.settings': 'Configuraciones',
+  'account.menu.signOut': 'Cerrar sesión',
 } as const;
 
 export type MessageKey = keyof typeof es;

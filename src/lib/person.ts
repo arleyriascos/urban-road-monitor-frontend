@@ -1,18 +1,20 @@
+import type { Locale } from '../i18n/locale';
+
 /** From the most to the least powerful. The header shows only the first one the person has. */
 const ROLE_ORDER = ['administrador', 'colaborador', 'usuario'] as const;
 
-const ROLE_LABELS: Record<(typeof ROLE_ORDER)[number], string> = {
-  administrador: 'Administrador',
-  colaborador: 'Colaborador',
-  usuario: 'Usuario',
+const ROLE_LABELS: Record<Locale, Record<(typeof ROLE_ORDER)[number], string>> = {
+  es: { administrador: 'Administrador', colaborador: 'Colaborador', usuario: 'Usuario' },
+  en: { administrador: 'Administrator', colaborador: 'Collaborator', usuario: 'User' },
 };
 
-/** The role to show for a person: the most powerful one they have, in Spanish. */
-export function describeRole(roles: readonly string[]): string {
+/** The role to show for a person: the most powerful one they have, in the language of the app. */
+export function describeRole(roles: readonly string[], locale: Locale = 'es'): string {
+  const labels = ROLE_LABELS[locale];
   const known = ROLE_ORDER.find((role) => roles.includes(role));
-  if (known) return ROLE_LABELS[known];
+  if (known) return labels[known];
   // A role this version of the page does not know: show it as it comes rather than hide it.
-  return roles[0] ?? ROLE_LABELS.usuario;
+  return roles[0] ?? labels.usuario;
 }
 
 /** Up to two capital letters for the circle that stands in for a missing photo. */

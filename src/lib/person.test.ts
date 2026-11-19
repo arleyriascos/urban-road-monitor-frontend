@@ -52,3 +52,15 @@ describe('safeAvatarUrl', () => {
     expect(safeAvatarUrl(value)).toBeNull();
   });
 });
+
+describe('describeRole in English', () => {
+  it.each([
+    [['administrador', 'colaborador', 'usuario'], 'Administrator'],
+    [['colaborador', 'usuario'], 'Collaborator'],
+    [['usuario'], 'User'],
+    [[], 'User'],
+    [['moderador'], 'moderador'],
+  ])('shows %j as %s', (roles, label) => {
+    expect(describeRole(roles, 'en')).toBe(label);
+  });
+});

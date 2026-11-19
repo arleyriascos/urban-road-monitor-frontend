@@ -55,6 +55,134 @@
   white-space: nowrap;
 }
 
+/* The button that opens the menu: the photo, the name and a chevron. */
+.account__trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 4px 8px 4px 4px;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.account__trigger:hover,
+.account__trigger[aria-expanded='true'] {
+  background: var(--brand-soft);
+  border-color: var(--line);
+}
+
+.account__trigger:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.account__trigger .icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+}
+
+/* The menu: under the button, at the right edge of the bar. */
+.account-menu {
+  position: relative;
+}
+
+.account-menu__popup {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1200;
+  width: min(280px, calc(100vw - 24px));
+  overflow: hidden;
+  color: var(--asphalt);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-strong);
+}
+
+.account-menu__header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.account-menu__name {
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-menu__email {
+  overflow: hidden;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-menu__list {
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+}
+
+.account-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 12px;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-small);
+  cursor: pointer;
+}
+
+.account-menu__item .icon {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  color: var(--brand-ink);
+}
+
+.account-menu__item:hover,
+.account-menu__item:focus-visible {
+  background: var(--brand-soft);
+}
+
+.account-menu__item:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
+}
+
+.account-menu__separator {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--line);
+}
+
+.account-menu__item--sign-out,
+.account-menu__item--sign-out .icon {
+  color: var(--fail);
+}
+
 @media (max-width: 860px) {
   /* The photo says who it is; the name and the role stay for screen readers. */
   .account__who {

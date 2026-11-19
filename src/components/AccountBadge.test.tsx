@@ -70,11 +70,12 @@ describe('AccountBadge, signed in', () => {
     expect(screen.getByText('Administrador')).toBeTruthy();
   });
 
-  it('signs out from its button', () => {
+  it('signs out from the menu', () => {
     const { onSignOut, onSignIn } = actions();
     render(<AccountBadge user={ana} onSignOut={onSignOut} onSignIn={onSignIn} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }));
+    fireEvent.click(screen.getByRole('button', { name: /Ana Pérez/ }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Cerrar sesión' }));
 
     expect(onSignOut).toHaveBeenCalledOnce();
     expect(onSignIn).not.toHaveBeenCalled();

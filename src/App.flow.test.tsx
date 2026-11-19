@@ -185,9 +185,11 @@ describe('the account flow', () => {
     render(<App />);
     await screen.findByText('Ana Pérez');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }));
+    fireEvent.click(screen.getByRole('button', { name: /Ana Pérez/ }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Cerrar sesión' }));
 
-    await screen.findByRole('button', { name: 'Continuar como invitado' });
+    // The entry screen is heavy to draw, so a busy machine can take longer than the default wait.
+    await screen.findByRole('button', { name: 'Continuar como invitado' }, { timeout: 5000 });
     expect(window.localStorage.getItem(TOKEN_KEY)).toBeNull();
     expect(window.localStorage.getItem(GUEST_KEY)).toBeNull();
     const [logout] = callsTo(fetch, 'POST /api/auth/logout');

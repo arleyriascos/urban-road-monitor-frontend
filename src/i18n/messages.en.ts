@@ -91,4 +91,10 @@ export const en: Record<MessageKey, string> = {
     'The server may be waking up or Google did not answer. Try again in a few seconds.',
   'authError.other.title': 'Could not sign in',
   'authError.other.help': 'Try again, or continue as a guest.',
+  'account.guest.signIn': 'Sign in',
+  'account.menu.label': 'Account menu',
+  'account.menu.profile': 'My profile',
+  'account.menu.trips': 'My trips',
+  'account.menu.settings': 'Settings',
+  'account.menu.signOut': 'Sign out',
 };

@@ -45,7 +45,8 @@ describe('TopBar', () => {
 
     expect(screen.getByText('Ana Pérez')).toBeTruthy();
     expect(screen.getByText('Usuario')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }));
+    fireEvent.click(screen.getByRole('button', { name: /Ana Pérez/ }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Cerrar sesión' }));
 
     expect(onSignOut).toHaveBeenCalledOnce();
   });

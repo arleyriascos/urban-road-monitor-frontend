@@ -49,6 +49,12 @@ const PATHS = {
       <path d="m3 7 9 6 9-6" />
     </>
   ),
+  logOut: (
+    <>
+      <path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4" />
+      <path d="m16 8 4 4-4 4M20 12H9" />
+    </>
+  ),
   minus: <path d="M6 12h12" />,
   route: (
     <>
@@ -61,6 +67,13 @@ const PATHS = {
     <>
       <circle cx="11" cy="11" r="7" />
       <path d="m20 20-3.5-3.5" />
+    </>
+  ),
+  settings: (
+    <>
+      <path d="M4 7h10M18 7h2M4 17h2M10 17h10" />
+      <circle cx="16" cy="7" r="2" />
+      <circle cx="8" cy="17" r="2" />
     </>
   ),
   shield: (
