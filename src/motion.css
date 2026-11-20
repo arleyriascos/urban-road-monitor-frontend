@@ -1,0 +1,74 @@
+/* How the boxes that open when a button is pressed come in: a short fade with a small slide from
+   the side they open from. They only come in; closing is immediate. With "reduced motion" asked
+   for, they appear at once. */
+@keyframes box-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes box-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes box-in-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.account-menu__popup {
+  transform-origin: top right;
+  animation: box-in 0.18s ease-out;
+}
+
+.street-search__popover {
+  transform-origin: top right;
+  animation: box-in 0.18s ease-out;
+}
+
+.street-search__list,
+.legend__body,
+.camera__message,
+.sending__message {
+  animation: box-in-fade 0.2s ease-out;
+}
+
+.route-panel {
+  animation: box-in-left 0.22s ease-out;
+}
+
+.leaflet-popup-content-wrapper {
+  animation: box-in 0.18s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-menu__popup,
+  .street-search__popover,
+  .street-search__list,
+  .legend__body,
+  .camera__message,
+  .sending__message,
+  .route-panel,
+  .leaflet-popup-content-wrapper {
+    animation: none;
+  }
+}

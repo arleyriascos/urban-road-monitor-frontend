@@ -113,6 +113,9 @@ export function StreetSearch({ onSelect, onClear, dependencies }: StreetSearchPr
       >
         <Icon name="search" />
       </button>
+      <span className="street-search__hint" aria-hidden="true">
+        {t('search.hint')}
+      </span>
 
       {expanded && (
         <div className="street-search__popover" id={popoverId}>

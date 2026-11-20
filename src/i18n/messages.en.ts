@@ -437,6 +437,8 @@ export const en: Record<MessageKey, string> = {
   'privacy.updatedAt': 'November 16, 2026',
   'privacy.back': 'Back to the app',
   'error.retry': 'Try again',
+  'map.cameraHint': 'Detect potholes',
+  'search.hint': 'Find a street',
   'map.camera': 'Pothole detector',
   'search.close': 'Close search',
   'map.zoomIn': 'Zoom in',

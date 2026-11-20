@@ -13,6 +13,9 @@ export function CameraButton() {
       title={t('map.camera')}
     >
       <Icon name="camera" />
+      <span className="camera-fab__hint" aria-hidden="true">
+        {t('map.cameraHint')}
+      </span>
     </a>
   );
 }

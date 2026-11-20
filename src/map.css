@@ -475,21 +475,24 @@
     opacity: 0;
   }
 
-  .topbar__brand .brand__text,
+  .topbar__brand .brand__text {
+    animation: topbar-title 18s infinite both;
+  }
+
   .topbar__chip {
-    animation: topbar-rotate 14s infinite both;
+    animation: topbar-chip 18s infinite both;
   }
 
   .topbar__chip:nth-child(1) {
-    animation-delay: 3.5s;
+    animation-delay: 8.4s;
   }
 
   .topbar__chip:nth-child(2) {
-    animation-delay: 7s;
+    animation-delay: 11.6s;
   }
 
   .topbar__chip:nth-child(3) {
-    animation-delay: 10.5s;
+    animation-delay: 14.8s;
   }
 
   .legend {
@@ -497,7 +500,7 @@
     right: 12px;
     width: auto;
     max-width: calc(100% - 24px);
-    max-height: calc(100% - 300px);
+    max-height: calc(100% - 288px);
   }
 
   .legend:has(.legend__body) {
@@ -510,32 +513,24 @@
   }
 
   .recenter,
-  .camera-fab,
-  .leaflet-bar.leaflet-control-zoom a,
-  .leaflet-touch .leaflet-bar.leaflet-control-zoom a,
-  .leaflet-touch .leaflet-bar.leaflet-control-zoom a:first-child,
-  .leaflet-touch .leaflet-bar.leaflet-control-zoom a:last-child {
-    width: 52px;
-    height: 52px;
-  }
-
-  .recenter,
   .camera-fab {
     right: 12px;
   }
 
+  /* On a phone the buttons are 12px apart, so a thumb does not touch two at once. */
   .recenter {
-    bottom: 164px;
+    bottom: 160px;
   }
 
   .camera-fab {
-    bottom: 224px;
+    bottom: 218px;
   }
 
   /* The credits take two lines on a phone. */
   .leaflet-bottom.leaflet-right .leaflet-control-zoom {
     right: 12px;
     bottom: 44px;
+    gap: 12px;
   }
 
   .splash {
@@ -543,19 +538,44 @@
   }
 }
 
-@keyframes topbar-rotate {
+/* One turn lasts 18 s: the title for the first 8, then each number for 3. */
+@keyframes topbar-title {
+  0%,
+  44% {
+    opacity: 1;
+    transform: none;
+  }
+
+  47%,
+  96% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  99% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes topbar-chip {
   0% {
     opacity: 0;
     transform: translateY(6px);
   }
 
-  4%,
-  23% {
+  2%,
+  15% {
     opacity: 1;
     transform: none;
   }
 
-  27%,
+  17%,
   100% {
     opacity: 0;
     transform: translateY(-6px);
@@ -1502,5 +1522,67 @@
     min-height: 52px;
     padding: 0 22px;
     border-radius: 999px;
+  }
+}
+
+/* The name of the magnifier and of the camera, next to each button for a few seconds when the
+   map opens; then only the icon stays. They are pictures of the label, which the buttons
+   already carry for screen readers. */
+.street-search__hint,
+.camera-fab__hint {
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 50%;
+  display: flex;
+  align-items: center;
+  height: 32px;
+  margin-top: -16px;
+  padding: 0 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--asphalt);
+  white-space: nowrap;
+  pointer-events: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  animation: map-hint 5.5s ease-in-out 1s both;
+}
+
+.camera-fab__hint {
+  right: calc(100% + 10px);
+}
+
+@keyframes map-hint {
+  0% {
+    visibility: visible;
+    opacity: 0;
+    transform: translateX(10px) scale(0.94);
+  }
+
+  8%,
+  86% {
+    opacity: 1;
+    transform: none;
+  }
+
+  100% {
+    visibility: hidden;
+    opacity: 0;
+    transform: translateX(10px) scale(0.94);
+  }
+}
+
+.street-search__toggle[aria-expanded='true'] + .street-search__hint,
+.map-app--routing .street-search__hint {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .street-search__hint,
+  .camera-fab__hint {
+    display: none;
   }
 }

@@ -61,6 +61,13 @@ describe('StreetSearch magnifier', () => {
       />,
     );
 
+  it('has a short name beside the magnifier for a few seconds, hidden from screen readers', () => {
+    render_();
+    const hint = screen.getByText('Buscar calle');
+    expect(hint.getAttribute('aria-hidden')).toBe('true');
+    expect(hint.className).toBe('street-search__hint');
+  });
+
   it('is only a magnifier at first, with no box', () => {
     render_();
     const toggle = screen.getByRole('button', { name: 'Buscar una calle' });

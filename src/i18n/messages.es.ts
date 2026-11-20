@@ -448,6 +448,8 @@ export const es = {
   'privacy.back': 'Volver a la app',
   'error.retry': 'Intentar de nuevo',
   'map.camera': 'Detector de baches',
+  'map.cameraHint': 'Detectar baches',
+  'search.hint': 'Buscar calle',
   'search.close': 'Cerrar la búsqueda',
   'map.zoomIn': 'Acercar',
   'map.zoomOut': 'Alejar',

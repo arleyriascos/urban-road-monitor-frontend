@@ -13,6 +13,7 @@ import './account-page.css';
 import './privacy.css';
 import './camera.css';
 import './language.css';
+import './motion.css';
 import './auth-form.css';
 
 // The theme the person chose goes on before the first paint, so the page never flashes the other one.

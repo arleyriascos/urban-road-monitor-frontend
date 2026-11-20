@@ -397,7 +397,7 @@ describe('MapScreen camera button', () => {
     render(<MapScreen data={data} />);
     const camera = screen.getByRole('link', { name: 'Detector de baches' });
     expect(camera.getAttribute('href')).toBe('/camara');
-    expect(camera.textContent).toBe('');
+    expect(camera.querySelector('svg')).toBeTruthy();
     expect(camera.closest('header')).toBeNull();
   });
 });

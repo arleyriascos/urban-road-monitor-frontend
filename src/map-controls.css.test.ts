@@ -52,29 +52,45 @@ describe('the controls over the map', () => {
   });
 
   it('counts "Centrar" and the camera from the zoom buttons, so they do not overlap', () => {
-    const zoom = (source: string) =>
-      Number(source.match(/\.leaflet-control-zoom\s*{[^}]*?bottom:\s*(\d+)px/)?.[1]);
-    const phone = css.slice(css.indexOf('@media (max-width: 640px)'));
-    const screen = css.slice(0, css.indexOf('@media (max-width: 640px)'));
-    for (const [source, size] of [
-      [screen, 46],
-      [phone, 52],
+    const phoneStart = css.indexOf('@media (max-width: 640px)');
+    const screen = css.slice(0, phoneStart);
+    const phone = css.slice(phoneStart);
+    const px = (source: string, pattern: RegExp) => Number(source.match(pattern)?.[1]);
+    // the zoom control is two buttons with a gap between them; each part keeps a gap from the next
+    for (const [source, gap] of [
+      [screen, px(screen, /\.leaflet-control-zoom\s*{[^}]*?gap:\s*(\d+)px/)],
+      [phone, px(phone, /\.leaflet-control-zoom\s*{[^}]*?gap:\s*(\d+)px/)],
     ] as const) {
-      const recenter = Number(source.match(/\.recenter\s*{\s*bottom:\s*(\d+)px/)?.[1]);
-      const fab = Number(source.match(/\.camera-fab\s*{\s*bottom:\s*(\d+)px/)?.[1]);
-      // the zoom control is two buttons with a gap between them
-      expect(recenter).toBeGreaterThanOrEqual(zoom(source) + 2 * size + 8 + 8);
-      expect(fab).toBeGreaterThanOrEqual(recenter + size + 8);
+      const size = 46;
+      const zoom = px(source, /\.leaflet-control-zoom\s*{[^}]*?bottom:\s*(\d+)px/);
+      const recenter = px(source, /\.recenter\s*{\s*bottom:\s*(\d+)px/);
+      const fab = px(source, /\.camera-fab\s*{\s*bottom:\s*(\d+)px/);
+      expect(recenter).toBeGreaterThanOrEqual(zoom + 2 * size + 2 * gap);
+      expect(fab).toBeGreaterThanOrEqual(recenter + size + gap);
     }
-    expect(phone).toContain('width: 52px;\n    height: 52px;');
+    expect(px(phone, /\.leaflet-control-zoom\s*{[^}]*?gap:\s*(\d+)px/)).toBeGreaterThanOrEqual(12);
+    // the buttons keep one size on every screen
+    expect(phone).not.toContain('width: 52px');
   });
 
-  it('rotates the title and the three numbers in one place on a phone', () => {
+  it('keeps the title on a phone for 8 seconds and then shows each number for 3', () => {
     const phone = css.slice(css.indexOf('@media (max-width: 640px)'));
-    expect(phone).toMatch(/animation:\s*topbar-rotate 14s infinite both/);
-    for (const delay of ['3.5s', '7s', '10.5s'])
+    expect(phone).toMatch(/animation:\s*topbar-title 18s infinite both/);
+    expect(phone).toMatch(/animation:\s*topbar-chip 18s infinite both/);
+    for (const delay of ['8.4s', '11.6s', '14.8s'])
       expect(phone).toContain(`animation-delay: ${delay}`);
-    expect(css).toContain('@keyframes topbar-rotate');
+    expect(css).toContain('@keyframes topbar-title');
+    expect(css).toContain('@keyframes topbar-chip');
+  });
+
+  it('shows the name of the magnifier and of the camera for a few seconds, then hides it', () => {
+    const hint = css.match(/\.street-search__hint,\s*\.camera-fab__hint\s*{([^}]*)}/)?.[1] ?? '';
+    expect(hint).toMatch(/animation:\s*map-hint 5\.5s/);
+    expect(hint).toContain('pointer-events: none');
+    expect(css).toMatch(/@keyframes map-hint[^]*100%\s*{[^}]*visibility:\s*hidden/);
+    expect(css).toMatch(
+      /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.street-search__hint,\s*\.camera-fab__hint\s*{\s*display:\s*none/,
+    );
   });
 
   it('shows no movement and keeps the title when the person asks for less motion', () => {
