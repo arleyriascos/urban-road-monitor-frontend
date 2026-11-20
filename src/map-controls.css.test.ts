@@ -7,18 +7,17 @@ const css = readFileSync(resolve(process.cwd(), 'src', 'map.css'), 'utf8');
 describe('the controls over the map', () => {
   it('puts the camera button at the bottom right, round and in the color of "Cómo llegar"', () => {
     const fab = css.match(/\.camera-fab\s*{([^}]*)}/)?.[1] ?? '';
+    const placed = css.match(/\.camera-fab\s*{\s*bottom:\s*\d+px/)?.[0] ?? '';
     const toggle = css.match(/\.route-toggle\s*{([^}]*)}/)?.[1] ?? '';
     expect(fab).toMatch(/right:\s*16px/);
-    expect(fab).toMatch(/bottom:\s*\d+px/);
-    expect(fab).toMatch(/border-radius:\s*999px/);
-    expect(fab).toContain('background: var(--brand)');
+    expect(placed).not.toBe('');
     expect(toggle).toContain('background: var(--brand)');
   });
 
   it('keeps the camera button over "Centrar" and the zoom buttons, not on top of them', () => {
     const fab = Number(css.match(/\.camera-fab\s*{[^}]*bottom:\s*(\d+)px/)?.[1]);
     const recenter = Number(css.match(/\.recenter\s*{[^}]*bottom:\s*(\d+)px/)?.[1]);
-    expect(fab).toBeGreaterThanOrEqual(recenter + 42 + 8);
+    expect(fab).toBeGreaterThanOrEqual(recenter + 46 + 8);
   });
 
   it('stops the legend above the camera button, on a screen and on a phone', () => {
@@ -38,5 +37,44 @@ describe('the controls over the map', () => {
     expect(css).toMatch(
       /@media \(max-width: 640px\)\s*{[^@]*\.street-search__popover\s*{[^}]*position:\s*fixed/,
     );
+  });
+
+  it('makes "Centrar", the camera and both zoom buttons the same round green button', () => {
+    const shared =
+      css.match(
+        /\.recenter,\s*\.camera-fab,\s*\.leaflet-bar\.leaflet-control-zoom a,[^{]*{([^}]*)}/,
+      )?.[1] ?? '';
+    expect(shared).toMatch(/border-radius:\s*999px/);
+    expect(shared).toContain('background: var(--brand)');
+    expect(shared).toMatch(/width:\s*46px/);
+    expect(shared).toMatch(/height:\s*46px/);
+    expect(css).toMatch(/\.leaflet-bar\.leaflet-control-zoom\s*{[^}]*box-shadow:\s*none/);
+  });
+
+  it('keeps the zoom buttons, "Centrar" and the camera from overlapping on a phone', () => {
+    const phone = css.slice(css.indexOf('@media (max-width: 640px)'));
+    const recenter = Number(phone.match(/\.recenter\s*{\s*bottom:\s*(\d+)px/)?.[1]);
+    const fab = Number(phone.match(/\.camera-fab\s*{\s*bottom:\s*(\d+)px/)?.[1]);
+    const size = 52;
+    expect(phone).toContain('width: 52px;\n    height: 52px;');
+    // two zoom buttons, a gap between them, and the bottom margin of the control
+    expect(recenter).toBeGreaterThanOrEqual(12 + 2 * size + 8 + 8);
+    expect(fab).toBeGreaterThanOrEqual(recenter + size + 8);
+  });
+
+  it('rotates the title and the three numbers in one place on a phone', () => {
+    const phone = css.slice(css.indexOf('@media (max-width: 640px)'));
+    expect(phone).toMatch(/animation:\s*topbar-rotate 14s infinite both/);
+    for (const delay of ['3.5s', '7s', '10.5s'])
+      expect(phone).toContain(`animation-delay: ${delay}`);
+    expect(css).toContain('@keyframes topbar-rotate');
+  });
+
+  it('shows no movement and keeps the title when the person asks for less motion', () => {
+    const reduced = css.slice(
+      css.indexOf('@media (prefers-reduced-motion: reduce) and (max-width: 640px)'),
+    );
+    expect(reduced).toMatch(/animation:\s*none/);
+    expect(reduced).toMatch(/\.topbar__brand \.brand__text\s*{\s*opacity:\s*1/);
   });
 });

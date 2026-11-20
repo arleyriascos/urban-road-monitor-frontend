@@ -36,18 +36,20 @@ export function TopBar({
 
   return (
     <header className="topbar">
-      <a className="brand topbar__brand" href="/">
-        <BrandMark />
-        <span className="brand__text">
-          <span className="brand__name">Urban Road Monitor</span>
-          <h1 className="brand__sub topbar__title">{t('topbar.title')}</h1>
-        </span>
-      </a>
-      <ul className="topbar__summary" aria-label={t('topbar.summary')}>
-        <Figure text={summary.roads} />
-        <Figure text={summary.length} />
-        <Figure text={summary.potholes} />
-      </ul>
+      <div className="topbar__id">
+        <a className="brand topbar__brand" href="/">
+          <BrandMark />
+          <span className="brand__text">
+            <span className="brand__name">Urban Road Monitor</span>
+            <h1 className="brand__sub topbar__title">{t('topbar.title')}</h1>
+          </span>
+        </a>
+        <ul className="topbar__summary" aria-label={t('topbar.summary')}>
+          <Figure text={summary.roads} />
+          <Figure text={summary.length} />
+          <Figure text={summary.potholes} />
+        </ul>
+      </div>
       {search}
       {account && <AccountBadge {...account} />}
     </header>
