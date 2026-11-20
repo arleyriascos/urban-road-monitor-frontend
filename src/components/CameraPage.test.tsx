@@ -19,6 +19,8 @@ const PERSON = {
   avatarUrl: null,
   roles: ['usuario'],
   permissions: ['detections.create', 'trips.view_own'],
+  hasPassword: false,
+  emailVerified: true,
 };
 
 afterEach(() => vi.restoreAllMocks());
@@ -195,6 +197,8 @@ describe('CameraPage and the saving of potholes', () => {
       avatarUrl: null,
       roles: ['colaborador'],
       permissions: ['detections.create'],
+      hasPassword: false,
+      emailVerified: true,
     }));
     render(
       <CameraPage

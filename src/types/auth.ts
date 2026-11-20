@@ -12,6 +12,10 @@ export interface AuthUser {
 /** The person with what their roles let them do (GET /api/auth/me). */
 export interface AccountProfile extends AuthUser {
   permissions: string[];
+  /** The account has a password of its own (it may also use Google). */
+  hasPassword: boolean;
+  /** The person proved the email is theirs. Google does it at every sign-in. */
+  emailVerified: boolean;
 }
 
 /** What POST /api/auth/google answers: the session and the person. */
@@ -20,6 +24,15 @@ export interface GoogleLoginAnswer {
   token: string;
   expiresAt: string;
   user: AuthUser;
+}
+
+/** What POST /api/auth/register and POST /api/auth/login answer: the same as the Google sign-in. */
+export type PasswordSessionAnswer = GoogleLoginAnswer;
+
+/** What POST /api/auth/password answers. */
+export interface ChangePasswordAnswer {
+  /** How many other sessions of the person were closed. The current one stays. */
+  otherSessionsClosed: number;
 }
 
 /** What GET /api/auth/me answers. */

@@ -13,6 +13,8 @@ const profile = (permissions: string[]): AccountProfile => ({
   avatarUrl: null,
   roles: ['colaborador'],
   permissions,
+  hasPassword: false,
+  emailVerified: true,
 });
 
 function setup(token: string | null, getMe: SendAccessDependencies['getMe']) {

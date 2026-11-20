@@ -14,6 +14,8 @@ const profile: AccountProfile = {
   avatarUrl: null,
   roles: ['usuario'],
   permissions: [],
+  hasPassword: false,
+  emailVerified: true,
 };
 const gone = () => new ApiError('http', 'no', 401, 'UNAUTHORIZED');
 const asleep = () => new ApiError('http', 'asleep', 503, 'DATABASE_UNAVAILABLE');

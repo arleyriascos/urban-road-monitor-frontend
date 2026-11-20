@@ -42,6 +42,8 @@ const profile = {
   avatarUrl: null,
   roles: ['colaborador'],
   permissions: [],
+  hasPassword: false,
+  emailVerified: true,
 };
 
 type Handler = (init?: RequestInit) => Response | Promise<Response>;
