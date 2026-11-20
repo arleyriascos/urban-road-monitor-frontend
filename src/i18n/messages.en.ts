@@ -20,6 +20,12 @@ export const en: Record<MessageKey, string> = {
   'form.password.label': 'Password',
   'form.password.hint': 'At least {min} characters.',
   'form.recover.help': 'Enter your email and we will send you a link to choose a new password.',
+  'form.recover.sent':
+    'Done. If that email has an account with a password, we sent you a link to choose a new one. It expires in 1 hour; if you do not see it, check your spam folder.',
+  'form.recover.working': 'Sending…',
+  'form.recover.tooMany': 'You asked for too many links. Wait a few minutes and try again.',
+  'form.recover.unavailable': 'Sending emails is not available right now. Try again later.',
+  'form.recover.other': 'The link could not be sent. Try again.',
   'form.submit.login': 'Sign in',
   'form.submit.register': 'Create account',
   'form.submit.recover': 'Send link',
@@ -33,8 +39,6 @@ export const en: Record<MessageKey, string> = {
     'Signing in with email and password will be available soon. For now, use Google or continue as a guest.',
   'form.soon.register':
     'Creating an account with email and password will be available soon. For now, use Google or continue as a guest.',
-  'form.soon.recover':
-    'Recovering your password will be available soon. For now, use Google or continue as a guest.',
   'common.yes': 'Yes',
   'common.no': 'No',
   'entry.hero.title': 'The streets of Pasto, no surprises',

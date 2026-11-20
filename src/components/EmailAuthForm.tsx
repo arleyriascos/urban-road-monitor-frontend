@@ -1,4 +1,7 @@
 import { useState, type FormEvent } from 'react';
+import type { MessageKey } from '../i18n/translate';
+import { requestPasswordReset } from '../api/auth';
+import { ApiError } from '../api/http';
 import { useLanguage } from '../i18n/useLanguage';
 import {
   PASSWORD_MIN,
@@ -15,10 +18,12 @@ interface EmailAuthFormProps {
   onChangeView: (view: AccessView) => void;
   /**
    * Called with the values (the name and the email already trimmed) once they pass the checks.
-   * Without it the way in is not ready: the form says so and sends nothing anywhere. Recovering
-   * the password is not ready either way until the e-mail service arrives.
+   * Without it the way in is not ready: the form says so and sends nothing anywhere. Asking for
+   * the link to recover the password does not go through it: the form asks by itself.
    */
   onSubmit?: (view: AccessView, values: AccessValues) => void | Promise<void>;
+  /** Asks the backend for the link to choose a new password. Replaceable in tests. */
+  recover?: typeof requestPasswordReset;
   /** True while something else is signing the person in. */
   disabled?: boolean;
 }
@@ -26,16 +31,39 @@ interface EmailAuthFormProps {
 const EMPTY: AccessValues = { name: '', email: '', password: '' };
 const FIELD_ORDER = ['name', 'email', 'password'] as const;
 
+type RecoverStatus =
+  | { phase: 'idle' }
+  | { phase: 'working' }
+  | { phase: 'sent' }
+  | { phase: 'failed'; messageKey: MessageKey };
+
+/** Why the link could not be asked for, as the key of its text. A timeout or a lost network say so. */
+function recoverFailure(error: unknown): MessageKey {
+  if (!(error instanceof ApiError)) return 'form.recover.other';
+  if (error.kind === 'timeout') return 'authError.timeout.help';
+  if (error.kind === 'network') return 'authError.network.help';
+  if (error.status === 429) return 'form.recover.tooMany';
+  if (error.status === 503) return 'form.recover.unavailable';
+  return 'form.recover.other';
+}
+
 /**
  * The form to sign in with an email and a password, to create the account, or to ask for a
  * link to choose a new password. It checks what was typed before anything leaves the page, says
  * what is wrong next to each field, and puts the keyboard on the first one that needs fixing.
  */
-export function EmailAuthForm({ view, onChangeView, onSubmit, disabled }: EmailAuthFormProps) {
+export function EmailAuthForm({
+  view,
+  onChangeView,
+  onSubmit,
+  recover = requestPasswordReset,
+  disabled,
+}: EmailAuthFormProps) {
   const { t } = useLanguage();
   const [values, setValues] = useState<AccessValues>(EMPTY);
   const [errors, setErrors] = useState<AccessErrors>({});
   const [soon, setSoon] = useState(false);
+  const [recovery, setRecovery] = useState<RecoverStatus>({ phase: 'idle' });
 
   // A new form starts clean, but keeps the email: the person usually goes on with the same one.
   const [shownView, setShownView] = useState(view);
@@ -43,6 +71,7 @@ export function EmailAuthForm({ view, onChangeView, onSubmit, disabled }: EmailA
     setShownView(view);
     setErrors({});
     setSoon(false);
+    setRecovery({ phase: 'idle' });
     setValues((current) => ({ ...current, name: '', password: '' }));
   }
 
@@ -56,6 +85,7 @@ export function EmailAuthForm({ view, onChangeView, onSubmit, disabled }: EmailA
       });
     }
     setSoon(false);
+    if (field === 'email') setRecovery({ phase: 'idle' });
   };
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -71,7 +101,18 @@ export function EmailAuthForm({ view, onChangeView, onSubmit, disabled }: EmailA
     }
     setErrors({});
 
-    if (!onSubmit || view === 'recover') {
+    if (view === 'recover') {
+      if (recovery.phase === 'working') return;
+      setRecovery({ phase: 'working' });
+      try {
+        await recover(values.email.trim());
+        setRecovery({ phase: 'sent' });
+      } catch (error) {
+        setRecovery({ phase: 'failed', messageKey: recoverFailure(error) });
+      }
+      return;
+    }
+    if (!onSubmit) {
       setValues((current) => ({ ...current, password: '' }));
       setSoon(true);
       return;
@@ -142,14 +183,28 @@ export function EmailAuthForm({ view, onChangeView, onSubmit, disabled }: EmailA
         </button>
       )}
 
-      {soon && (
+      {soon && view !== 'recover' && (
         <p className="auth-form__notice" role="status">
           {t(`form.soon.${view}`)}
         </p>
       )}
+      {recovery.phase === 'sent' && (
+        <p className="auth-form__notice" role="status">
+          {t('form.recover.sent')}
+        </p>
+      )}
+      {recovery.phase === 'failed' && (
+        <p className="auth-field__error" role="alert">
+          {t(recovery.messageKey)}
+        </p>
+      )}
 
-      <button type="submit" className="button auth-form__submit" disabled={disabled}>
-        {t(`form.submit.${view}`)}
+      <button
+        type="submit"
+        className="button auth-form__submit"
+        disabled={disabled || recovery.phase === 'working'}
+      >
+        {recovery.phase === 'working' ? t('form.recover.working') : t(`form.submit.${view}`)}
       </button>
 
       {view === 'recover' ? (

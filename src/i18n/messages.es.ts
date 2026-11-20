@@ -25,6 +25,13 @@ export const es = {
   'form.password.hint': 'Mínimo {min} caracteres.',
   'form.recover.help':
     'Escribe tu correo y te enviaremos un enlace para elegir una contraseña nueva.',
+  'form.recover.sent':
+    'Listo. Si ese correo tiene una cuenta con contraseña, te enviamos un enlace para elegir una nueva. Vence en 1 hora; si no lo ves, revisa el correo no deseado.',
+  'form.recover.working': 'Enviando…',
+  'form.recover.tooMany': 'Pediste demasiados enlaces. Espera unos minutos e intenta de nuevo.',
+  'form.recover.unavailable':
+    'El envío de correos no está disponible por ahora. Intenta más tarde.',
+  'form.recover.other': 'No se pudo enviar el enlace. Intenta de nuevo.',
   'form.submit.login': 'Iniciar sesión',
   'form.submit.register': 'Crear cuenta',
   'form.submit.recover': 'Enviar enlace',
@@ -38,8 +45,6 @@ export const es = {
     'El ingreso con correo y contraseña estará disponible pronto. Por ahora entra con Google o como invitado.',
   'form.soon.register':
     'Crear una cuenta con correo y contraseña estará disponible pronto. Por ahora entra con Google o como invitado.',
-  'form.soon.recover':
-    'Recuperar la contraseña estará disponible pronto. Por ahora entra con Google o como invitado.',
   'common.yes': 'Sí',
   'common.no': 'No',
   'entry.hero.title': 'Las calles de Pasto, sin sorpresas',

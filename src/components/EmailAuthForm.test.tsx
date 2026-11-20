@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ApiError } from '../api/http';
 import { LanguageProvider } from '../i18n/LanguageProvider';
 import type { AccessView } from '../lib/email-auth';
 import { EmailAuthForm } from './EmailAuthForm';
@@ -9,15 +10,23 @@ import { EmailAuthForm } from './EmailAuthForm';
 function Harness({
   start = 'login',
   onSubmit,
+  recover,
   disabled,
 }: {
   start?: AccessView;
   onSubmit?: Parameters<typeof EmailAuthForm>[0]['onSubmit'];
+  recover?: Parameters<typeof EmailAuthForm>[0]['recover'];
   disabled?: boolean;
 }) {
   const [view, setView] = useState<AccessView>(start);
   return (
-    <EmailAuthForm view={view} onChangeView={setView} onSubmit={onSubmit} disabled={disabled} />
+    <EmailAuthForm
+      view={view}
+      onChangeView={setView}
+      onSubmit={onSubmit}
+      recover={recover}
+      disabled={disabled}
+    />
   );
 }
 
@@ -107,6 +116,85 @@ describe('EmailAuthForm to recover the password', () => {
     expect(screen.getByText(/te enviaremos un enlace/)).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Enviar enlace' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Volver a iniciar sesión' })).toBeTruthy();
+  });
+});
+
+describe('EmailAuthForm asking for the link to recover the password', () => {
+  const ask = () => {
+    type('Correo electrónico', ' ana@example.com ');
+    fireEvent.click(screen.getByRole('button', { name: 'Enviar enlace' }));
+  };
+
+  it('asks for the link with the trimmed email, and says the same whoever the email is', async () => {
+    const recover = vi.fn(async () => ({ sent: true as const }));
+    const onSubmit = vi.fn();
+    render(<Harness start="recover" recover={recover} onSubmit={onSubmit} />);
+
+    ask();
+
+    expect((await screen.findByRole('status')).textContent).toContain(
+      'Si ese correo tiene una cuenta con contraseña',
+    );
+    expect(recover).toHaveBeenCalledWith('ana@example.com');
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('checks the email first and asks for nothing when it is wrong', () => {
+    const recover = vi.fn();
+    render(<Harness start="recover" recover={recover} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Enviar enlace' }));
+
+    expect(screen.getByRole('alert').textContent).toContain('correo');
+    expect(recover).not.toHaveBeenCalled();
+  });
+
+  it('cannot be sent twice while it waits', async () => {
+    let finish: (value: { sent: true }) => void = () => {};
+    const recover = vi.fn(() => new Promise<{ sent: true }>((resolve) => (finish = resolve)));
+    render(<Harness start="recover" recover={recover} />);
+
+    ask();
+    const waiting = screen.getByRole('button', { name: 'Enviando…' }) as HTMLButtonElement;
+    expect(waiting.disabled).toBe(true);
+    fireEvent.click(waiting);
+    finish({ sent: true });
+
+    expect(await screen.findByRole('status')).toBeTruthy();
+    expect(recover).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    [new ApiError('http', 'x', 429, 'RATE_LIMITED'), 'Pediste demasiados enlaces'],
+    [
+      new ApiError('http', 'x', 503, 'MAIL_NOT_CONFIGURED'),
+      'El envío de correos no está disponible',
+    ],
+    [new ApiError('http', 'x', 500, 'INTERNAL'), 'No se pudo enviar el enlace'],
+    [new ApiError('timeout', 'x'), 'despertando'],
+    [new ApiError('network', 'x'), 'Revisa tu conexión'],
+    [new Error('raro'), 'No se pudo enviar el enlace'],
+  ])('explains why it could not be sent (%#)', async (failure, text) => {
+    render(<Harness start="recover" recover={vi.fn().mockRejectedValue(failure)} />);
+
+    ask();
+
+    expect((await screen.findByRole('alert')).textContent).toContain(text);
+    expect(screen.queryByRole('status')).toBeNull();
+  });
+
+  it('takes the answer away when the email changes, and lets it be asked again', async () => {
+    const recover = vi.fn(async () => ({ sent: true as const }));
+    render(<Harness start="recover" recover={recover} />);
+    ask();
+    await screen.findByRole('status');
+
+    type('Correo electrónico', 'otra@example.com');
+    expect(screen.queryByRole('status')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Enviar enlace' }));
+
+    await screen.findByRole('status');
+    expect(recover).toHaveBeenLastCalledWith('otra@example.com');
   });
 });
 
@@ -201,15 +289,14 @@ describe('EmailAuthForm while the way in is not ready', () => {
   it.each([
     ['login', 'El ingreso con correo y contraseña estará disponible pronto'],
     ['register', 'Crear una cuenta con correo y contraseña estará disponible pronto'],
-    ['recover', 'Recuperar la contraseña estará disponible pronto'],
   ] as const)('says so in the form to %s, once it is filled right', (view, text) => {
     render(<Harness start={view} />);
     if (view === 'register') type('Nombre completo', 'Ana');
     type('Correo electrónico', 'ana@example.com');
-    if (view !== 'recover') type('Contraseña', 'secreto-123');
+    type('Contraseña', 'secreto-123');
 
     expect(screen.queryByRole('status')).toBeNull();
-    const submit = { login: 'Iniciar sesión', register: 'Crear cuenta', recover: 'Enviar enlace' };
+    const submit = { login: 'Iniciar sesión', register: 'Crear cuenta' };
     const button = screen
       .getAllByRole('button')
       .find(
@@ -219,17 +306,6 @@ describe('EmailAuthForm while the way in is not ready', () => {
     fireEvent.click(button!);
 
     expect(screen.getByRole('status').textContent).toContain(text);
-  });
-
-  it('says so to recover a password even when the page has a way to send the others', () => {
-    const onSubmit = vi.fn();
-    render(<Harness start="recover" onSubmit={onSubmit} />);
-    type('Correo electrónico', 'ana@example.com');
-
-    fireEvent.click(screen.getByRole('button', { name: 'Enviar enlace' }));
-
-    expect(screen.getByRole('status').textContent).toContain('estará disponible pronto');
-    expect(onSubmit).not.toHaveBeenCalled();
   });
 
   it('keeps the email, forgets the password and sends nothing', () => {
