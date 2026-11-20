@@ -4,6 +4,7 @@ import { ApiError } from '../api/http';
 import { searchStreets } from '../api/roads';
 import type { MapData } from '../hooks/useMapData';
 import { useRoute, type RouteState } from '../hooks/useRoute';
+import { renderInEnglish } from '../test/english';
 import { potholesFixture, segmentsFixture, statsFixture } from '../test/fixtures';
 import { routeFixture } from '../test/route-fixtures';
 import type { PotholeCollection } from '../types/map';
@@ -380,5 +381,44 @@ describe('MapScreen street search', () => {
     await pickStreet();
     fireEvent.click(screen.getByRole('button', { name: 'Cómo llegar' }));
     expect(map().dataset.street).toBe('');
+  });
+});
+
+describe('MapScreen in English', () => {
+  /** Words that only a Spanish text has: none of them may be left on an English screen. */
+  const SPANISH =
+    /\b(Cómo|llegar|Leyenda|Baches|baches|Calles|calles|Centrar|Mostrar|Capas|Origen|Destino|Limpiar|Criterio|Detalles|Tramos?|Algoritmo|Siguiente|Anterior|Ruta|Intercambiar|vías)\b/;
+
+  /** Everything a person reads or hears: the text and the labels of the elements. */
+  function readableText(): string {
+    const labels = [...document.querySelectorAll('[aria-label], [title], [placeholder]')].flatMap(
+      (element) => ['aria-label', 'title', 'placeholder'].map((name) => element.getAttribute(name)),
+    );
+    return [document.body.textContent, ...labels].filter(Boolean).join(' | ');
+  }
+
+  it('shows the top bar, the map and the legend in English', () => {
+    renderInEnglish(<MapScreen data={data} />);
+    expect(screen.getByRole('list', { name: 'City summary' }).textContent).toBe(
+      '4,610 roads774.1 km54 active potholes',
+    );
+    expect(screen.getByRole('complementary', { name: 'Map legend' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Directions' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Center the map/ })).toBeTruthy();
+    expect(screen.getByLabelText('Include repaired (6)')).toBeTruthy();
+    expect(readableText()).not.toMatch(SPANISH);
+  });
+
+  it('opens the directions panel and walks a route, all in English', () => {
+    routeState({ status: 'success', route: routeFixture });
+    renderInEnglish(<MapScreen data={data} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Directions' }));
+    fireEvent.click(screen.getByRole('button', { name: 'tap 1' }));
+    fireEvent.click(screen.getByRole('button', { name: 'tap 2' }));
+
+    expect(screen.getByRole('region', { name: 'Directions' })).toBeTruthy();
+    expect(screen.getByText('Route ready.')).toBeTruthy();
+    expect(screen.getByText('Walk through the route')).toBeTruthy();
+    expect(readableText()).not.toMatch(SPANISH);
   });
 });
