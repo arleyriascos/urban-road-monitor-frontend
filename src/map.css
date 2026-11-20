@@ -94,7 +94,7 @@
   z-index: 1001;
   width: min(300px, calc(100% - 32px));
   /* It stops above the camera button, which sits over "Centrar" and the zoom buttons. */
-  max-height: calc(100% - 256px);
+  max-height: calc(100% - 270px);
   overflow-y: auto;
   background: var(--surface);
   border: 1px solid var(--line);
@@ -346,11 +346,11 @@
 }
 
 .recenter {
-  bottom: 120px;
+  bottom: 138px;
 }
 
 .camera-fab {
-  bottom: 174px;
+  bottom: 192px;
 }
 
 .recenter__text {
@@ -374,11 +374,16 @@
   outline-offset: 2px;
 }
 
-/* Leaflet's zoom control: no frame, two separate round buttons. */
+/* Leaflet's zoom control: no frame, two separate round buttons. It is placed from the bottom of
+   the map, above the line of credits, so "Centrar" and the camera can be counted from it: left
+   to Leaflet, it stacks on top of the credits, and their height changes with the screen. */
 .leaflet-bottom.leaflet-right .leaflet-control-zoom {
+  position: absolute;
+  right: 16px;
+  bottom: 30px;
   display: grid;
   gap: 8px;
-  margin: 0 16px 12px 0;
+  margin: 0;
 }
 
 .leaflet-touch .leaflet-bar.leaflet-control-zoom,
@@ -492,7 +497,7 @@
     right: 12px;
     width: auto;
     max-width: calc(100% - 24px);
-    max-height: calc(100% - 270px);
+    max-height: calc(100% - 300px);
   }
 
   .legend:has(.legend__body) {
@@ -520,15 +525,17 @@
   }
 
   .recenter {
-    bottom: 132px;
+    bottom: 164px;
   }
 
   .camera-fab {
-    bottom: 192px;
+    bottom: 224px;
   }
 
+  /* The credits take two lines on a phone. */
   .leaflet-bottom.leaflet-right .leaflet-control-zoom {
-    margin-right: 12px;
+    right: 12px;
+    bottom: 44px;
   }
 
   .splash {

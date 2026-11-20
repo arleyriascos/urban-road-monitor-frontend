@@ -23,7 +23,7 @@ describe('the controls over the map', () => {
   it('stops the legend above the camera button, on a screen and on a phone', () => {
     const rules = [...css.matchAll(/\.legend\s*{[^}]*max-height:\s*calc\(100% - (\d+)px\)/g)];
     expect(rules).toHaveLength(2);
-    for (const rule of rules) expect(Number(rule[1])).toBeGreaterThanOrEqual(250);
+    for (const rule of rules) expect(Number(rule[1])).toBeGreaterThanOrEqual(270);
   });
 
   it('has the magnifier in the top bar, folded away while the route panel is open', () => {
@@ -51,15 +51,22 @@ describe('the controls over the map', () => {
     expect(css).toMatch(/\.leaflet-bar\.leaflet-control-zoom\s*{[^}]*box-shadow:\s*none/);
   });
 
-  it('keeps the zoom buttons, "Centrar" and the camera from overlapping on a phone', () => {
+  it('counts "Centrar" and the camera from the zoom buttons, so they do not overlap', () => {
+    const zoom = (source: string) =>
+      Number(source.match(/\.leaflet-control-zoom\s*{[^}]*?bottom:\s*(\d+)px/)?.[1]);
     const phone = css.slice(css.indexOf('@media (max-width: 640px)'));
-    const recenter = Number(phone.match(/\.recenter\s*{\s*bottom:\s*(\d+)px/)?.[1]);
-    const fab = Number(phone.match(/\.camera-fab\s*{\s*bottom:\s*(\d+)px/)?.[1]);
-    const size = 52;
+    const screen = css.slice(0, css.indexOf('@media (max-width: 640px)'));
+    for (const [source, size] of [
+      [screen, 46],
+      [phone, 52],
+    ] as const) {
+      const recenter = Number(source.match(/\.recenter\s*{\s*bottom:\s*(\d+)px/)?.[1]);
+      const fab = Number(source.match(/\.camera-fab\s*{\s*bottom:\s*(\d+)px/)?.[1]);
+      // the zoom control is two buttons with a gap between them
+      expect(recenter).toBeGreaterThanOrEqual(zoom(source) + 2 * size + 8 + 8);
+      expect(fab).toBeGreaterThanOrEqual(recenter + size + 8);
+    }
     expect(phone).toContain('width: 52px;\n    height: 52px;');
-    // two zoom buttons, a gap between them, and the bottom margin of the control
-    expect(recenter).toBeGreaterThanOrEqual(12 + 2 * size + 8 + 8);
-    expect(fab).toBeGreaterThanOrEqual(recenter + size + 8);
   });
 
   it('rotates the title and the three numbers in one place on a phone', () => {
