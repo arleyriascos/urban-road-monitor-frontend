@@ -21,7 +21,7 @@ function Section({
 }) {
   if (section === 'profile') return <AccountProfile user={user} />;
   if (section === 'trips') return <TripsSection token={token} />;
-  return <SettingsSection />;
+  return <SettingsSection token={token} />;
 }
 
 /**

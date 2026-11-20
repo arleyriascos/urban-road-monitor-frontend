@@ -182,6 +182,22 @@ export const es = {
   'settings.delete.help':
     'Por ahora la cuenta se elimina a pedido: escribe al responsable del proyecto desde el correo de tu cuenta y la borramos junto con tus viajes.',
   'settings.delete.button': 'Solicitar eliminar mi cuenta',
+  'settings.password.title': 'Contraseña',
+  'settings.password.help':
+    'Cambia la contraseña de tu cuenta. Al hacerlo se cierran tus otras sesiones.',
+  'settings.password.current': 'Contraseña actual',
+  'settings.password.new': 'Contraseña nueva',
+  'settings.password.submit': 'Cambiar contraseña',
+  'settings.password.working': 'Cambiando…',
+  'settings.password.currentWrong': 'La contraseña actual no es correcta.',
+  'settings.password.doneNone':
+    'Listo: cambiaste tu contraseña. No tenías otras sesiones abiertas.',
+  'settings.password.doneOne':
+    'Listo: cambiaste tu contraseña y se cerró 1 sesión en otro dispositivo.',
+  'settings.password.doneMany':
+    'Listo: cambiaste tu contraseña y se cerraron {count} sesiones en otros dispositivos.',
+  'settings.password.tooMany': 'Demasiados intentos. Espera un minuto e intenta de nuevo.',
+  'settings.password.other': 'No se pudo cambiar la contraseña. Intenta de nuevo.',
   'settings.delete.subject': 'Solicitud para eliminar mi cuenta de Urban Road Monitor',
   'topbar.title': 'Estado de las calles de Pasto',
   'topbar.summary': 'Resumen de la ciudad',

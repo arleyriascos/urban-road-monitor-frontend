@@ -176,6 +176,21 @@ export const en: Record<MessageKey, string> = {
   'settings.delete.help':
     'For now an account is deleted on request: write to the person in charge of the project from the email of your account and we delete it together with your trips.',
   'settings.delete.button': 'Request to delete my account',
+  'settings.password.title': 'Password',
+  'settings.password.help':
+    'Change your account password. Your other sessions are closed when you do.',
+  'settings.password.current': 'Current password',
+  'settings.password.new': 'New password',
+  'settings.password.submit': 'Change password',
+  'settings.password.working': 'Changing…',
+  'settings.password.currentWrong': 'The current password is not correct.',
+  'settings.password.doneNone': 'Done: your password was changed. You had no other open sessions.',
+  'settings.password.doneOne':
+    'Done: your password was changed and 1 session on another device was closed.',
+  'settings.password.doneMany':
+    'Done: your password was changed and {count} sessions on other devices were closed.',
+  'settings.password.tooMany': 'Too many attempts. Wait a minute and try again.',
+  'settings.password.other': 'The password could not be changed. Try again.',
   'settings.delete.subject': 'Request to delete my Urban Road Monitor account',
   'topbar.title': 'Street condition in Pasto',
   'topbar.summary': 'City summary',

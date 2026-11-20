@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { LanguageProvider } from '../i18n/LanguageProvider';
 import { PRIVACY_CONTACT_EMAIL } from './PrivacyPage';
 import { SettingsSection } from './SettingsSection';
@@ -18,6 +18,32 @@ describe('SettingsSection', () => {
     expect(
       screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent),
     ).toEqual(['Apariencia', 'Idioma', 'Privacidad', 'Eliminar mi cuenta']);
+  });
+
+  it('adds the password group, before the privacy one, when the account has a password', async () => {
+    const user = {
+      id: 'u1',
+      email: 'ana@example.com',
+      fullName: 'Ana',
+      avatarUrl: null,
+      roles: ['usuario'],
+      permissions: [],
+      hasPassword: true,
+      emailVerified: false,
+    };
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ user }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    );
+    render(<SettingsSection token={'a'.repeat(43)} />);
+
+    await screen.findByLabelText('Contraseña actual');
+    expect(
+      screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent),
+    ).toEqual(['Apariencia', 'Idioma', 'Contraseña', 'Privacidad', 'Eliminar mi cuenta']);
+    vi.restoreAllMocks();
   });
 
   it('lets the person choose the theme', () => {
