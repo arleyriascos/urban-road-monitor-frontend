@@ -160,3 +160,5 @@ Los dos trabajan juntos en videollamada para que ambos conozcan todo el proyecto
 - Commits pequeños, uno por cambio con sentido, con el mensaje en inglés y prefijos convencionales: `feat`, `fix`, `test`, `docs`, `chore`, `refactor`, `perf`, `style`.
 - Cada integrante hace sus commits con su propia cuenta de GitHub. Solo los commits hechos en conjunto incluyen la línea `Co-authored-by:`.
 - Antes de cada commit se ejecutan `npm run typecheck`, `npm run lint` y `npm test`.
+- Cada prueba tarda menos de un segundo por sí sola. Para un computador ocupado, `vitest.config.ts` da 30 segundos a cada prueba, usa la mitad de los procesadores y hace que Testing Library espere hasta 8 segundos; así una prueba lenta no falla. Si aun así falla una sola, se repite la suite una vez.
+- En Windows, la terminal debe abrirse con la unidad en mayúscula (`C:\`): con `c:\` Vitest falla con «failed to find the current suite» sin correr ninguna prueba.
