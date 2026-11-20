@@ -20,6 +20,7 @@ function showSession(state: SessionState) {
   const controls: SessionControls = {
     state,
     signInWithCredential: vi.fn(() => Promise.resolve()),
+    signInWithEmail: vi.fn(() => Promise.resolve()),
     continueAsGuest: vi.fn(),
     requestSignIn: vi.fn(),
     retryCheck: vi.fn(),

@@ -57,6 +57,7 @@ function SessionApp() {
         signIn={state.signIn}
         googleClientId={googleClientId}
         onCredential={session.signInWithCredential}
+        onEmailAccess={session.signInWithEmail}
         onGuest={session.continueAsGuest}
         footer={
           <p className="entry__note">

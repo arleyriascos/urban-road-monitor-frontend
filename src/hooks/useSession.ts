@@ -1,14 +1,24 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react';
-import { getMe, signInWithGoogle, signOut } from '../api/auth';
+import {
+  getMe,
+  registerWithPassword,
+  signInWithGoogle,
+  signInWithPassword,
+  signOut,
+} from '../api/auth';
 import { ApiError } from '../api/http';
 import { isSessionGone } from '../lib/auth-errors';
+import type { AccessValues } from '../lib/email-auth';
 import { initialSessionState, sessionReducer, type SessionState } from '../lib/session-state';
 import { sessionStore, type SessionStore } from '../lib/session-storage';
+import type { GoogleLoginAnswer } from '../types/auth';
 
 /** What the hook needs from outside, so the tests can replace it. */
 export interface SessionDependencies {
   store: SessionStore;
   signInWithGoogle: typeof signInWithGoogle;
+  signInWithPassword: typeof signInWithPassword;
+  registerWithPassword: typeof registerWithPassword;
   getMe: typeof getMe;
   signOut: typeof signOut;
 }
@@ -16,6 +26,8 @@ export interface SessionDependencies {
 const defaultDependencies: SessionDependencies = {
   store: sessionStore,
   signInWithGoogle,
+  signInWithPassword,
+  registerWithPassword,
   getMe,
   signOut,
 };
@@ -32,6 +44,11 @@ export interface SessionControls {
   state: SessionState;
   /** Gives Google's ID token to the backend; the result shows in `state`. */
   signInWithCredential: (credential: string) => Promise<void>;
+  /**
+   * Signs in (or makes the account) with an email and a password; the result shows in `state`
+   * like the one of Google. Recovering a password is not here: it has no session to open.
+   */
+  signInWithEmail: (view: 'login' | 'register' | 'recover', values: AccessValues) => Promise<void>;
   continueAsGuest: () => void;
   /** A guest goes to the entry screen to sign in. */
   requestSignIn: () => void;
@@ -97,13 +114,14 @@ export function useSession(
     latest.current = state;
   });
 
-  const signInWithCredential = useCallback(
-    async (credential: string) => {
+  // Every way in ends the same: a session to keep, or an error to show on the entry screen.
+  const openSession = useCallback(
+    async (call: () => Promise<GoogleLoginAnswer>) => {
       const current = latest.current;
       if (current.status !== 'entry' || current.signIn.phase === 'working') return;
       dispatch({ type: 'sign_in_started' });
       try {
-        const answer = await api.signInWithGoogle(credential);
+        const answer = await call();
         store.saveToken(answer.token);
         store.clearGuest();
         dispatch({ type: 'signed_in', token: answer.token, user: answer.user });
@@ -113,6 +131,30 @@ export function useSession(
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
+  );
+
+  const signInWithCredential = useCallback(
+    (credential: string) => openSession(() => api.signInWithGoogle(credential)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [openSession],
+  );
+
+  const signInWithEmail = useCallback(
+    async (view: 'login' | 'register' | 'recover', values: AccessValues) => {
+      // Recovering the password arrives with the e-mail service: nothing to do yet.
+      if (view === 'recover') return;
+      await openSession(() =>
+        view === 'register'
+          ? api.registerWithPassword({
+              name: values.name,
+              email: values.email,
+              password: values.password,
+            })
+          : api.signInWithPassword({ email: values.email, password: values.password }),
+      );
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [openSession],
   );
 
   const continueAsGuest = useCallback(() => {
@@ -145,6 +187,7 @@ export function useSession(
   return {
     state,
     signInWithCredential,
+    signInWithEmail,
     continueAsGuest,
     requestSignIn,
     retryCheck,

@@ -120,6 +120,102 @@ describe('the account flow', () => {
     });
   });
 
+  it('signs in with an email and a password and remembers the session', async () => {
+    const fetch = serve({
+      'POST /api/auth/login': () =>
+        json(200, {
+          token: TOKEN,
+          expiresAt: '2026-12-01T00:00:00.000Z',
+          user: { ...profile, roles: ['usuario'] },
+        }),
+    });
+    render(<App />);
+
+    fireEvent.change(screen.getByLabelText('Correo electrónico'), {
+      target: { value: ' ana@example.com ' },
+    });
+    fireEvent.change(screen.getByLabelText('Contraseña'), {
+      target: { value: 'una contraseña larga' },
+    });
+    fireEvent.click(screen.getAllByRole('button', { name: 'Iniciar sesión' }).at(-1)!);
+
+    await screen.findByText('Ana Pérez');
+    expect(window.localStorage.getItem(TOKEN_KEY)).toBe(TOKEN);
+    expect(JSON.parse(String(callsTo(fetch, 'POST /api/auth/login')[0][1]?.body))).toEqual({
+      email: 'ana@example.com',
+      password: 'una contraseña larga',
+    });
+  });
+
+  it('says the email or the password is wrong, without saying which', async () => {
+    serve({ 'POST /api/auth/login': () => refused(401, 'INVALID_CREDENTIALS') });
+    render(<App />);
+
+    fireEvent.change(screen.getByLabelText('Correo electrónico'), {
+      target: { value: 'ana@example.com' },
+    });
+    fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'otra cosa' } });
+    fireEvent.click(screen.getAllByRole('button', { name: 'Iniciar sesión' }).at(-1)!);
+
+    const alert = await screen.findByRole('alert');
+    expect(alert.textContent).toContain('Correo o contraseña incorrectos');
+    expect(window.localStorage.getItem(TOKEN_KEY)).toBeNull();
+  });
+
+  it('creates an account with a name, an email and a password', async () => {
+    const fetch = serve({
+      'POST /api/auth/register': () =>
+        json(201, {
+          token: TOKEN,
+          expiresAt: '2026-12-01T00:00:00.000Z',
+          user: { ...profile, roles: ['usuario'] },
+        }),
+    });
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Crear cuenta' }));
+    fireEvent.change(screen.getByLabelText('Nombre completo'), { target: { value: 'Ana Pérez' } });
+    fireEvent.change(screen.getByLabelText('Correo electrónico'), {
+      target: { value: 'ana@example.com' },
+    });
+    fireEvent.change(screen.getByLabelText('Contraseña'), {
+      target: { value: 'una contraseña larga' },
+    });
+    fireEvent.click(screen.getAllByRole('button', { name: 'Crear cuenta' }).at(-1)!);
+
+    await screen.findByText('Ana Pérez');
+    expect(JSON.parse(String(callsTo(fetch, 'POST /api/auth/register')[0][1]?.body))).toEqual({
+      name: 'Ana Pérez',
+      email: 'ana@example.com',
+      password: 'una contraseña larga',
+    });
+  });
+
+  it('explains a password the backend refuses, and keeps the person on the entry', async () => {
+    serve({
+      'POST /api/auth/register': () =>
+        json(400, {
+          error: {
+            code: 'INVALID_PASSWORD',
+            message: 'x',
+            details: { problem: 'too_common' },
+          },
+        }),
+    });
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Crear cuenta' }));
+    fireEvent.change(screen.getByLabelText('Nombre completo'), { target: { value: 'Ana' } });
+    fireEvent.change(screen.getByLabelText('Correo electrónico'), {
+      target: { value: 'ana@example.com' },
+    });
+    fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getAllByRole('button', { name: 'Crear cuenta' }).at(-1)!);
+
+    const alert = await screen.findByRole('alert');
+    expect(alert.textContent).toContain('Es una contraseña muy común');
+  });
+
   it('explains a failed sign-in and lets the person go on as a guest', async () => {
     serve({ 'POST /api/auth/google': () => refused(403, 'ACCOUNT_DISABLED') });
     render(<App />);

@@ -15,7 +15,8 @@ interface EmailAuthFormProps {
   onChangeView: (view: AccessView) => void;
   /**
    * Called with the values (the name and the email already trimmed) once they pass the checks.
-   * Without it the way in is not ready: the form says so and sends nothing anywhere.
+   * Without it the way in is not ready: the form says so and sends nothing anywhere. Recovering
+   * the password is not ready either way until the e-mail service arrives.
    */
   onSubmit?: (view: AccessView, values: AccessValues) => void | Promise<void>;
   /** True while something else is signing the person in. */
@@ -70,7 +71,7 @@ export function EmailAuthForm({ view, onChangeView, onSubmit, disabled }: EmailA
     }
     setErrors({});
 
-    if (!onSubmit) {
+    if (!onSubmit || view === 'recover') {
       setValues((current) => ({ ...current, password: '' }));
       setSoon(true);
       return;

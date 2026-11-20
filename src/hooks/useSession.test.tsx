@@ -39,9 +39,30 @@ function makeDependencies(saved: { token?: string; guest?: boolean } = {}) {
   const signInWithGoogle = vi.fn<SessionDependencies['signInWithGoogle']>(() =>
     Promise.resolve({ token: NEW_TOKEN, expiresAt: 'x', user: profile } as GoogleLoginAnswer),
   );
+  const signInWithPassword = vi.fn<SessionDependencies['signInWithPassword']>(() =>
+    Promise.resolve({ token: NEW_TOKEN, expiresAt: 'x', user: profile } as GoogleLoginAnswer),
+  );
+  const registerWithPassword = vi.fn<SessionDependencies['registerWithPassword']>(() =>
+    Promise.resolve({ token: NEW_TOKEN, expiresAt: 'x', user: profile } as GoogleLoginAnswer),
+  );
   const signOut = vi.fn<SessionDependencies['signOut']>(() => Promise.resolve());
-  const dependencies: SessionDependencies = { store, getMe, signInWithGoogle, signOut };
-  return { dependencies, store, getMe, signInWithGoogle, signOut };
+  const dependencies: SessionDependencies = {
+    store,
+    getMe,
+    signInWithGoogle,
+    signInWithPassword,
+    registerWithPassword,
+    signOut,
+  };
+  return {
+    dependencies,
+    store,
+    getMe,
+    signInWithGoogle,
+    signInWithPassword,
+    registerWithPassword,
+    signOut,
+  };
 }
 
 afterEach(() => {
@@ -212,6 +233,100 @@ describe('signing in', () => {
     await act(() => result.current.signInWithCredential('two'));
 
     expect(signInWithGoogle).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('signing in with an email and a password', () => {
+  const login = { name: '', email: 'ana@example.com', password: 'una contraseña larga' };
+
+  it('signs in with the email and the password, and keeps the identifier like Google does', async () => {
+    const { dependencies, signInWithPassword, signInWithGoogle, store } = makeDependencies({
+      guest: true,
+    });
+    const { result } = renderHook(() => useSession(dependencies));
+    act(() => result.current.requestSignIn());
+
+    await act(() => result.current.signInWithEmail('login', login));
+
+    expect(signInWithPassword).toHaveBeenCalledWith({
+      email: 'ana@example.com',
+      password: 'una contraseña larga',
+    });
+    expect(signInWithGoogle).not.toHaveBeenCalled();
+    expect(result.current.state).toMatchObject({ status: 'signed_in', token: NEW_TOKEN });
+    expect(store.readToken()).toBe(NEW_TOKEN);
+    expect(store.isGuest()).toBe(false);
+  });
+
+  it('makes the account with the name, the email and the password', async () => {
+    const { dependencies, registerWithPassword, signInWithPassword } = makeDependencies();
+    const { result } = renderHook(() => useSession(dependencies));
+
+    await act(() => result.current.signInWithEmail('register', { ...login, name: 'Ana Pérez' }));
+
+    expect(registerWithPassword).toHaveBeenCalledWith({
+      name: 'Ana Pérez',
+      email: 'ana@example.com',
+      password: 'una contraseña larga',
+    });
+    expect(signInWithPassword).not.toHaveBeenCalled();
+    expect(result.current.state).toMatchObject({ status: 'signed_in', token: NEW_TOKEN });
+  });
+
+  it('shows the error and saves nothing when the email or the password is refused', async () => {
+    const { dependencies, signInWithPassword, store } = makeDependencies();
+    const refused = new ApiError('http', 'x', 401, 'INVALID_CREDENTIALS');
+    signInWithPassword.mockRejectedValue(refused);
+    const { result } = renderHook(() => useSession(dependencies));
+
+    await act(() => result.current.signInWithEmail('login', login));
+
+    expect(result.current.state).toEqual({
+      status: 'entry',
+      signIn: { phase: 'failed', error: refused },
+    });
+    expect(store.readToken()).toBeNull();
+  });
+
+  it('shows the error when the email already has an account', async () => {
+    const { dependencies, registerWithPassword } = makeDependencies();
+    const taken = new ApiError('http', 'x', 409, 'EMAIL_TAKEN');
+    registerWithPassword.mockRejectedValue(taken);
+    const { result } = renderHook(() => useSession(dependencies));
+
+    await act(() => result.current.signInWithEmail('register', { ...login, name: 'Ana' }));
+
+    expect(result.current.state).toMatchObject({ signIn: { phase: 'failed', error: taken } });
+  });
+
+  it('does not send a second attempt while the first is still working', async () => {
+    const { dependencies, signInWithPassword } = makeDependencies();
+    let finish: (answer: GoogleLoginAnswer) => void = () => undefined;
+    signInWithPassword.mockImplementation(() => new Promise((resolve) => (finish = resolve)));
+    const { result } = renderHook(() => useSession(dependencies));
+
+    let first: Promise<void> = Promise.resolve();
+    act(() => {
+      first = result.current.signInWithEmail('login', login);
+    });
+    await act(() => result.current.signInWithEmail('login', login));
+    await act(async () => {
+      finish({ token: NEW_TOKEN, expiresAt: 'x', user: profile });
+      await first;
+    });
+
+    expect(signInWithPassword).toHaveBeenCalledTimes(1);
+  });
+
+  it('does nothing yet to recover a password', async () => {
+    const { dependencies, signInWithPassword, registerWithPassword } = makeDependencies();
+    const { result } = renderHook(() => useSession(dependencies));
+
+    await act(() => result.current.signInWithEmail('recover', login));
+
+    expect(signInWithPassword).not.toHaveBeenCalled();
+    expect(registerWithPassword).not.toHaveBeenCalled();
+    expect(result.current.state).toEqual({ status: 'entry', signIn: { phase: 'idle' } });
   });
 });
 

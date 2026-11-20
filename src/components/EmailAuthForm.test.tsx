@@ -178,20 +178,6 @@ describe('EmailAuthForm when it is sent', () => {
     expect(screen.queryByRole('alert')).toBeNull();
   });
 
-  it('sends the email only when recovering, with the password it never asked for empty', () => {
-    const onSubmit = vi.fn();
-    render(<Harness start="recover" onSubmit={onSubmit} />);
-    type('Correo electrónico', 'ana@example.com');
-
-    fireEvent.click(screen.getByRole('button', { name: 'Enviar enlace' }));
-
-    expect(onSubmit).toHaveBeenCalledWith('recover', {
-      name: '',
-      email: 'ana@example.com',
-      password: '',
-    });
-  });
-
   it('is sent with the Enter key from a field', () => {
     const onSubmit = vi.fn();
     const { container } = render(<Harness onSubmit={onSubmit} />);
@@ -233,6 +219,17 @@ describe('EmailAuthForm while the way in is not ready', () => {
     fireEvent.click(button!);
 
     expect(screen.getByRole('status').textContent).toContain(text);
+  });
+
+  it('says so to recover a password even when the page has a way to send the others', () => {
+    const onSubmit = vi.fn();
+    render(<Harness start="recover" onSubmit={onSubmit} />);
+    type('Correo electrónico', 'ana@example.com');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Enviar enlace' }));
+
+    expect(screen.getByRole('status').textContent).toContain('estará disponible pronto');
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 
   it('keeps the email, forgets the password and sends nothing', () => {
