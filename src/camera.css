@@ -229,8 +229,7 @@
 }
 
 .camera__button:focus-visible,
-.camera__back:focus-visible,
-.topbar__camera:focus-visible {
+.camera__back:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
@@ -406,7 +405,13 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  /* The video takes the whole screen under the bar, leaving room for the button right below it:
+     a phone held upright gives a tall video, and a short box would show it as a thin strip. */
   .camera__stage {
+    align-self: stretch;
+    aspect-ratio: auto;
+    height: calc(100dvh - 170px);
+    min-height: 320px;
     max-height: none;
     margin: 0;
     border-width: 0 0 1px;
@@ -479,6 +484,27 @@
 
   .camera__gate {
     padding: 22px 18px;
+  }
+}
+
+/* A phone on its side: the video on the left, as tall as the screen, and the controls on the right. */
+@media (max-width: 860px) and (orientation: landscape) and (max-height: 500px) {
+  .camera__layout {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+
+  .camera__stage {
+    height: calc(100dvh - 60px);
+    min-height: 0;
+    border-width: 0 1px 0 0;
+  }
+
+  .camera__side {
+    border-left: 1px solid var(--hero-card-line);
+  }
+
+  .camera__meters {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
