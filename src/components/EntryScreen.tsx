@@ -107,7 +107,6 @@ export function EntryScreen({
       <section className="entry" aria-busy={working}>
         <div className="entry__inner">
           <div className="entry__top">
-            <p className="entry__eyebrow">{t('entry.eyebrow')}</p>
             <LanguageSwitch />
           </div>
 

@@ -45,7 +45,6 @@ export const en: Record<MessageKey, string> = {
   'entry.hero.segments': 'Segments',
   'entry.hero.kilometers': 'Kilometers',
   'entry.hero.source': 'Streets from OpenStreetMap',
-  'entry.eyebrow': 'Data Structures final project',
   'entry.tabs.label': 'Way in',
   'entry.tab.login': 'Sign in',
   'entry.tab.register': 'Create account',

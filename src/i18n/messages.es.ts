@@ -50,7 +50,6 @@ export const es = {
   'entry.hero.segments': 'Tramos',
   'entry.hero.kilometers': 'Kilómetros',
   'entry.hero.source': 'Calles de OpenStreetMap',
-  'entry.eyebrow': 'Proyecto final de Estructuras de Datos',
   'entry.tabs.label': 'Cómo entrar',
   'entry.tab.login': 'Iniciar sesión',
   'entry.tab.register': 'Crear cuenta',

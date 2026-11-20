@@ -178,20 +178,9 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 10px 16px;
   margin: 0 0 18px;
-}
-
-.entry__eyebrow {
-  display: inline-block;
-  margin: 0;
-  padding: 5px 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--brand-ink);
-  background: var(--brand-soft);
-  border-radius: 999px;
 }
 
 .entry__heading {
