@@ -127,6 +127,12 @@ La app tiene dos idiomas, español (el original y el que se ve la primera vez) e
 - Un texto con una parte variable la escribe como `{nombre}` y se llena con `t('clave', { nombre: valor })`. Un valor que parezca una variable (una calle llamada `{nombre}`) se muestra tal cual, nunca se expande.
 - En un componente: `const { t } = useLanguage();` y luego `t('clave')`. Sin proveedor arriba, `useLanguage` da español y un idioma que no se puede cambiar, así que una pieza se puede mostrar o probar sola.
 - Para agregar un texto: se escribe primero en español, se copia la clave al inglés y se usa con `t`. Los nombres de las calles y los datos que llegan del servidor no se traducen.
+- **Toda la app** sigue el idioma: el mapa, la leyenda, las capas, la búsqueda de calles, los cuadros de información, «Cómo llegar» (panel, detalles, pasos y errores), la cámara con sus medidores y avisos, las pantallas de carga y de error y la política de privacidad.
+- Las funciones que arman un texto fuera de un componente (los errores, los cuadros del mapa, el resumen del guardado) reciben el idioma como último parámetro: `t` (`Translator`) o `Texts` (`{ t, locale }`, lo que da `useLanguage()`), definidos en `src/lib/translator.ts`. Si no se les da, escriben en español. Por eso los formateadores (`formatNumber`, `formatDecimal`, `formatLength`, `formatPercent`, `formatDuration`…) también reciben el `locale`.
+- Un estado que se guarda (un error de la cámara, del modelo) no guarda el texto sino su tipo, y el texto se escribe al mostrarlo: así cambia con el idioma.
+- Los nombres que el servidor manda en español (la gravedad `grave`, el estado `confirmado`, el tipo de vía `Vía terciaria`) se traducen con `src/lib/labels.ts`; un nombre que la app no conoce se muestra como llegó.
+- La política de privacidad tiene un cuerpo por idioma (`src/components/privacy-content.tsx`), y una prueba revisa que los dos tengan la misma forma (mismos títulos, párrafos, listas y enlaces).
+- En las pruebas, `src/test/english.tsx` da `renderInEnglish(...)` para mostrar una pieza en inglés y `englishTexts` para las funciones que arman textos.
 - El idioma se cambia desde la pantalla de entrada (también para un invitado) y desde **Configuraciones**. Los roles, las fechas y los números también siguen el idioma (`1.234` en español, `1,234` en inglés).
 - `LanguageSwitch` es el selector de dos botones; cada uno lleva su nombre en su propio idioma ("Español", "English").
 
