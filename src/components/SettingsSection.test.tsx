@@ -20,7 +20,7 @@ describe('SettingsSection', () => {
     ).toEqual(['Apariencia', 'Idioma', 'Privacidad', 'Eliminar mi cuenta']);
   });
 
-  it('adds the password group, before the privacy one, when the account has a password', async () => {
+  it('adds the groups of the email and of the password, before the privacy one, when the account has a password and an email to verify', async () => {
     const user = {
       id: 'u1',
       email: 'ana@example.com',
@@ -31,18 +31,29 @@ describe('SettingsSection', () => {
       hasPassword: true,
       emailVerified: false,
     };
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ user }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }),
+    // Two groups ask who the person is: every answer needs its own body.
+    vi.spyOn(globalThis, 'fetch').mockImplementation(() =>
+      Promise.resolve(
+        new Response(JSON.stringify({ user }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      ),
     );
     render(<SettingsSection token={'a'.repeat(43)} />);
 
     await screen.findByLabelText('Contraseña actual');
+    await screen.findByRole('heading', { level: 2, name: 'Verificar correo' });
     expect(
       screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent),
-    ).toEqual(['Apariencia', 'Idioma', 'Contraseña', 'Privacidad', 'Eliminar mi cuenta']);
+    ).toEqual([
+      'Apariencia',
+      'Idioma',
+      'Verificar correo',
+      'Contraseña',
+      'Privacidad',
+      'Eliminar mi cuenta',
+    ]);
     vi.restoreAllMocks();
   });
 

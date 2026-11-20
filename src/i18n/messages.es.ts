@@ -232,6 +232,17 @@ export const es = {
   'emailLink.reset.tooMany': 'Demasiados intentos. Espera un minuto e intenta de nuevo.',
   'emailLink.reset.unavailable': 'El servicio no está disponible por ahora. Intenta más tarde.',
   'emailLink.reset.other': 'No se pudo guardar la contraseña. Intenta de nuevo.',
+  'settings.verify.title': 'Verificar correo',
+  'settings.verify.help':
+    'Aún no verificas {email}. Con el correo verificado podrás recuperar tu contraseña si la olvidas. El enlace vence en 24 horas.',
+  'settings.verify.button': 'Enviar enlace de verificación',
+  'settings.verify.again': 'Enviar otro enlace',
+  'settings.verify.working': 'Enviando…',
+  'settings.verify.sent':
+    'Listo: te enviamos el enlace a {email}. Si no lo ves, revisa el correo no deseado.',
+  'settings.verify.tooMany': 'Pediste demasiados enlaces. Espera unos minutos e intenta de nuevo.',
+  'settings.verify.mailFailed': 'No pudimos enviar el correo. Intenta de nuevo en unos minutos.',
+  'settings.verify.other': 'No se pudo enviar el enlace. Intenta de nuevo.',
   'settings.delete.subject': 'Solicitud para eliminar mi cuenta de Urban Road Monitor',
   'topbar.title': 'Estado de las calles de Pasto',
   'topbar.summary': 'Resumen de la ciudad',

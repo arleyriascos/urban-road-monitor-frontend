@@ -224,6 +224,17 @@ export const en: Record<MessageKey, string> = {
   'emailLink.reset.tooMany': 'Too many attempts. Wait a minute and try again.',
   'emailLink.reset.unavailable': 'The service is not available right now. Try again later.',
   'emailLink.reset.other': 'The password could not be saved. Try again.',
+  'settings.verify.title': 'Verify email',
+  'settings.verify.help':
+    'You have not verified {email} yet. With a verified email you will be able to recover your password if you forget it. The link expires in 24 hours.',
+  'settings.verify.button': 'Send verification link',
+  'settings.verify.again': 'Send another link',
+  'settings.verify.working': 'Sending…',
+  'settings.verify.sent':
+    'Done: we sent the link to {email}. If you do not see it, check your spam folder.',
+  'settings.verify.tooMany': 'You asked for too many links. Wait a few minutes and try again.',
+  'settings.verify.mailFailed': 'We could not send the email. Try again in a few minutes.',
+  'settings.verify.other': 'The link could not be sent. Try again.',
   'settings.delete.subject': 'Request to delete my Urban Road Monitor account',
   'topbar.title': 'Street condition in Pasto',
   'topbar.summary': 'City summary',

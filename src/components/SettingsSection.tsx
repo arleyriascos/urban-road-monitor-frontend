@@ -2,6 +2,7 @@ import { useLanguage } from '../i18n/useLanguage';
 import { LanguageSwitch } from '../i18n/LanguageSwitch';
 import type { ThemeStore } from '../theme/theme-store';
 import { PRIVACY_CONTACT_EMAIL, PRIVACY_PATH } from './PrivacyPage';
+import { EmailVerificationSettings } from './EmailVerificationSettings';
 import { PasswordSettings } from './PasswordSettings';
 import { ThemeChoice } from './ThemeChoice';
 
@@ -35,6 +36,7 @@ export function SettingsSection({
         <LanguageSwitch />
       </div>
 
+      {token && <EmailVerificationSettings token={token} />}
       {token && <PasswordSettings token={token} />}
 
       <div className="settings__group">
