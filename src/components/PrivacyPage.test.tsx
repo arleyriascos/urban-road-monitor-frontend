@@ -47,6 +47,20 @@ describe('PrivacyPage', () => {
     }
   });
 
+  it('says what the links sent by email are, how long they last and who sends them', () => {
+    render(<PrivacyPage />);
+    const text = (document.body.textContent ?? '').replace(/\s+/g, ' ');
+    for (const part of [
+      'Puedes verificarlo desde Configuraciones',
+      'se guardan solo como una huella cifrada',
+      'sirven una sola vez',
+      'a las 24 horas el de verificar y a la hora el de la contraseña',
+      'tu correo se entrega a Brevo',
+    ]) {
+      expect(text).toContain(part);
+    }
+  });
+
   it('says what the browser keeps and that there is no tracking', () => {
     render(<PrivacyPage />);
     expect(screen.getByText(/no usamos cookies de seguimiento/i)).toBeTruthy();
@@ -83,7 +97,8 @@ describe('PrivacyPage', () => {
   it('names the services that take part', () => {
     render(<PrivacyPage />);
     const text = document.body.textContent ?? '';
-    for (const service of ['Google', 'Vercel', 'Render', 'Neon']) expect(text).toContain(service);
+    for (const service of ['Google', 'Vercel', 'Render', 'Neon', 'Brevo'])
+      expect(text).toContain(service);
   });
 
   it('tells how to ask to see, correct or delete the data, with a working mail link', () => {

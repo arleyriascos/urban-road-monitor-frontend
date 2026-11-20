@@ -51,7 +51,14 @@ export function PrivacyContentEs({ email }: PrivacyContentProps) {
           otra. Al cambiarla se cierran tus otras sesiones.
         </li>
         <li>
-          Si tu correo ya fue verificado o no. Por ahora las cuentas nuevas quedan sin verificar.
+          Si tu correo ya fue verificado o no. Puedes verificarlo desde Configuraciones; con el
+          correo verificado puedes recuperar tu contraseña si la olvidas.
+        </li>
+        <li>
+          Los enlaces que te enviamos por correo (para verificarlo y para elegir una contraseña
+          nueva) se guardan solo como una huella cifrada, sirven una sola vez y vencen: a las 24
+          horas el de verificar y a la hora el de la contraseña. Para enviarlos, tu correo se
+          entrega a Brevo, el servicio que manda los mensajes.
         </li>
         <li>
           Tu sesión, el registro de accesos y tu rol, igual que si ingresas con Google. Si después
@@ -97,8 +104,9 @@ export function PrivacyContentEs({ email }: PrivacyContentProps) {
 
       <h2>Servicios que intervienen</h2>
       <p>
-        Google (ingreso con tu cuenta), Vercel (esta página), Render (el servidor) y Neon (la base
-        de datos). Cada uno trata los datos que pasan por él según sus propias condiciones.
+        Google (ingreso con tu cuenta), Vercel (esta página), Render (el servidor), Neon (la base de
+        datos) y Brevo (el envío de correos). Cada uno trata los datos que pasan por él según sus
+        propias condiciones.
       </p>
 
       <h2>Tus derechos</h2>
@@ -157,7 +165,16 @@ export function PrivacyContentEn({ email }: PrivacyContentProps) {
           turned back into it is saved. That is why we cannot tell you what it is; if you forget it
           you will have to choose another. When you change it, your other sessions are closed.
         </li>
-        <li>Whether your email has been verified or not. For now new accounts are unverified.</li>
+        <li>
+          Whether your email has been verified or not. You can verify it from Settings; with a
+          verified email you can recover your password if you forget it.
+        </li>
+        <li>
+          The links we send you by email (to verify it and to choose a new password) are kept only
+          as an encrypted fingerprint, work once and expire: the verification one after 24 hours and
+          the password one after 1 hour. To send them, your email is handed to Brevo, the service
+          that delivers the messages.
+        </li>
         <li>
           Your session, the access log and your role, as if you signed in with Google. If you later
           sign in with Google using the same email and the account was not verified yet, the Google
@@ -204,8 +221,9 @@ export function PrivacyContentEn({ email }: PrivacyContentProps) {
 
       <h2>Services involved</h2>
       <p>
-        Google (sign-in with your account), Vercel (this page), Render (the server) and Neon (the
-        database). Each one handles the data that passes through it under its own terms.
+        Google (sign-in with your account), Vercel (this page), Render (the server), Neon (the
+        database) and Brevo (sending emails). Each one handles the data that passes through it under
+        its own terms.
       </p>
 
       <h2>Your rights</h2>
