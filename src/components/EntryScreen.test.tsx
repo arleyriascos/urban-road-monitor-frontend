@@ -34,6 +34,11 @@ function renderEntry(overrides: Partial<Parameters<typeof EntryScreen>[0]> = {})
 }
 
 describe('EntryScreen', () => {
+  it('says the password is stored encrypted, with or without the Google button', () => {
+    renderEntry({ googleClientId: undefined });
+    expect(screen.getByText(/tu contraseña se guarda cifrada/)).toBeTruthy();
+  });
+
   it('does not show the name of the course above the entry form', () => {
     renderEntry();
     expect(screen.queryByText(/Proyecto final/i)).toBeNull();

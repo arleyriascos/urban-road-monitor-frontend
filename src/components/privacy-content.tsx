@@ -29,12 +29,34 @@ export function PrivacyContentEs({ email }: PrivacyContentProps) {
         </li>
         <li>
           Un <strong>registro de accesos</strong> con la fecha y el tipo de cada evento (ingreso,
-          ingreso fallido, cierre de sesión y cambio de rol). En los ingresos fallidos se guarda la
-          dirección IP recortada. No se guardan los tokens de Google ni los identificadores de
-          sesión.
+          ingreso fallido, cierre de sesión, cambio de rol y, en las cuentas con contraseña,
+          creación de la cuenta y cambio de contraseña). En los ingresos fallidos se guarda la
+          dirección IP recortada. No se guardan los tokens de Google, las contraseñas ni los
+          identificadores de sesión.
         </li>
         <li>
           Tu <strong>rol</strong> en la app (por ejemplo, usuario, colaborador o administrador).
+        </li>
+      </ul>
+
+      <h2>Qué datos guardamos si creas una cuenta con correo y contraseña</h2>
+      <ul>
+        <li>
+          Tu <strong>correo</strong> y tu <strong>nombre</strong>, para reconocerte cada vez que
+          ingresas.
+        </li>
+        <li>
+          Tu <strong>contraseña</strong> nunca se guarda: solo se guarda una huella cifrada que no
+          permite recuperarla. Por eso no podemos decirte cuál es; si la olvidas, tendrás que elegir
+          otra. Al cambiarla se cierran tus otras sesiones.
+        </li>
+        <li>
+          Si tu correo ya fue verificado o no. Por ahora las cuentas nuevas quedan sin verificar.
+        </li>
+        <li>
+          Tu sesión, el registro de accesos y tu rol, igual que si ingresas con Google. Si después
+          ingresas con Google con el mismo correo y la cuenta aún no estaba verificada, se queda la
+          cuenta de Google y se borra la contraseña.
         </li>
       </ul>
 
@@ -61,9 +83,9 @@ export function PrivacyContentEs({ email }: PrivacyContentProps) {
       <h2>Si entras como invitado</h2>
       <p>
         La app no te pide ningún dato ni guarda nada tuyo. El detector de baches no está disponible
-        sin cuenta: pide ingresar con Google, porque lo que encuentra se guarda a nombre de quien lo
-        usa. Como cualquier servicio en internet, el proveedor del servidor puede registrar
-        direcciones IP en sus registros técnicos.
+        sin cuenta: pide ingresar con Google o con tu correo, porque lo que encuentra se guarda a
+        nombre de quien lo usa. Como cualquier servicio en internet, el proveedor del servidor puede
+        registrar direcciones IP en sus registros técnicos.
       </p>
 
       <h2>Para qué usamos los datos</h2>
@@ -115,11 +137,31 @@ export function PrivacyContentEn({ email }: PrivacyContentProps) {
         </li>
         <li>
           An <strong>access log</strong> with the date and the type of each event (sign-in, failed
-          sign-in, sign-out and change of role). For failed sign-ins the shortened IP address is
-          kept. Google tokens and session identifiers are not kept.
+          sign-in, sign-out, change of role and, for accounts with a password, creation of the
+          account and change of password). For failed sign-ins the shortened IP address is kept.
+          Google tokens, passwords and session identifiers are not kept.
         </li>
         <li>
           Your <strong>role</strong> in the app (for example, user, collaborator or administrator).
+        </li>
+      </ul>
+
+      <h2>What data we keep if you create an account with an email and a password</h2>
+      <ul>
+        <li>
+          Your <strong>email</strong> and your <strong>name</strong>, to recognize you each time you
+          sign in.
+        </li>
+        <li>
+          Your <strong>password</strong> is never kept: only an encrypted fingerprint that cannot be
+          turned back into it is saved. That is why we cannot tell you what it is; if you forget it
+          you will have to choose another. When you change it, your other sessions are closed.
+        </li>
+        <li>Whether your email has been verified or not. For now new accounts are unverified.</li>
+        <li>
+          Your session, the access log and your role, as if you signed in with Google. If you later
+          sign in with Google using the same email and the account was not verified yet, the Google
+          account stays and the password is deleted.
         </li>
       </ul>
 
@@ -147,9 +189,10 @@ export function PrivacyContentEn({ email }: PrivacyContentProps) {
       <h2>If you enter as a guest</h2>
       <p>
         The app does not ask you for any data and does not keep anything about you. The pothole
-        detector is not available without an account: it asks you to sign in with Google, because
-        what it finds is saved under the name of the person who uses it. Like any service on the
-        internet, the provider of the server may record IP addresses in its technical logs.
+        detector is not available without an account: it asks you to sign in with Google or with
+        your email, because what it finds is saved under the name of the person who uses it. Like
+        any service on the internet, the provider of the server may record IP addresses in its
+        technical logs.
       </p>
 
       <h2>What we use the data for</h2>

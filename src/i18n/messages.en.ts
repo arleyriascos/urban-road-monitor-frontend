@@ -58,6 +58,8 @@ export const en: Record<MessageKey, string> = {
   'entry.guest': 'Continue as a guest',
   'entry.working': 'Signing in…',
   'entry.noGoogle': 'Signing in with Google is not available in this version.',
+  'entry.emailNote':
+    'If you create an account with your email, your password is stored encrypted: we never see it or keep it as typed.',
   'entry.googleNote': 'We only use the email, name and photo of your Google account.',
   'entry.privacyLink': 'Privacy policy',
   'entry.table.caption': 'What you can do as a guest and with an account',
@@ -462,7 +464,7 @@ export const en: Record<MessageKey, string> = {
   'meter.size.score': 'confidence {value}',
   'privacy.title': 'Privacy policy',
   'privacy.updated': 'Last updated: {date}',
-  'privacy.updatedAt': 'November 16, 2026',
+  'privacy.updatedAt': 'November 20, 2026',
   'privacy.back': 'Back to the app',
   'error.retry': 'Try again',
   'map.cameraHint': 'Detect potholes',

@@ -34,6 +34,19 @@ describe('PrivacyPage', () => {
     }
   });
 
+  it('says the password is never kept and that changing it closes the other sessions', () => {
+    render(<PrivacyPage />);
+    const text = document.body.textContent ?? '';
+    for (const part of [
+      'nunca se guarda: solo se guarda una huella cifrada',
+      'Al cambiarla se cierran tus otras sesiones',
+      'cambio de contraseña',
+      'las contraseñas',
+    ]) {
+      expect(text).toContain(part);
+    }
+  });
+
   it('says what the browser keeps and that there is no tracking', () => {
     render(<PrivacyPage />);
     expect(screen.getByText(/no usamos cookies de seguimiento/i)).toBeTruthy();
@@ -99,6 +112,7 @@ describe('PrivacyPage', () => {
     expect(headings).toEqual([
       'Quién es responsable',
       'Qué datos guardamos si ingresas con Google',
+      'Qué datos guardamos si creas una cuenta con correo y contraseña',
       'Qué guarda tu navegador',
       'Los baches que detecta la cámara',
       'Si entras como invitado',
@@ -114,7 +128,7 @@ describe('PrivacyPage in English', () => {
     renderInEnglish(<PrivacyPage />);
 
     expect(screen.getByRole('heading', { level: 1, name: 'Privacy policy' })).toBeTruthy();
-    expect(screen.getByText('Last updated: November 16, 2026')).toBeTruthy();
+    expect(screen.getByText('Last updated: November 20, 2026')).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Back to the app' }).getAttribute('href')).toBe('/');
   });
 
@@ -124,6 +138,7 @@ describe('PrivacyPage in English', () => {
     expect(headings).toEqual([
       'Who is responsible',
       'What data we keep if you sign in with Google',
+      'What data we keep if you create an account with an email and a password',
       'What your browser keeps',
       'The potholes the camera detects',
       'If you enter as a guest',
@@ -140,13 +155,25 @@ describe('PrivacyPage in English', () => {
       'no photo or video is saved or sent',
       'We do not sell or share your data',
       'We do not use tracking or advertising cookies',
-      'Google tokens and session identifiers are not kept',
+      'Google tokens, passwords and session identifiers are not kept',
       '7 days',
       '30 days',
       'up to 500',
       'Vercel',
       'Render',
       'Neon',
+    ]) {
+      expect(text).toContain(part);
+    }
+  });
+
+  it('says the same about the password in English', () => {
+    renderInEnglish(<PrivacyPage />);
+    const text = document.body.textContent ?? '';
+    for (const part of [
+      'is never kept: only an encrypted fingerprint',
+      'your other sessions are closed',
+      'change of password',
     ]) {
       expect(text).toContain(part);
     }

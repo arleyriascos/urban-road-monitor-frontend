@@ -186,6 +186,7 @@ export function EntryScreen({
           <div className="entry__secure">
             <Icon name="shield" />
             <div>
+              <p className="entry__note">{t('entry.emailNote')}</p>
               {googleClientId && <p className="entry__note">{t('entry.googleNote')}</p>}
               {footer}
             </div>

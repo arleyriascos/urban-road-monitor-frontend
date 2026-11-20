@@ -63,6 +63,8 @@ export const es = {
   'entry.guest': 'Continuar como invitado',
   'entry.working': 'Ingresando…',
   'entry.noGoogle': 'El ingreso con Google no está disponible en esta versión.',
+  'entry.emailNote':
+    'Si creas una cuenta con tu correo, tu contraseña se guarda cifrada: nunca la vemos ni la guardamos tal cual.',
   'entry.googleNote': 'Solo usamos el correo, el nombre y la foto de tu cuenta de Google.',
   'entry.privacyLink': 'Política de privacidad',
   'entry.table.caption': 'Qué puedes hacer como invitado y con una cuenta',
@@ -473,7 +475,7 @@ export const es = {
   'meter.size.score': 'seguridad {value}',
   'privacy.title': 'Política de privacidad',
   'privacy.updated': 'Última actualización: {date}',
-  'privacy.updatedAt': '16 de noviembre de 2026',
+  'privacy.updatedAt': '20 de noviembre de 2026',
   'privacy.back': 'Volver a la app',
   'error.retry': 'Intentar de nuevo',
   'map.camera': 'Detector de baches',
