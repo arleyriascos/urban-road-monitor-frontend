@@ -82,7 +82,7 @@ describe('EmailAuthForm to create the account', () => {
     expect(screen.getByLabelText('Nombre completo').getAttribute('autocomplete')).toBe('name');
     expect(screen.getByLabelText('Correo electrónico').getAttribute('autocomplete')).toBe('email');
     expect(screen.getByLabelText('Contraseña').getAttribute('autocomplete')).toBe('new-password');
-    expect(screen.getByText('Mínimo 8 caracteres.')).toBeTruthy();
+    expect(screen.getByText('Mínimo 10 caracteres.')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Crear cuenta', hidden: false })).toBeTruthy();
     expect(screen.getByText('¿Ya tienes cuenta?')).toBeTruthy();
     expect(screen.queryByRole('button', { name: '¿Olvidaste tu contraseña?' })).toBeNull();
@@ -138,7 +138,7 @@ describe('EmailAuthForm when it is sent', () => {
     type('Correo electrónico', 'ana@example.com');
     type('Contraseña', 'abc');
     fireEvent.click(screen.getByRole('button', { name: 'Crear cuenta' }));
-    expect(screen.getByRole('alert').textContent).toBe('Usa al menos 8 caracteres.');
+    expect(screen.getByRole('alert').textContent).toBe('Usa al menos 10 caracteres.');
     expect(onSubmit).not.toHaveBeenCalled();
     unmount();
 
@@ -301,7 +301,7 @@ describe('EmailAuthForm in English', () => {
     expect(screen.getByLabelText('Full name')).toBeTruthy();
     expect(screen.getByLabelText('Email')).toBeTruthy();
     expect(screen.getByLabelText('Password')).toBeTruthy();
-    expect(screen.getByText('At least 8 characters.')).toBeTruthy();
+    expect(screen.getByText('At least 10 characters.')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: 'Create account' }));
     expect(screen.getAllByRole('alert').map((alert) => alert.textContent)).toEqual([

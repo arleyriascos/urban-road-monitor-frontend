@@ -88,6 +88,19 @@ export const en: Record<MessageKey, string> = {
   'authError.unavailable.title': 'Signing in is not available right now',
   'authError.unavailable.help':
     'The server may be waking up or Google did not answer. Try again in a few seconds.',
+  'authError.credentials.title': 'Wrong email or password',
+  'authError.credentials.help':
+    'Check what you typed and try again. If you made your account with Google, use the Google button.',
+  'authError.emailTaken.title': 'An account with that email already exists',
+  'authError.emailTaken.help':
+    'Sign in with that email. If it is a Google one, use the Google button.',
+  'authError.password.title': 'That password will not work',
+  'authError.password.tooShort': 'Use at least {min} characters.',
+  'authError.password.tooLong': 'Use at most {max} characters.',
+  'authError.password.sameAsEmail': 'Do not use your email as your password.',
+  'authError.password.tooCommon': 'That password is very common: choose another one.',
+  'authError.password.sameAsCurrent': 'The new password must be different from the current one.',
+  'authError.password.other': 'Choose another password and try again.',
   'authError.other.title': 'Could not sign in',
   'authError.other.help': 'Try again, or continue as a guest.',
   'account.guest.signIn': 'Sign in',

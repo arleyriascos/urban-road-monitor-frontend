@@ -94,6 +94,19 @@ export const es = {
   'authError.unavailable.title': 'El ingreso no está disponible por ahora',
   'authError.unavailable.help':
     'El servidor puede estar despertando o Google no respondió. Intenta de nuevo en unos segundos.',
+  'authError.credentials.title': 'Correo o contraseña incorrectos',
+  'authError.credentials.help':
+    'Revisa los datos e intenta de nuevo. Si creaste tu cuenta con Google, usa el botón de Google.',
+  'authError.emailTaken.title': 'Ya existe una cuenta con ese correo',
+  'authError.emailTaken.help':
+    'Inicia sesión con ese correo. Si es de Google, usa el botón de Google.',
+  'authError.password.title': 'Esa contraseña no sirve',
+  'authError.password.tooShort': 'Usa al menos {min} caracteres.',
+  'authError.password.tooLong': 'Usa como máximo {max} caracteres.',
+  'authError.password.sameAsEmail': 'No uses tu correo como contraseña.',
+  'authError.password.tooCommon': 'Es una contraseña muy común: elige otra.',
+  'authError.password.sameAsCurrent': 'La contraseña nueva debe ser distinta de la actual.',
+  'authError.password.other': 'Elige otra contraseña e intenta de nuevo.',
   'authError.other.title': 'No se pudo ingresar',
   'authError.other.help': 'Intenta de nuevo, o sigue como invitado.',
   'account.guest.signIn': 'Ingresar',

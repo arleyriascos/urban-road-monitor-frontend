@@ -65,11 +65,11 @@ describe('checkPassword', () => {
 
   it('asks for the length when creating an account', () => {
     expect(checkPassword('', 'register')).toEqual({ key: 'form.error.passwordRequired' });
-    expect(checkPassword('1234567', 'register')).toEqual({
+    expect(checkPassword('123456789', 'register')).toEqual({
       key: 'form.error.passwordShort',
       params: { min: PASSWORD_MIN },
     });
-    expect(checkPassword('12345678', 'register')).toBeNull();
+    expect(checkPassword('1234567890', 'register')).toBeNull();
     expect(checkPassword('a'.repeat(PASSWORD_MAX), 'register')).toBeNull();
     expect(checkPassword('a'.repeat(PASSWORD_MAX + 1), 'register')).toEqual({
       key: 'form.error.passwordLong',
@@ -77,15 +77,15 @@ describe('checkPassword', () => {
     });
   });
 
-  it('counts what a person sees: eight emojis are eight characters', () => {
-    expect(checkPassword('😀'.repeat(8), 'register')).toBeNull();
-    expect(checkPassword('😀'.repeat(7), 'register')).toMatchObject({
+  it('counts what a person sees: ten emojis are ten characters', () => {
+    expect(checkPassword('😀'.repeat(10), 'register')).toBeNull();
+    expect(checkPassword('😀'.repeat(9), 'register')).toMatchObject({
       key: 'form.error.passwordShort',
     });
   });
 
   it('does not trim: spaces are part of the password', () => {
-    expect(checkPassword('        ', 'register')).toBeNull();
+    expect(checkPassword('          ', 'register')).toBeNull();
   });
 });
 

@@ -4,7 +4,7 @@ import type { MessageKey, MessageParams } from '../i18n/translate';
 export type AccessView = 'login' | 'register' | 'recover';
 
 export const EMAIL_MAX = 254;
-export const PASSWORD_MIN = 8;
+export const PASSWORD_MIN = 10;
 export const PASSWORD_MAX = 128;
 export const NAME_MAX = 150;
 

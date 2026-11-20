@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { translate } from '../i18n/translate';
-import { describeSignInError, isSessionGone } from './auth-errors';
+import { describePasswordProblem, describeSignInError, isSessionGone } from './auth-errors';
 
 describe('isSessionGone', () => {
   it('is true only for a 401 answer of the server', () => {
@@ -109,5 +109,68 @@ describe('describeSignInError in English', () => {
     expect(
       describeSignInError({ kind: 'http', status: 429, details: { retryAfterS: 0.4 } }).help,
     ).toBe('Espera 1 segundo e intenta de nuevo.');
+  });
+});
+
+describe('describeSignInError, for the email and the password', () => {
+  it('never says which half was wrong, and points Google accounts to the Google button', () => {
+    const description = describeSignInError({
+      kind: 'http',
+      status: 401,
+      code: 'INVALID_CREDENTIALS',
+    });
+    expect(description.title).toBe('Correo o contraseña incorrectos');
+    expect(description.help).toContain('Google');
+  });
+
+  it('is not mixed up with the 401 of Google', () => {
+    expect(
+      describeSignInError({ kind: 'http', status: 401, code: 'INVALID_CREDENTIALS' }).title,
+    ).not.toBe(
+      describeSignInError({ kind: 'http', status: 401, code: 'INVALID_GOOGLE_TOKEN' }).title,
+    );
+  });
+
+  it('says that the email already has an account', () => {
+    expect(describeSignInError({ kind: 'http', status: 409, code: 'EMAIL_TAKEN' }).title).toBe(
+      'Ya existe una cuenta con ese correo',
+    );
+  });
+
+  it('says which rule a refused password breaks', () => {
+    const refuse = (problem: string) =>
+      describeSignInError({
+        kind: 'http',
+        status: 400,
+        code: 'INVALID_PASSWORD',
+        details: { problem },
+      });
+    expect(refuse('too_short').title).toBe('Esa contraseña no sirve');
+    expect(refuse('too_short').help).toBe('Usa al menos 10 caracteres.');
+    expect(refuse('too_common').help).toBe('Es una contraseña muy común: elige otra.');
+  });
+
+  it('explains every problem of a password, and one it does not know', () => {
+    for (const problem of [
+      'too_short',
+      'too_long',
+      'same_as_email',
+      'too_common',
+      'same_as_current',
+    ]) {
+      expect(describePasswordProblem({ problem }).length).toBeGreaterThan(10);
+    }
+    expect(describePasswordProblem(undefined)).toBe('Elige otra contraseña e intenta de nuevo.');
+    expect(describePasswordProblem({ problem: 'new-rule' })).toBe(
+      'Elige otra contraseña e intenta de nuevo.',
+    );
+  });
+
+  it('speaks English when asked', () => {
+    const t = (key: Parameters<typeof translate>[1], params?: Parameters<typeof translate>[2]) =>
+      translate('en', key, params);
+    expect(
+      describeSignInError({ kind: 'http', status: 401, code: 'INVALID_CREDENTIALS' }, t).title,
+    ).toBe('Wrong email or password');
   });
 });
