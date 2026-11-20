@@ -5,9 +5,13 @@ import {
   changePassword,
   getMe,
   registerWithPassword,
+  requestPasswordReset,
+  resetPassword,
+  sendVerificationEmail,
   signInWithGoogle,
   signInWithPassword,
   signOut,
+  verifyEmail,
 } from './auth';
 
 const jsonResponse = (body: unknown, status = 200) =>
@@ -179,5 +183,68 @@ describe('changePassword', () => {
     await expect(
       changePassword('t', { currentPassword: 'x', newPassword: 'y' }),
     ).rejects.toMatchObject({ status: 403, code: 'INVALID_CURRENT_PASSWORD' });
+  });
+});
+
+describe('the calls of the links sent by email', () => {
+  it('asks for the link to choose a new password with only the email, and no session', async () => {
+    const fetchMock = stubFetch(jsonResponse({ sent: true }));
+
+    expect(await requestPasswordReset('ana@example.com')).toEqual({ sent: true });
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe(`${apiUrl}/api/auth/forgot-password`);
+    expect(init?.method).toBe('POST');
+    expect(init?.body).toBe('{"email":"ana@example.com"}');
+    expect(new Headers(init?.headers).has('Authorization')).toBe(false);
+  });
+
+  it('sends the token and the new password to choose it, with no session', async () => {
+    const fetchMock = stubFetch(jsonResponse({ reset: true }));
+
+    expect(await resetPassword({ token: 't'.repeat(43), newPassword: 'una clave larga' })).toEqual({
+      reset: true,
+    });
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe(`${apiUrl}/api/auth/reset-password`);
+    expect(JSON.parse(String(init?.body))).toEqual({
+      token: 't'.repeat(43),
+      newPassword: 'una clave larga',
+    });
+    expect(new Headers(init?.headers).has('Authorization')).toBe(false);
+  });
+
+  it('sends the token of the link to prove the email, with no session', async () => {
+    const fetchMock = stubFetch(jsonResponse({ verified: true }));
+
+    expect(await verifyEmail('t'.repeat(43))).toEqual({ verified: true });
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe(`${apiUrl}/api/auth/verify-email`);
+    expect(init?.body).toBe(`{"token":"${'t'.repeat(43)}"}`);
+    expect(new Headers(init?.headers).has('Authorization')).toBe(false);
+  });
+
+  it('asks the link to prove the email with the session', async () => {
+    const fetchMock = stubFetch(jsonResponse({ sent: true }));
+
+    expect(await sendVerificationEmail('session-token')).toEqual({ sent: true });
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe(`${apiUrl}/api/auth/verify-email/send`);
+    expect(new Headers(init?.headers).get('Authorization')).toBe('Bearer session-token');
+  });
+
+  it('keeps the code of the refusal, for the screens to explain it', async () => {
+    stubFetch(
+      jsonResponse({ error: { code: 'INVALID_TOKEN', message: 'The link is not valid' } }, 400),
+    );
+
+    const failure = await verifyEmail('x'.repeat(43)).catch((error: unknown) => error);
+
+    expect(failure).toBeInstanceOf(ApiError);
+    expect((failure as ApiError).status).toBe(400);
+    expect((failure as ApiError).code).toBe('INVALID_TOKEN');
   });
 });

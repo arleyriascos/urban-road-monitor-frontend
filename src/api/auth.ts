@@ -1,8 +1,11 @@
 import type {
   AccountProfile,
   ChangePasswordAnswer,
+  EmailLinkSentAnswer,
   GoogleLoginAnswer,
   PasswordSessionAnswer,
+  ResetPasswordAnswer,
+  VerifyEmailAnswer,
 } from '../types/auth';
 import { getJson, postEmpty, postJson } from './http';
 
@@ -41,6 +44,41 @@ export function changePassword(
   signal?: AbortSignal,
 ): Promise<ChangePasswordAnswer> {
   return postJson<ChangePasswordAnswer>('/api/auth/password', input, { token, signal });
+}
+
+/**
+ * Asks for the link to choose a new password. The backend answers the same whether the email has
+ * an account or not, so this never tells who is registered.
+ */
+export function requestPasswordReset(
+  email: string,
+  signal?: AbortSignal,
+): Promise<EmailLinkSentAnswer> {
+  return postJson<EmailLinkSentAnswer>('/api/auth/forgot-password', { email }, { signal });
+}
+
+/**
+ * Chooses a new password with the one-use token of the link. It opens no session: the person
+ * signs in afterwards, and every session they had is closed.
+ */
+export function resetPassword(
+  input: { token: string; newPassword: string },
+  signal?: AbortSignal,
+): Promise<ResetPasswordAnswer> {
+  return postJson<ResetPasswordAnswer>('/api/auth/reset-password', input, { signal });
+}
+
+/** Proves the email with the one-use token of the link. It needs no session. */
+export function verifyEmail(token: string, signal?: AbortSignal): Promise<VerifyEmailAnswer> {
+  return postJson<VerifyEmailAnswer>('/api/auth/verify-email', { token }, { signal });
+}
+
+/** Sends the session's account a link to prove its email. A 409 means it is already proven. */
+export function sendVerificationEmail(
+  token: string,
+  signal?: AbortSignal,
+): Promise<EmailLinkSentAnswer> {
+  return postJson<EmailLinkSentAnswer>('/api/auth/verify-email/send', {}, { token, signal });
 }
 
 /**

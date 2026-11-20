@@ -35,6 +35,21 @@ export interface ChangePasswordAnswer {
   otherSessionsClosed: number;
 }
 
+/** What the calls that send a link by email answer: it went out (or, for a reset, it would have). */
+export interface EmailLinkSentAnswer {
+  sent: true;
+}
+
+/** What POST /api/auth/verify-email answers. */
+export interface VerifyEmailAnswer {
+  verified: true;
+}
+
+/** What POST /api/auth/reset-password answers. */
+export interface ResetPasswordAnswer {
+  reset: true;
+}
+
 /** What GET /api/auth/me answers. */
 export interface MeAnswer {
   user: AccountProfile;
