@@ -167,7 +167,6 @@ export const en: Record<MessageKey, string> = {
   'settings.delete.subject': 'Request to delete my Urban Road Monitor account',
   'topbar.title': 'Street condition in Pasto',
   'topbar.summary': 'City summary',
-  'topbar.camera': 'Pothole detector',
   'topbar.roads.one': 'road',
   'topbar.roads.other': 'roads',
   'topbar.potholes.one': 'active pothole',
@@ -439,4 +438,8 @@ export const en: Record<MessageKey, string> = {
   'privacy.updatedAt': 'November 16, 2026',
   'privacy.back': 'Back to the app',
   'error.retry': 'Try again',
+  'map.camera': 'Pothole detector',
+  'search.close': 'Close search',
+  'map.zoomIn': 'Zoom in',
+  'map.zoomOut': 'Zoom out',
 };

@@ -10,6 +10,7 @@ import { isPhoneViewport } from '../lib/viewport';
 import type { MapData } from '../hooks/useMapData';
 import type { StreetMatch } from '../types/roads';
 import type { LatLng, RouteAnswer, RouteCriterion } from '../types/route';
+import { CameraButton } from './CameraButton';
 import { Icon } from './Icon';
 import { LayerToggles } from './LayerToggles';
 import { LegendPanel } from './LegendPanel';
@@ -84,7 +85,11 @@ export function MapScreen({ data, account }: { data: MapData; account?: AccountA
 
   return (
     <div className={routeOpen ? 'map-app map-app--routing' : 'map-app'}>
-      <TopBar stats={data.stats} account={account} />
+      <TopBar
+        stats={data.stats}
+        account={account}
+        search={<StreetSearch onSelect={setStreet} onClear={() => setStreet(null)} />}
+      />
       <div className="map-app__body">
         <MapView
           segments={data.segments}
@@ -94,7 +99,6 @@ export function MapScreen({ data, account }: { data: MapData; account?: AccountA
           routing={routing}
           street={routeOpen ? null : street}
         />
-        <StreetSearch onSelect={setStreet} onClear={() => setStreet(null)} />
         {routeOpen ? (
           <RoutePanel
             origin={origin}
@@ -139,6 +143,7 @@ export function MapScreen({ data, account }: { data: MapData; account?: AccountA
           />
         </LegendPanel>
         <RecenterButton onClick={() => setRecenterKey((value) => value + 1)} />
+        <CameraButton />
       </div>
     </div>
   );

@@ -85,7 +85,8 @@
   right: 16px;
   z-index: 1001;
   width: min(300px, calc(100% - 32px));
-  max-height: calc(100% - 32px);
+  /* It stops above the camera button, which sits over "Centrar" and the zoom buttons. */
+  max-height: calc(100% - 256px);
   overflow-y: auto;
   background: var(--surface);
   border: 1px solid var(--line);
@@ -342,6 +343,33 @@
   outline-offset: 2px;
 }
 
+/* The way to the camera: a round button in the style of "Cómo llegar", over "Centrar". */
+.camera-fab {
+  position: absolute;
+  right: 16px;
+  bottom: 178px;
+  z-index: 1001;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  font-size: 1.3rem;
+  color: var(--on-brand);
+  text-decoration: none;
+  background: var(--brand);
+  border-radius: 999px;
+  box-shadow: 0 6px 16px rgb(19 121 95 / 30%);
+}
+
+.camera-fab:hover {
+  background: var(--brand-strong);
+}
+
+.camera-fab:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
 /* Leaflet's zoom buttons, in the style of the app. */
 .leaflet-bottom.leaflet-right .leaflet-control-zoom {
   margin: 0 16px 12px 0;
@@ -436,11 +464,11 @@
   }
 
   .legend {
-    top: 70px;
+    top: 12px;
     right: 12px;
     width: auto;
     max-width: calc(100% - 24px);
-    max-height: calc(100% - 170px);
+    max-height: calc(100% - 256px);
   }
 
   .legend:has(.legend__body) {
@@ -456,6 +484,13 @@
     right: 12px;
     width: 44px;
     height: 44px;
+  }
+
+  .camera-fab {
+    right: 12px;
+    bottom: 180px;
+    width: 52px;
+    height: 52px;
   }
 
   .leaflet-bottom.leaflet-right .leaflet-control-zoom {
@@ -503,7 +538,7 @@
 
 .route-toggle {
   position: absolute;
-  top: 78px;
+  top: 16px;
   left: 16px;
   z-index: 1001;
   display: inline-flex;
@@ -1181,17 +1216,64 @@
   display: none;
 }
 
-/* Street search: a box over the map, above "Cómo llegar". It hides while the route panel is open. */
+/* Street search: a magnifier in the top bar that opens a box under it. It hides while the route
+   panel is open, and the wrapper keeps the auto margin so the account does not move. */
 .street-search {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  z-index: 1002;
-  width: min(380px, calc(100% - 32px));
+  position: relative;
+  flex: none;
+  margin-left: auto;
 }
 
-.map-app--routing .street-search {
+.street-search + .account {
+  margin-left: 0;
+}
+
+.map-app--routing .street-search__toggle,
+.map-app--routing .street-search__popover {
   display: none;
+}
+
+.street-search__toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  font: inherit;
+  font-size: 1.15rem;
+  color: var(--asphalt);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+  cursor: pointer;
+}
+
+.street-search__toggle:hover {
+  background: var(--concrete);
+}
+
+/* A street is on the map: the magnifier is painted so the person knows. */
+.street-search__toggle--active {
+  color: var(--on-brand);
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.street-search__toggle--active:hover {
+  background: var(--brand-strong);
+}
+
+.street-search__toggle:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.street-search__popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 1;
+  width: min(380px, calc(100vw - 32px));
 }
 
 .street-search__box {
@@ -1319,8 +1401,10 @@
 }
 
 @media (max-width: 640px) {
-  .street-search {
-    top: 12px;
+  /* On a phone the box spans the screen under the bar, so it never leaves the screen. */
+  .street-search__popover {
+    position: fixed;
+    top: 68px;
     right: 12px;
     left: 12px;
     width: auto;

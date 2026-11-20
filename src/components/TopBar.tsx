@@ -1,10 +1,9 @@
+import type { ReactNode } from 'react';
 import { useLanguage } from '../i18n/useLanguage';
 import { summarizeNetwork } from '../lib/legend';
 import type { NetworkStats } from '../types/map';
-import { CAMERA_PATH } from './CameraPage';
 import { AccountBadge, type AccountActions } from './AccountBadge';
 import { BrandMark } from './BrandMark';
-import { Icon } from './Icon';
 
 /** A number and what it counts, such as "4.610 vías": the number goes in bold. */
 function Figure({ text }: { text: string }) {
@@ -18,8 +17,19 @@ function Figure({ text }: { text: string }) {
   );
 }
 
-/** Title of the app, the numbers of the city and, when given, who is using it. */
-export function TopBar({ stats, account }: { stats: NetworkStats; account?: AccountActions }) {
+/**
+ * Title of the app, the numbers of the city, the street search (when given) and, when given, who
+ * is using it.
+ */
+export function TopBar({
+  stats,
+  account,
+  search,
+}: {
+  stats: NetworkStats;
+  account?: AccountActions;
+  search?: ReactNode;
+}) {
   const language = useLanguage();
   const { t } = language;
   const summary = summarizeNetwork(stats, language);
@@ -38,10 +48,7 @@ export function TopBar({ stats, account }: { stats: NetworkStats; account?: Acco
         <Figure text={summary.length} />
         <Figure text={summary.potholes} />
       </ul>
-      <a className="topbar__camera" href={CAMERA_PATH}>
-        <Icon name="camera" />
-        <span className="topbar__camera-text">{t('topbar.camera')}</span>
-      </a>
+      {search}
       {account && <AccountBadge {...account} />}
     </header>
   );

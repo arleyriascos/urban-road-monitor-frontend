@@ -173,7 +173,6 @@ export const es = {
   'settings.delete.subject': 'Solicitud para eliminar mi cuenta de Urban Road Monitor',
   'topbar.title': 'Estado de las calles de Pasto',
   'topbar.summary': 'Resumen de la ciudad',
-  'topbar.camera': 'Detector de baches',
   'topbar.roads.one': 'vía',
   'topbar.roads.other': 'vías',
   'topbar.potholes.one': 'bache activo',
@@ -449,6 +448,10 @@ export const es = {
   'privacy.updatedAt': '16 de noviembre de 2026',
   'privacy.back': 'Volver a la app',
   'error.retry': 'Intentar de nuevo',
+  'map.camera': 'Detector de baches',
+  'search.close': 'Cerrar la búsqueda',
+  'map.zoomIn': 'Acercar',
+  'map.zoomOut': 'Alejar',
 } as const;
 
 export type MessageKey = keyof typeof es;

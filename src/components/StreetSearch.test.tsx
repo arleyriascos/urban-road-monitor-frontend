@@ -16,6 +16,12 @@ const street = (name: string, roadIds = [1], segments = 3): StreetMatch => ({
 
 type Search = StreetSearchDependencies['search'];
 
+/** Taps the magnifier, which opens the box, and gives the box. */
+function openSearch(label: string): HTMLElement {
+  fireEvent.click(screen.getByRole('button', { name: label }));
+  return screen.getByRole('combobox', { name: label });
+}
+
 function setup(search: Search) {
   const onSelect = vi.fn();
   const onClear = vi.fn();
@@ -26,7 +32,7 @@ function setup(search: Search) {
       dependencies={{ search, debounceMs: 300 }}
     />,
   );
-  const input = screen.getByRole('combobox', { name: 'Buscar una calle' });
+  const input = openSearch('Buscar una calle');
   return { onSelect, onClear, input };
 }
 
@@ -43,6 +49,59 @@ afterEach(() => vi.useRealTimers());
 const found: Search = async (q) => ({
   query: q,
   streets: [street('Calle 18', [7, 12], 24), street('Carrera 24', [3], 10)],
+});
+
+describe('StreetSearch magnifier', () => {
+  const render_ = () =>
+    render(
+      <StreetSearch
+        onSelect={vi.fn()}
+        onClear={vi.fn()}
+        dependencies={{ search: found, debounceMs: 300 }}
+      />,
+    );
+
+  it('is only a magnifier at first, with no box', () => {
+    render_();
+    const toggle = screen.getByRole('button', { name: 'Buscar una calle' });
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(screen.queryByRole('combobox')).toBeNull();
+  });
+
+  it('opens the box ready to type in when the magnifier is tapped', () => {
+    render_();
+    const input = openSearch('Buscar una calle');
+    expect(document.activeElement).toBe(input);
+    expect(
+      screen.getByRole('button', { name: 'Cerrar la búsqueda' }).getAttribute('aria-expanded'),
+    ).toBe('true');
+  });
+
+  it('folds with the magnifier, with Escape on an empty box and with a tap outside', () => {
+    render_();
+    openSearch('Buscar una calle');
+    fireEvent.click(screen.getByRole('button', { name: 'Cerrar la búsqueda' }));
+    expect(screen.queryByRole('combobox')).toBeNull();
+
+    const input = openSearch('Buscar una calle');
+    fireEvent.keyDown(input, { key: 'Escape' });
+    expect(screen.queryByRole('combobox')).toBeNull();
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Buscar una calle' }));
+
+    openSearch('Buscar una calle');
+    fireEvent.pointerDown(document.body);
+    expect(screen.queryByRole('combobox')).toBeNull();
+  });
+
+  it('folds after a street is picked and paints the magnifier while the street is on the map', async () => {
+    const { input } = setup(found);
+    await typeAndWait(input, 'ca');
+    fireEvent.click(screen.getAllByRole('option')[0]);
+    expect(screen.queryByRole('combobox')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Buscar una calle' }).className).toContain(
+      '--active',
+    );
+  });
 });
 
 describe('StreetSearch', () => {
@@ -79,7 +138,11 @@ describe('StreetSearch', () => {
     fireEvent.click(screen.getByRole('option', { name: /Calle 18/ }));
 
     expect(onSelect).toHaveBeenCalledWith(street('Calle 18', [7, 12], 24));
-    expect((input as HTMLInputElement).value).toBe('Calle 18');
+    expect(input.isConnected).toBe(false);
+    expect(screen.queryByRole('listbox')).toBeNull();
+    // Opened again, the box still has the street that was picked, with no list.
+    const again = openSearch('Buscar una calle') as HTMLInputElement;
+    expect(again.value).toBe('Calle 18');
     expect(screen.queryByRole('listbox')).toBeNull();
   });
 
@@ -166,7 +229,8 @@ describe('StreetSearch', () => {
     const { input } = setup(found);
     await typeAndWait(input, 'ca');
     fireEvent.click(screen.getAllByRole('option')[0]);
-    await typeAndWait(input, 'Calle 1');
+    const again = openSearch('Buscar una calle');
+    await typeAndWait(again, 'Calle 1');
     expect(screen.getByRole('listbox')).toBeTruthy();
   });
 });
@@ -184,7 +248,7 @@ describe('StreetSearch in English', () => {
         dependencies={{ search, debounceMs: 300 }}
       />,
     );
-    const input = screen.getByRole('combobox', { name: 'Search for a street' });
+    const input = openSearch('Search for a street');
     await typeAndWait(input, 'calle');
     const list = screen.getByRole('listbox', { name: 'Streets found' });
     expect(within(list).getByText('1 segment')).toBeTruthy();
@@ -200,7 +264,7 @@ describe('StreetSearch in English', () => {
         dependencies={{ search, debounceMs: 300 }}
       />,
     );
-    await typeAndWait(screen.getByRole('combobox'), 'zzz');
+    await typeAndWait(openSearch('Search for a street'), 'zzz');
     expect(screen.getByText('No streets have that name.')).toBeTruthy();
   });
 
@@ -213,7 +277,7 @@ describe('StreetSearch in English', () => {
         dependencies={{ search, debounceMs: 300 }}
       />,
     );
-    await typeAndWait(screen.getByRole('combobox'), 'calle');
+    await typeAndWait(openSearch('Search for a street'), 'calle');
     expect(screen.getByText('No connection. Check your internet and try again.')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Retry' })).toBeTruthy();
   });

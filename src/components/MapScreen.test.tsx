@@ -348,7 +348,12 @@ describe('MapScreen street search', () => {
       maxLongitude: -77.278,
     },
   };
-  const box = () => screen.getByRole('combobox', { name: 'Buscar una calle' });
+  const box = () => {
+    if (!screen.queryByRole('combobox')) {
+      fireEvent.click(screen.getByRole('button', { name: 'Buscar una calle' }));
+    }
+    return screen.getByRole('combobox', { name: 'Buscar una calle' });
+  };
 
   async function pickStreet() {
     vi.mocked(searchStreets).mockResolvedValue({ query: 'cal', streets: [found] });
@@ -356,8 +361,10 @@ describe('MapScreen street search', () => {
     fireEvent.click(await screen.findByRole('option', { name: /Calle 18/ }));
   }
 
-  it('has the search box and no street highlighted at first', () => {
+  it('has the magnifier in the top bar, which opens the box, and no street highlighted at first', () => {
     render(<MapScreen data={data} />);
+    const toggle = screen.getByRole('button', { name: 'Buscar una calle' });
+    expect(toggle.closest('header')).toBeTruthy();
     expect(box()).toBeTruthy();
     expect(map().dataset.street).toBe('');
   });
@@ -372,6 +379,7 @@ describe('MapScreen street search', () => {
   it('lets the street go when the box is cleared', async () => {
     render(<MapScreen data={data} />);
     await pickStreet();
+    fireEvent.click(screen.getByRole('button', { name: 'Buscar una calle' }));
     fireEvent.click(screen.getByRole('button', { name: 'Borrar búsqueda' }));
     await waitFor(() => expect(map().dataset.street).toBe(''));
   });
@@ -381,6 +389,16 @@ describe('MapScreen street search', () => {
     await pickStreet();
     fireEvent.click(screen.getByRole('button', { name: 'Cómo llegar' }));
     expect(map().dataset.street).toBe('');
+  });
+});
+
+describe('MapScreen camera button', () => {
+  it('is a camera icon with no words, at the map, that goes to the detector', () => {
+    render(<MapScreen data={data} />);
+    const camera = screen.getByRole('link', { name: 'Detector de baches' });
+    expect(camera.getAttribute('href')).toBe('/camara');
+    expect(camera.textContent).toBe('');
+    expect(camera.closest('header')).toBeNull();
   });
 });
 
@@ -405,6 +423,10 @@ describe('MapScreen in English', () => {
     expect(screen.getByRole('complementary', { name: 'Map legend' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Directions' })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Center the map/ })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Pothole detector' }).getAttribute('href')).toBe(
+      '/camara',
+    );
+    expect(screen.getByRole('button', { name: 'Search for a street' })).toBeTruthy();
     expect(screen.getByLabelText('Include repaired (6)')).toBeTruthy();
     expect(readableText()).not.toMatch(SPANISH);
   });

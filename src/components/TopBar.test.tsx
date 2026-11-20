@@ -20,11 +20,14 @@ describe('TopBar', () => {
     ]);
   });
 
-  it('links to the camera that detects potholes', () => {
+  it('has no link to the camera: it is a button of the map now', () => {
     render(<TopBar stats={statsFixture} />);
-    expect(screen.getByRole('link', { name: 'Detector de baches' }).getAttribute('href')).toBe(
-      '/camara',
-    );
+    expect(screen.queryByRole('link', { name: 'Detector de baches' })).toBeNull();
+  });
+
+  it('shows what it is given for the search, before the account', () => {
+    render(<TopBar stats={statsFixture} search={<button type="button">lupa</button>} />);
+    expect(screen.getByRole('button', { name: 'lupa' })).toBeTruthy();
   });
 
   it('shows no account area when it is not given one', () => {
@@ -63,7 +66,7 @@ describe('TopBar', () => {
 });
 
 describe('TopBar in English', () => {
-  it('shows the title, the numbers and the camera link in English', () => {
+  it('shows the title and the numbers in English', () => {
     renderInEnglish(<TopBar stats={statsFixture} />);
     expect(screen.getByRole('heading', { name: 'Street condition in Pasto' })).toBeTruthy();
     const summary = screen.getByRole('list', { name: 'City summary' });
@@ -72,6 +75,5 @@ describe('TopBar in English', () => {
       '774.1 km',
       '54 active potholes',
     ]);
-    expect(screen.getByRole('link', { name: 'Pothole detector' })).toBeTruthy();
   });
 });
