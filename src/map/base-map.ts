@@ -1,4 +1,5 @@
 import * as L from 'leaflet';
+import { defaultTexts, type Texts } from '../lib/translator';
 import { MAP_CENTER, MAP_ZOOM, MAX_ZOOM, MIN_ZOOM } from './config';
 
 /**
@@ -12,7 +13,7 @@ export const PANES = {
 } as const;
 
 /** A map centered on Pasto, ready for the streets and potholes. The basemap goes in separately. */
-export function createMap(container: HTMLElement): L.Map {
+export function createMap(container: HTMLElement, { t }: Texts = defaultTexts): L.Map {
   const map = L.map(container, {
     center: MAP_CENTER,
     zoom: MAP_ZOOM,
@@ -21,11 +22,11 @@ export function createMap(container: HTMLElement): L.Map {
     // The city has about 10,000 segments: canvas draws them far faster than SVG,
     // and the tolerance makes thin streets easy to tap on a phone.
     renderer: L.canvas({ tolerance: 8 }),
-    // The zoom buttons go to the bottom right, next to "Centrar", away from the search box.
+    // The zoom buttons go to the bottom right, next to "Center", away from the search box.
     zoomControl: false,
   });
   L.control
-    .zoom({ position: 'bottomright', zoomInTitle: 'Acercar', zoomOutTitle: 'Alejar' })
+    .zoom({ position: 'bottomright', zoomInTitle: t('map.zoomIn'), zoomOutTitle: t('map.zoomOut') })
     .addTo(map);
   for (const pane of Object.values(PANES)) {
     map.createPane(pane.name).style.zIndex = String(pane.zIndex);

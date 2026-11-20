@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
+import { englishTexts } from '../test/english';
 import { PANES, createMap } from './base-map';
 
 const containers: HTMLElement[] = [];
@@ -26,6 +27,25 @@ describe('createMap', () => {
     expect(streets).toBeLessThan(route);
     expect(route).toBeLessThan(potholes);
     expect(potholes).toBeLessThan(markers);
+    map.remove();
+  });
+});
+
+describe('the zoom buttons', () => {
+  const titles = (container: HTMLElement) =>
+    [...container.querySelectorAll('.leaflet-control-zoom a')].map((a) => a.getAttribute('title'));
+
+  it('are named in Spanish when no language is given', () => {
+    const container = newContainer();
+    const map = createMap(container);
+    expect(titles(container)).toEqual(['Acercar', 'Alejar']);
+    map.remove();
+  });
+
+  it('are named in the language of the app', () => {
+    const container = newContainer();
+    const map = createMap(container, englishTexts);
+    expect(titles(container)).toEqual(['Zoom in', 'Zoom out']);
     map.remove();
   });
 });

@@ -125,11 +125,17 @@ export function MapView({
     onMoveRef.current = routing?.onMove;
   });
 
+  // The language the map is created in: it is chosen on other screens, so it does not change here.
+  const languageRef = useRef(language);
+  useEffect(() => {
+    languageRef.current = language;
+  });
+
   // The map itself: created once, removed when the screen goes away.
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const map = createMap(container);
+    const map = createMap(container, languageRef.current);
     const basemap = attachBasemap(map);
     mapRef.current = map;
     return () => {
