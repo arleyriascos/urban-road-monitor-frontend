@@ -29,6 +29,12 @@ vi.mock('./components/CameraPage', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./components/CameraPage')>()),
   CameraPage: () => <div data-testid="camera-page" />,
 }));
+vi.mock('./components/VerifyEmailPage', () => ({
+  VerifyEmailPage: () => <div data-testid="verify-page" />,
+}));
+vi.mock('./components/ResetPasswordPage', () => ({
+  ResetPasswordPage: () => <div data-testid="reset-page" />,
+}));
 vi.mock('./components/GoogleSignInButton', () => ({
   GoogleSignInButton: () => <div data-testid="google-button" />,
 }));
@@ -228,6 +234,34 @@ describe('App', () => {
     render(<App />);
 
     expect(screen.queryByTestId('camera-page')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Continuar como invitado' })).toBeTruthy();
+  });
+
+  it.each([
+    ['/verificar', 'verify-page'],
+    ['/verificar/', 'verify-page'],
+    ['/restablecer', 'reset-page'],
+    ['/restablecer/', 'reset-page'],
+  ])(
+    'shows the page of the link at %s without starting a session or waking anything',
+    (path, id) => {
+      window.history.pushState({}, '', `${path}#token=${'a'.repeat(43)}`);
+      showSession({ status: 'entry', signIn: { phase: 'idle' } });
+      render(<App />);
+
+      expect(screen.getByTestId(id)).toBeTruthy();
+      expect(screen.queryByRole('button', { name: 'Continuar como invitado' })).toBeNull();
+      expect(useSession).not.toHaveBeenCalled();
+      expect(wakeAiService).not.toHaveBeenCalled();
+    },
+  );
+
+  it('does not take another path for the pages of the links', () => {
+    window.history.pushState({}, '', '/verificar-otra');
+    showSession({ status: 'entry', signIn: { phase: 'idle' } });
+    render(<App />);
+
+    expect(screen.queryByTestId('verify-page')).toBeNull();
     expect(screen.getByRole('button', { name: 'Continuar como invitado' })).toBeTruthy();
   });
 });

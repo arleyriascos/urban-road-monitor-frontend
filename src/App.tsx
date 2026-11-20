@@ -5,11 +5,14 @@ import { CAMERA_PATH, CameraPage } from './components/CameraPage';
 import { EntryScreen } from './components/EntryScreen';
 import { MapApp } from './components/MapApp';
 import { PRIVACY_PATH, PrivacyPage } from './components/PrivacyPage';
+import { ResetPasswordPage } from './components/ResetPasswordPage';
 import { SessionCheckScreen } from './components/SessionCheckScreen';
+import { VerifyEmailPage } from './components/VerifyEmailPage';
 import { googleClientId } from './config/env';
 import { useSession } from './hooks/useSession';
 import { useLanguage } from './i18n/useLanguage';
 import { sectionFromPath } from './lib/account-sections';
+import { RESET_PATH, VERIFY_PATH } from './lib/email-links';
 
 function isPath(pathname: string, path: string): boolean {
   return pathname.replace(/\/+$/, '') === path;
@@ -24,6 +27,10 @@ export function App() {
   if (isPath(window.location.pathname, PRIVACY_PATH)) return <PrivacyPage />;
   // The camera only shows the boxes on the device for now: it needs no session either.
   if (isPath(window.location.pathname, CAMERA_PATH)) return <CameraPage />;
+  // The pages of the links sent by email work with the token of the link, not with a session:
+  // the link may be opened on a device where the person never signed in.
+  if (isPath(window.location.pathname, VERIFY_PATH)) return <VerifyEmailPage />;
+  if (isPath(window.location.pathname, RESET_PATH)) return <ResetPasswordPage />;
   // The account page has its own session check: it does not need the map.
   const section = sectionFromPath(window.location.pathname);
   if (section) return <AccountApp section={section} />;
