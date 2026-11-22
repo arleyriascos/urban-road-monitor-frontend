@@ -63,7 +63,7 @@ describe('potholePopupHtml', () => {
   });
 
   it('explains what each status means for the damage and the routes', () => {
-    expect(potholePopupHtml(confirmed)).toContain('al menos dos veces');
+    expect(potholePopupHtml(confirmed)).toContain('al menos dos viajes');
     expect(potholePopupHtml({ ...confirmed, status: 'sin confirmar' })).toContain(
       'no cambia el daño de la calle ni las rutas',
     );
@@ -190,7 +190,7 @@ describe('the popups in English', () => {
     expect(html).toContain('First seen');
     expect(html).toContain('Last seen');
     expect(html).toContain('Confirmed');
-    expect(html).toContain('Seen at least twice');
+    expect(html).toContain('Seen on at least two trips');
   });
 
   it('writes the summary of the street and its loading and error notes in English', () => {

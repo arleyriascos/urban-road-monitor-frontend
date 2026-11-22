@@ -299,7 +299,7 @@ export const es = {
   'legend.repaired': 'Reparados (atenuados)',
   'legend.noteSize': 'El tamaño del círculo indica la severidad del bache.',
   'legend.noteConfirmed':
-    'Solo los confirmados (vistos al menos dos veces) cambian el daño de las calles y las rutas.',
+    'Solo los confirmados (vistos en al menos dos viajes) cambian el daño de las calles y las rutas.',
   'layers.legend': 'Capas',
   'layers.showPotholes': 'Mostrar baches',
   'layers.includeRepaired': 'Incluir reparados ({count})',
@@ -325,9 +325,9 @@ export const es = {
   'popup.activePotholes': 'Baches activos',
   'popup.routeCost': 'Costo de ruta',
   'popup.note.unconfirmed':
-    'Aún se vio una sola vez: no cambia el daño de la calle ni las rutas hasta que otra persona lo confirme.',
+    'Aún lo vio un solo viaje: no cambia el daño de la calle ni las rutas hasta que otro viaje lo confirme.',
   'popup.note.confirmed':
-    'Lo vieron al menos dos veces: cuenta para el daño de la calle y las rutas lo evitan.',
+    'Lo vieron al menos dos viajes: cuenta para el daño de la calle y las rutas lo evitan.',
   'popup.note.repaired': 'Ya fue reparado: no cuenta para el daño ni para las rutas.',
   'popup.pothole.title': 'Bache {severity}',
   'popup.pothole.street': 'Calle',

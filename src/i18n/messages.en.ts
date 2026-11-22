@@ -289,7 +289,7 @@ export const en: Record<MessageKey, string> = {
   'legend.repaired': 'Repaired (faded)',
   'legend.noteSize': 'The size of the circle shows how severe the pothole is.',
   'legend.noteConfirmed':
-    'Only confirmed potholes (seen at least twice) change the damage of the streets and the routes.',
+    'Only confirmed potholes (seen on at least two trips) change the damage of the streets and the routes.',
   'layers.legend': 'Layers',
   'layers.showPotholes': 'Show potholes',
   'layers.includeRepaired': 'Include repaired ({count})',
@@ -315,9 +315,9 @@ export const en: Record<MessageKey, string> = {
   'popup.activePotholes': 'Active potholes',
   'popup.routeCost': 'Route cost',
   'popup.note.unconfirmed':
-    'Seen only once so far: it does not change the damage of the street or the routes until someone else confirms it.',
+    'Only one trip has seen it so far: it does not change the damage of the street or the routes until another trip confirms it.',
   'popup.note.confirmed':
-    'Seen at least twice: it counts for the damage of the street and the routes avoid it.',
+    'Seen on at least two trips: it counts for the damage of the street and the routes avoid it.',
   'popup.note.repaired': 'Already repaired: it does not count for the damage or for the routes.',
   'popup.pothole.title': 'Pothole: {severity}',
   'popup.pothole.street': 'Street',
