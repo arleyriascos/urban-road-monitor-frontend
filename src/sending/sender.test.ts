@@ -424,6 +424,76 @@ describe('the sender', () => {
       await expect(sender.finish({ framesAnalyzed: 1, distanceM: 0 })).resolves.toBeUndefined();
     });
 
+    it('closes the trip of a second outing in the same visit to the page', async () => {
+      const second: TripStarted = { ...STARTED, tripId: 'trip-2' };
+      const startTrip = vi
+        .fn<SenderApi['startTrip']>()
+        .mockResolvedValueOnce(STARTED)
+        .mockResolvedValueOnce(second);
+      const { sender, queue, api } = setup({ startTrip });
+      fill(queue, 1);
+      await sender.finish({ framesAnalyzed: 10, distanceM: 5 });
+      fill(queue, 1, 10);
+      await sender.finish({ framesAnalyzed: 20, distanceM: 8 });
+
+      expect(api.closeTrip).toHaveBeenCalledTimes(2);
+      expect(vi.mocked(api.closeTrip).mock.calls[1][0]).toBe('trip-2');
+      expect(vi.mocked(api.closeTrip).mock.calls[1][1]).toEqual({
+        framesAnalyzed: 20,
+        distanceM: 8,
+      });
+    });
+
+    it('closes the trip later, once the detections that were waiting are sent', async () => {
+      let online = false;
+      const send = vi.fn<SenderApi['sendDetections']>(async (_trip, batch) => {
+        if (!online) throw new ApiError('network', 'down');
+        return answer({ received: batch.length, stored: batch.length });
+      });
+      const { sender, queue, api } = setup({ sendDetections: send });
+      fill(queue, 2);
+      await sender.finish({ framesAnalyzed: 300, distanceM: 90 });
+      expect(api.closeTrip).not.toHaveBeenCalled();
+
+      online = true;
+      sender.retryNow();
+      await vi.waitFor(() => expect(api.closeTrip).toHaveBeenCalledTimes(1));
+      expect(api.closeTrip).toHaveBeenCalledWith(
+        'trip-1',
+        { framesAnalyzed: 300, distanceM: 90 },
+        expect.anything(),
+      );
+      expect(queue.tripId()).toBeNull();
+    });
+
+    it('tries to close again when the first try failed', async () => {
+      let failing = true;
+      const closeTrip = vi.fn<SenderApi['closeTrip']>(async () => {
+        if (failing) throw new ApiError('network', 'down');
+      });
+      const { sender, queue } = setup({ closeTrip });
+      fill(queue, 1);
+      await sender.finish({ framesAnalyzed: 1, distanceM: 0 });
+      expect(queue.tripId()).toBe('trip-1');
+
+      failing = false;
+      fill(queue, 1, 20);
+      sender.kick();
+      await vi.waitFor(() => expect(closeTrip).toHaveBeenCalledTimes(2));
+      await vi.waitFor(() => expect(queue.tripId()).toBeNull());
+    });
+
+    it('does not close a new trip with the totals of an outing with no detections', async () => {
+      const { sender, queue, api } = setup();
+      await sender.finish({ framesAnalyzed: 100, distanceM: 10 });
+      fill(queue, 1);
+      sender.kick();
+      await vi.waitFor(() => expect(queue.size()).toBe(0));
+
+      expect(api.closeTrip).not.toHaveBeenCalled();
+      expect(queue.tripId()).toBe('trip-1');
+    });
+
     it('closes only once', async () => {
       const { sender, queue, api } = setup();
       fill(queue, 1);

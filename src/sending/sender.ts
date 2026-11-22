@@ -108,7 +108,11 @@ export function createSender(options: SenderOptions): Sender {
   let timer: unknown = null;
   let controller = new AbortController();
   let stopped = false;
+  // True once the current trip was closed; a new trip opens it again.
   let closed = false;
+  // The totals of an outing that ended while detections were still waiting: the trip is closed
+  // with them as soon as the queue is empty, even if that is after the camera was turned off.
+  let pendingClosing: Omit<TripClosing, 'endedAt'> | null = null;
 
   const update = (patch: Partial<SenderState>) => {
     state = { ...state, ...patch, pending: queue.size() };
@@ -148,7 +152,30 @@ export function createSender(options: SenderOptions): Sender {
     );
     batchSize = Math.min(started.limits.maxBatchSize, options.maxBatchSize ?? DEFAULT_BATCH);
     queue.setTripId(started.tripId);
+    closed = false;
     return started.tripId;
+  }
+
+  /** Closes the trip with the totals of the last outing, if it has nothing left to send. */
+  async function closePending(): Promise<void> {
+    const closing = pendingClosing;
+    const tripId = queue.tripId();
+    if (!closing || stopped || closed) return;
+    // No trip: nothing was detected in that outing, so there is nothing to close.
+    if (!tripId) {
+      pendingClosing = null;
+      return;
+    }
+    // A trip with detections still waiting stays open: it accepts them for 24 hours.
+    if (queue.size() > 0) return;
+    try {
+      await api.closeTrip(tripId, closing, controller.signal);
+      closed = true;
+      pendingClosing = null;
+      queue.setTripId(null);
+    } catch {
+      // Closing is only the summary: the detections are safe, so a failure is not reported.
+    }
   }
 
   /** Sends batch after batch until the queue is empty or something stops it. */
@@ -203,6 +230,7 @@ export function createSender(options: SenderOptions): Sender {
       }
     }
     update({ status: 'idle' });
+    await closePending();
   }
 
   function run(): Promise<void> {
@@ -231,20 +259,13 @@ export function createSender(options: SenderOptions): Sender {
       void run();
     },
     async finish(closing) {
-      if (stopped || closed) return;
+      // Closed and nothing new since: there is no trip to close.
+      if (stopped || (closed && queue.size() === 0)) return;
+      pendingClosing = closing;
       clearTimer();
       if (state.status === 'waiting') update({ status: 'idle' });
       await run();
-      const tripId = queue.tripId();
-      // A trip with detections still waiting stays open: it accepts them for 24 hours.
-      if (!tripId || queue.size() > 0 || stopped) return;
-      try {
-        await api.closeTrip(tripId, closing, controller.signal);
-        closed = true;
-        queue.setTripId(null);
-      } catch {
-        // Closing is only the summary: the detections are safe, so a failure is not reported.
-      }
+      await closePending();
     },
     stop() {
       stopped = true;
